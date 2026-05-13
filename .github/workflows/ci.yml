@@ -88,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -96,8 +96,21 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build
+      - name: Build Python bindings with maturin
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: --release --manifest-path rust/sh-core/Cargo.toml --out dist
+          rust-toolchain: stable
+        if: runner.os == 'macos'
+
+      - name: Build (non-macOS)
         run: cargo build --release --verbose
+        if: runner.os != 'macos'
+
+      - name: Build CLI (macOS)
+        run: cargo build --release --verbose -p superharness
+        if: runner.os == 'macos'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
