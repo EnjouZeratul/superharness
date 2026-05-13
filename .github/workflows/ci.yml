@@ -96,15 +96,23 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build Python bindings with maturin
-        uses: PyO3/maturin-action@v1
-        with:
-          command: build
-          args: --release --manifest-path rust/sh-core/Cargo.toml --out dist
-          rust-toolchain: stable
+      - name: Configure Python paths (macOS)
+        run: |
+          echo "RUSTFLAGS=-L ${pythonLocation}/lib" >> $GITHUB_ENV
+        if: runner.os == 'macOS'
 
-      - name: Build CLI
-        run: cargo build --release --verbose -p superharness-cli
+      - name: Configure Python paths (Windows)
+        run: |
+          echo "RUSTFLAGS=/LIBPATH:${env:pythonLocation}\libs" >> $env:GITHUB_ENV
+        if: runner.os == 'Windows'
+
+      - name: Configure Python paths (Linux)
+        run: |
+          echo "RUSTFLAGS=-L ${pythonLocation}/lib" >> $GITHUB_ENV
+        if: runner.os == 'Linux'
+
+      - name: Build all
+        run: cargo build --release --verbose
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
