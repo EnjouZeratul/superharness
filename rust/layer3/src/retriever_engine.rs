@@ -196,7 +196,12 @@ impl ChunkingStrategy for FixedSizeChunker {
                 },
                 metadata: document.metadata.clone(),
             });
-            start = end.saturating_sub(self.overlap);
+            // 防止死循环：到达末尾时直接设置 start = end
+            start = if end < content.len() {
+                end.saturating_sub(self.overlap)
+            } else {
+                end
+            };
             index += 1;
         }
 
