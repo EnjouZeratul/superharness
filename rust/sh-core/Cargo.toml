@@ -19,10 +19,6 @@ sh-layer2.workspace = true
 sh-layer3.workspace = true
 sh-layer4.workspace = true
 
-# Python 绑定
-pyo3.workspace = true
-pyo3-async-runtimes.workspace = true
-
 tokio.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
@@ -33,7 +29,7 @@ chrono.workspace = true
 
 [lib]
 name = "sh_core"
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 
 [dev-dependencies]
 tempfile.workspace = true

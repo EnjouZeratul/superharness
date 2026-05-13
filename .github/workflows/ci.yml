@@ -98,7 +98,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           command: build
-          args: --release --manifest-path rust/sh-core/Cargo.toml --out dist
+          args: --release --manifest-path rust/sh-python/Cargo.toml --out dist
           rust-toolchain: stable
 
       - name: Build CLI

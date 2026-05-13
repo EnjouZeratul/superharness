@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "rust/sh-core",
+    "rust/sh-python",
     "rust/layer0",
     "rust/layer1",
     "rust/layer2",

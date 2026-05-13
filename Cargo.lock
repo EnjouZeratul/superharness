@@ -2265,8 +2265,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
- "pyo3",
- "pyo3-async-runtimes",
  "serde",
  "serde_json",
  "sh-layer0",
@@ -2391,6 +2389,24 @@ dependencies = [
  "tokio",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "sh-python"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "pyo3",
+ "pyo3-async-runtimes",
+ "serde_json",
+ "sh-core",
+ "sh-layer0",
+ "sh-layer1",
+ "sh-layer2",
+ "sh-layer3",
+ "sh-layer4",
+ "tokio",
 ]
 
 [[package]]
