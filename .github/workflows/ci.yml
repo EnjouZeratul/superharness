@@ -88,25 +88,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Configure PyO3 Python path
-        run: echo "PYO3_PYTHON=$pythonLocation/bin/python3" >> $GITHUB_ENV
-        if: runner.os != 'Windows'
+      - name: Build Python bindings
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: --release --manifest-path rust/sh-core/Cargo.toml --out dist
+          rust-toolchain: stable
 
-      - name: Configure PyO3 Python path (Windows)
-        shell: pwsh
-        run: echo "PYO3_PYTHON=$env:pythonLocation\python.exe" >> $env:GITHUB_ENV
-        if: runner.os == 'Windows'
-
-      - name: Build all
-        run: cargo build --release --verbose
+      - name: Build CLI
+        run: cargo build --release -p superharness-cli --verbose
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
