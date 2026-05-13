@@ -1,14 +1,14 @@
 name: Docs
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # 手动触发，避免权限风险
 
 jobs:
   docs:
     name: Generate Documentation
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
