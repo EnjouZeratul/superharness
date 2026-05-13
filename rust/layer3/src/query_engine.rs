@@ -2,7 +2,7 @@
 //!
 //! 代码查询引擎：基于 LSP 的代码分析能力。
 
-use crate::types::{QueryType, QueryResult, CodeLocation, CodeRange, Layer3Result};
+use crate::types::{CodeLocation, CodeRange, Layer3Result, QueryResult, QueryType};
 use async_trait::async_trait;
 use std::path::PathBuf;
 
@@ -21,7 +21,10 @@ pub trait QueryEngine: Send + Sync {
     async fn go_to_implementation(&self, location: CodeLocation) -> Layer3Result<Vec<QueryResult>>;
 
     /// 查询类型定义
-    async fn go_to_type_definition(&self, location: CodeLocation) -> Layer3Result<Option<QueryResult>>;
+    async fn go_to_type_definition(
+        &self,
+        location: CodeLocation,
+    ) -> Layer3Result<Option<QueryResult>>;
 
     /// 获取悬停信息
     async fn hover(&self, location: CodeLocation) -> Layer3Result<Option<String>>;
@@ -33,7 +36,11 @@ pub trait QueryEngine: Send + Sync {
     async fn workspace_symbols(&self, query: &str) -> Layer3Result<Vec<SymbolInfo>>;
 
     /// 通用查询方法
-    async fn query(&self, query_type: QueryType, location: CodeLocation) -> Layer3Result<Vec<QueryResult>>;
+    async fn query(
+        &self,
+        query_type: QueryType,
+        location: CodeLocation,
+    ) -> Layer3Result<Vec<QueryResult>>;
 }
 
 /// 符号信息

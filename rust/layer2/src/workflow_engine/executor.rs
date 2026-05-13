@@ -10,7 +10,10 @@ use std::time::{Duration, Instant};
 
 use crate::types::{Layer2Result, TaskId};
 
-use super::{Dag, Node, NodeExecutor, NodeResult, NodeStatus, WorkflowEngineTrait, WorkflowInput, WorkflowOutput, WorkflowStatus};
+use super::{
+    Dag, Node, NodeExecutor, NodeResult, NodeStatus, WorkflowEngineTrait, WorkflowInput,
+    WorkflowOutput, WorkflowStatus,
+};
 
 /// 工作流执行器
 pub struct WorkflowExecutor {
@@ -30,11 +33,16 @@ impl WorkflowExecutor {
 
     /// 注册节点执行器
     pub fn register_executor(&self, node_type: &str, executor: Arc<dyn NodeExecutor>) {
-        self.node_executors.write().insert(node_type.to_string(), executor);
+        self.node_executors
+            .write()
+            .insert(node_type.to_string(), executor);
     }
 
     /// 获取节点和执行器信息（不持有锁）
-    fn get_node_info(&self, node_id: &str) -> Option<(Node, Option<Arc<dyn NodeExecutor>>, String)> {
+    fn get_node_info(
+        &self,
+        node_id: &str,
+    ) -> Option<(Node, Option<Arc<dyn NodeExecutor>>, String)> {
         let dag = self.dag.read();
         let node = dag.get_node(node_id)?;
         let node_type = node.node_type.clone();
@@ -71,7 +79,9 @@ impl WorkflowEngineTrait for WorkflowExecutor {
         let start = Instant::now();
 
         // 设置状态为运行中
-        self.task_status.write().insert(task_id.clone(), WorkflowStatus::Running);
+        self.task_status
+            .write()
+            .insert(task_id.clone(), WorkflowStatus::Running);
 
         // 获取排序后的节点列表（释放锁后再执行）
         let sorted_nodes = {
@@ -117,7 +127,9 @@ impl WorkflowEngineTrait for WorkflowExecutor {
             WorkflowStatus::Completed
         };
 
-        self.task_status.write().insert(task_id.clone(), final_status);
+        self.task_status
+            .write()
+            .insert(task_id.clone(), final_status);
 
         Ok(WorkflowOutput {
             task_id,

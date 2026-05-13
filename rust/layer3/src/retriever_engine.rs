@@ -2,7 +2,7 @@
 //!
 //! 检索引擎：向量相似度检索和 RAG 支持。
 
-use crate::types::{Layer3Result};
+use crate::types::Layer3Result;
 use async_trait::async_trait;
 use std::collections::HashMap;
 
@@ -18,7 +18,11 @@ pub trait RetrieverEngine: Send + Sync {
     async fn retrieve(&self, query: &str, top_k: usize) -> Layer3Result<Vec<RetrievalResult>>;
 
     /// 混合检索（向量 + 关键词）
-    async fn hybrid_retrieve(&self, query: &str, top_k: usize) -> Layer3Result<Vec<RetrievalResult>>;
+    async fn hybrid_retrieve(
+        &self,
+        query: &str,
+        top_k: usize,
+    ) -> Layer3Result<Vec<RetrievalResult>>;
 
     /// 删除文档
     async fn delete(&self, doc_ids: &[String]) -> Layer3Result<bool>;
@@ -140,7 +144,10 @@ pub struct FixedSizeChunker {
 
 impl FixedSizeChunker {
     pub fn new(chunk_size: usize, overlap: usize) -> Self {
-        Self { chunk_size, overlap }
+        Self {
+            chunk_size,
+            overlap,
+        }
     }
 }
 

@@ -2,8 +2,8 @@
 //!
 //! 文件操作工具集：读写、编辑、创建、删除等。
 
-use crate::types::{Layer3Result, ToolCategory};
 use crate::builtin_tools::BuiltinTool;
+use crate::types::{Layer3Result, ToolCategory};
 use async_trait::async_trait;
 
 /// Read File Tool
@@ -45,7 +45,9 @@ impl BuiltinTool for ReadFileTool {
     }
 
     async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
-        let path = args["path"].as_str().ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
+        let path = args["path"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
         let content = tokio::fs::read_to_string(path).await?;
         Ok(content)
     }
@@ -94,8 +96,12 @@ impl BuiltinTool for WriteFileTool {
     }
 
     async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
-        let path = args["path"].as_str().ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
-        let content = args["content"].as_str().ok_or_else(|| anyhow::anyhow!("Missing content parameter"))?;
+        let path = args["path"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
+        let content = args["content"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing content parameter"))?;
         tokio::fs::write(path, content).await?;
         Ok(format!("Successfully wrote to {}", path))
     }
@@ -144,9 +150,15 @@ impl BuiltinTool for EditFileTool {
     }
 
     async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
-        let path = args["path"].as_str().ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
-        let old_string = args["old_string"].as_str().ok_or_else(|| anyhow::anyhow!("Missing old_string parameter"))?;
-        let new_string = args["new_string"].as_str().ok_or_else(|| anyhow::anyhow!("Missing new_string parameter"))?;
+        let path = args["path"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
+        let old_string = args["old_string"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing old_string parameter"))?;
+        let new_string = args["new_string"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing new_string parameter"))?;
 
         let content = tokio::fs::read_to_string(path).await?;
         if !content.contains(old_string) {
@@ -190,13 +202,19 @@ impl BuiltinTool for ListDirectoryTool {
     }
 
     async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
-        let path = args["path"].as_str().ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
+        let path = args["path"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing path parameter"))?;
         let mut entries = tokio::fs::read_dir(path).await?;
         let mut result = Vec::new();
 
         while let Some(entry) = entries.next_entry().await? {
             let name = entry.file_name().to_string_lossy().to_string();
-            let file_type = if entry.file_type().await?.is_dir() { "dir" } else { "file" };
+            let file_type = if entry.file_type().await?.is_dir() {
+                "dir"
+            } else {
+                "file"
+            };
             result.push(format!("{} [{}]", name, file_type));
         }
 

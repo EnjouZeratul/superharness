@@ -140,7 +140,10 @@ impl SyntaxHighlighter {
             // 检查注释
             if self.is_comment_start(&chars, pos, language) {
                 let comment: String = chars[pos..].iter().collect();
-                spans.push(Span::styled(comment, Style::default().fg(self.comment_color)));
+                spans.push(Span::styled(
+                    comment,
+                    Style::default().fg(self.comment_color),
+                ));
                 break;
             }
 
@@ -173,7 +176,9 @@ impl SyntaxHighlighter {
                 let word: String = chars[pos..end].iter().collect();
 
                 let style = if self.is_keyword(&word, language) {
-                    Style::default().fg(self.keyword_color).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .fg(self.keyword_color)
+                        .add_modifier(Modifier::BOLD)
                 } else if self.is_type(&word, language) {
                     Style::default().fg(self.type_color)
                 } else if end < chars.len() && chars[end] == '(' {
@@ -205,7 +210,12 @@ impl SyntaxHighlighter {
         }
     }
 
-    fn find_string_end(&self, chars: &[char], pos: usize, _language: CodeLanguage) -> Option<usize> {
+    fn find_string_end(
+        &self,
+        chars: &[char],
+        pos: usize,
+        _language: CodeLanguage,
+    ) -> Option<usize> {
         if chars[pos] != '"' && chars[pos] != '\'' {
             return None;
         }
@@ -227,24 +237,44 @@ impl SyntaxHighlighter {
     fn is_keyword(&self, word: &str, language: CodeLanguage) -> bool {
         let keywords = match language {
             CodeLanguage::Python => &[
-                "def", "class", "if", "else", "elif", "for", "while", "return",
-                "import", "from", "as", "try", "except", "finally", "with",
-                "yield", "lambda", "pass", "break", "continue", "raise",
-                "True", "False", "None", "and", "or", "not", "in", "is",
+                "def", "class", "if", "else", "elif", "for", "while", "return", "import", "from",
+                "as", "try", "except", "finally", "with", "yield", "lambda", "pass", "break",
+                "continue", "raise", "True", "False", "None", "and", "or", "not", "in", "is",
                 "async", "await", "global", "nonlocal", "assert",
             ] as &[&str],
             CodeLanguage::Rust => &[
-                "fn", "let", "mut", "const", "static", "pub", "mod", "use",
-                "struct", "enum", "impl", "trait", "type", "where", "for",
-                "loop", "while", "if", "else", "match", "return", "break",
-                "continue", "async", "await", "move", "ref", "self", "Self",
+                "fn", "let", "mut", "const", "static", "pub", "mod", "use", "struct", "enum",
+                "impl", "trait", "type", "where", "for", "loop", "while", "if", "else", "match",
+                "return", "break", "continue", "async", "await", "move", "ref", "self", "Self",
                 "true", "false", "Some", "None", "Ok", "Err",
             ],
             CodeLanguage::JavaScript | CodeLanguage::TypeScript => &[
-                "function", "const", "let", "var", "class", "extends", "import",
-                "export", "from", "if", "else", "for", "while", "return",
-                "try", "catch", "finally", "throw", "async", "await",
-                "true", "false", "null", "undefined", "this", "new",
+                "function",
+                "const",
+                "let",
+                "var",
+                "class",
+                "extends",
+                "import",
+                "export",
+                "from",
+                "if",
+                "else",
+                "for",
+                "while",
+                "return",
+                "try",
+                "catch",
+                "finally",
+                "throw",
+                "async",
+                "await",
+                "true",
+                "false",
+                "null",
+                "undefined",
+                "this",
+                "new",
             ],
             _ => &[],
         };
@@ -254,18 +284,26 @@ impl SyntaxHighlighter {
     fn is_type(&self, word: &str, language: CodeLanguage) -> bool {
         let types = match language {
             CodeLanguage::Python => &[
-                "int", "float", "str", "bool", "list", "dict", "set", "tuple",
-                "None", "Any", "Union", "Optional", "Callable", "Type",
+                "int", "float", "str", "bool", "list", "dict", "set", "tuple", "None", "Any",
+                "Union", "Optional", "Callable", "Type",
             ] as &[&str],
             CodeLanguage::Rust => &[
-                "i8", "i16", "i32", "i64", "i128", "isize",
-                "u8", "u16", "u32", "u64", "u128", "usize",
-                "f32", "f64", "bool", "char", "str", "String",
-                "Vec", "Option", "Result", "Box", "Rc", "Arc",
+                "i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128",
+                "usize", "f32", "f64", "bool", "char", "str", "String", "Vec", "Option", "Result",
+                "Box", "Rc", "Arc",
             ],
             CodeLanguage::TypeScript => &[
-                "string", "number", "boolean", "object", "any", "void",
-                "null", "undefined", "never", "unknown", "Promise",
+                "string",
+                "number",
+                "boolean",
+                "object",
+                "any",
+                "void",
+                "null",
+                "undefined",
+                "never",
+                "unknown",
+                "Promise",
             ],
             _ => &[],
         };
@@ -333,9 +371,8 @@ impl CodeViewerComponent {
     /// 滚动
     pub fn scroll(&mut self, delta: i32) {
         if delta > 0 {
-            self.scroll_offset = (self.scroll_offset + delta as usize).min(
-                self.lines.len().saturating_sub(self.visible_lines),
-            );
+            self.scroll_offset = (self.scroll_offset + delta as usize)
+                .min(self.lines.len().saturating_sub(self.visible_lines));
         } else {
             self.scroll_offset = self.scroll_offset.saturating_sub((-delta) as usize);
         }
@@ -435,7 +472,11 @@ impl CodeViewerComponent {
                 if self.search_results.is_empty() {
                     String::new()
                 } else {
-                    format!(" [{}/{}]", self.current_search_idx + 1, self.search_results.len())
+                    format!(
+                        " [{}/{}]",
+                        self.current_search_idx + 1,
+                        self.search_results.len()
+                    )
                 }
             ))
             .borders(Borders::ALL);
@@ -463,9 +504,11 @@ impl CodeViewerComponent {
                 let line_num_str = format!("{:width$}", line_num + 1, width = line_num_width);
                 let line_num_span = Span::styled(
                     line_num_str,
-                    Style::default()
-                        .fg(Color::DarkGray)
-                        .bg(if is_current_line { Color::DarkGray } else { Color::Reset }),
+                    Style::default().fg(Color::DarkGray).bg(if is_current_line {
+                        Color::DarkGray
+                    } else {
+                        Color::Reset
+                    }),
                 );
 
                 // 代码内容
@@ -529,17 +572,11 @@ impl CodeViewerComponent {
 
                 // 添加匹配前的文本
                 if abs_pos > last_end {
-                    result.push(Span::styled(
-                        content[last_end..abs_pos].to_string(),
-                        style,
-                    ));
+                    result.push(Span::styled(content[last_end..abs_pos].to_string(), style));
                 }
 
                 // 添加高亮的匹配文本
-                result.push(Span::styled(
-                    self.search_term.clone(),
-                    highlight_style,
-                ));
+                result.push(Span::styled(self.search_term.clone(), highlight_style));
 
                 last_end = abs_pos + self.search_term.len();
                 start = last_end;
@@ -560,7 +597,13 @@ impl CodeViewerComponent {
     }
 
     /// 获取选中的文本范围
-    pub fn get_selection(&self, start_line: usize, start_col: usize, end_line: usize, end_col: usize) -> String {
+    pub fn get_selection(
+        &self,
+        start_line: usize,
+        start_col: usize,
+        end_line: usize,
+        end_col: usize,
+    ) -> String {
         if start_line == end_line {
             if let Some(line) = self.lines.get(start_line) {
                 let start = start_col.min(line.len());
@@ -628,7 +671,11 @@ mod tests {
     #[test]
     fn test_goto_line() {
         let mut viewer = CodeViewerComponent::new();
-        viewer.lines = vec!["line1".to_string(), "line2".to_string(), "line3".to_string()];
+        viewer.lines = vec![
+            "line1".to_string(),
+            "line2".to_string(),
+            "line3".to_string(),
+        ];
         viewer.goto_line(2);
         assert_eq!(viewer.cursor_line, 2);
     }

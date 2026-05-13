@@ -53,7 +53,10 @@ impl Dag {
 
         // 添加边
         self.edges.get_mut(from).unwrap().push(to.to_string());
-        self.reverse_edges.get_mut(to).unwrap().push(from.to_string());
+        self.reverse_edges
+            .get_mut(to)
+            .unwrap()
+            .push(from.to_string());
 
         Ok(())
     }

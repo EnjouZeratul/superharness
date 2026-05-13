@@ -36,7 +36,9 @@ impl CheckpointWriter {
 
     /// 获取会话目录
     fn session_dir(&self, session_id: &SessionId) -> PathBuf {
-        self.storage_path.join(session_id.to_string()).join("checkpoints")
+        self.storage_path
+            .join(session_id.to_string())
+            .join("checkpoints")
     }
 
     /// 备份现有检查点
@@ -45,9 +47,7 @@ impl CheckpointWriter {
             return;
         }
 
-        let ext = filepath.extension()
-            .and_then(|e| e.to_str())
-            .unwrap_or("");
+        let ext = filepath.extension().and_then(|e| e.to_str()).unwrap_or("");
 
         let backup_path = filepath.with_extension(format!("{}.backup", ext));
         let _ = std::fs::copy(filepath, backup_path);
@@ -61,14 +61,23 @@ impl CheckpointWriter {
             .flatten()
             .filter_map(|e| e.ok())
             .filter(|e| {
-                e.path().extension().map(|ext| ext == "backup").unwrap_or(false)
+                e.path()
+                    .extension()
+                    .map(|ext| ext == "backup")
+                    .unwrap_or(false)
             })
             .collect();
 
         // 按修改时间排序（最新在前）
         backups.sort_by(|a, b| {
-            let a_time = a.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
-            let b_time = b.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
+            let a_time = a
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::UNIX_EPOCH);
+            let b_time = b
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::UNIX_EPOCH);
             b_time.cmp(&a_time)
         });
 
@@ -133,7 +142,11 @@ impl CheckpointSystemTrait for CheckpointWriter {
         Ok(checkpoint_id)
     }
 
-    async fn load(&self, session_id: &SessionId, checkpoint_id: Option<&CheckpointId>) -> Layer2Result<Option<CheckpointData>> {
+    async fn load(
+        &self,
+        session_id: &SessionId,
+        checkpoint_id: Option<&CheckpointId>,
+    ) -> Layer2Result<Option<CheckpointData>> {
         let session_dir = self.session_dir(session_id);
 
         if !session_dir.exists() {
@@ -144,9 +157,10 @@ impl CheckpointSystemTrait for CheckpointWriter {
         let filepath = if let Some(id) = checkpoint_id {
             // 查找指定的检查点
             let pattern = format!("cp_*_{}.json", id);
-            let matches: Vec<_> = glob::glob(session_dir.join(&pattern).to_string_lossy().as_ref())?
-                .filter_map(|e| e.ok())
-                .collect();
+            let matches: Vec<_> =
+                glob::glob(session_dir.join(&pattern).to_string_lossy().as_ref())?
+                    .filter_map(|e| e.ok())
+                    .collect();
 
             if matches.is_empty() {
                 return Ok(None);
@@ -163,7 +177,10 @@ impl CheckpointSystemTrait for CheckpointWriter {
                     .filter_map(|e| e.ok())
                     .filter(|e| {
                         e.file_name().to_string_lossy().starts_with("cp_")
-                            && e.path().extension().map(|ext| ext == "json").unwrap_or(false)
+                            && e.path()
+                                .extension()
+                                .map(|ext| ext == "json")
+                                .unwrap_or(false)
                     })
                     .collect();
 
@@ -172,8 +189,14 @@ impl CheckpointSystemTrait for CheckpointWriter {
                 }
 
                 checkpoints.sort_by(|a, b| {
-                    let a_time = a.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
-                    let b_time = b.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
+                    let a_time = a
+                        .metadata()
+                        .and_then(|m| m.modified())
+                        .unwrap_or(std::time::UNIX_EPOCH);
+                    let b_time = b
+                        .metadata()
+                        .and_then(|m| m.modified())
+                        .unwrap_or(std::time::UNIX_EPOCH);
                     b_time.cmp(&a_time)
                 });
 
@@ -211,7 +234,11 @@ impl CheckpointSystemTrait for CheckpointWriter {
             let entry = entry?;
             let path = entry.path();
 
-            if !path.file_name().map(|n| n.to_string_lossy().starts_with("cp_")).unwrap_or(false) {
+            if !path
+                .file_name()
+                .map(|n| n.to_string_lossy().starts_with("cp_"))
+                .unwrap_or(false)
+            {
                 continue;
             }
 
@@ -239,7 +266,11 @@ impl CheckpointSystemTrait for CheckpointWriter {
         Ok(metas)
     }
 
-    async fn delete(&self, session_id: &SessionId, checkpoint_id: &CheckpointId) -> Layer2Result<bool> {
+    async fn delete(
+        &self,
+        session_id: &SessionId,
+        checkpoint_id: &CheckpointId,
+    ) -> Layer2Result<bool> {
         let session_dir = self.session_dir(session_id);
 
         if !session_dir.exists() {

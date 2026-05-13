@@ -2,20 +2,20 @@
 //!
 //! 分层记忆系统：Working -> Session -> Project -> LongTerm
 
-pub mod working;
-pub mod session;
-pub mod project;
 pub mod long_term;
+pub mod project;
+pub mod session;
 pub mod system;
+pub mod working;
 
 // Re-export unified system and implementations
+pub use long_term::LongTermMemory;
+pub use project::ProjectMemory;
+pub use session::SessionMemory;
 pub use system::UnifiedMemorySystem;
 pub use working::WorkingMemory;
-pub use session::SessionMemory;
-pub use project::ProjectMemory;
-pub use long_term::LongTermMemory;
 
-use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
 use std::collections::HashMap;
 
@@ -105,7 +105,10 @@ pub struct TimeBasedDecay {
 
 impl TimeBasedDecay {
     pub fn new(decay_rate: f32, min_threshold: f32) -> Self {
-        Self { decay_rate, min_threshold }
+        Self {
+            decay_rate,
+            min_threshold,
+        }
     }
 }
 

@@ -2,8 +2,8 @@
 //!
 //! 示例选择器：为提示词选择最相关的示例。
 
-use crate::types::{Layer3Result};
 use crate::retriever_engine::RetrieverEngine;
+use crate::types::Layer3Result;
 use async_trait::async_trait;
 
 /// 示例选择器 trait
@@ -67,10 +67,7 @@ impl ExampleSelector for SemanticExampleSelector {
     async fn select_examples(&self, query: &str, top_k: usize) -> Layer3Result<Vec<Example>> {
         let results = self.retriever.retrieve(query, top_k).await?;
         // 根据检索结果匹配示例
-        Ok(self.examples.iter()
-            .take(top_k)
-            .cloned()
-            .collect())
+        Ok(self.examples.iter().take(top_k).cloned().collect())
     }
 
     async fn add_example(&self, example: Example) -> Layer3Result<bool> {
@@ -140,7 +137,9 @@ pub struct RandomSelector {
 
 impl RandomSelector {
     pub fn new() -> Self {
-        Self { examples: Vec::new() }
+        Self {
+            examples: Vec::new(),
+        }
     }
 }
 

@@ -97,9 +97,9 @@ impl AgentClient {
     /// 从配置文件初始化
     pub async fn init_from_config(&self) -> Result<(), AgentError> {
         // 加载完整配置
-        let config = ConfigManager::load_full().await.map_err(|e| {
-            AgentError::ConfigError(format!("Failed to load config: {}", e))
-        })?;
+        let config = ConfigManager::load_full()
+            .await
+            .map_err(|e| AgentError::ConfigError(format!("Failed to load config: {}", e)))?;
 
         // 解析环境变量引用
         let mut config = config;
@@ -117,9 +117,10 @@ impl AgentClient {
         let provider_config = config.providers.get(&provider_name).cloned();
 
         if provider_config.is_none() {
-            return Err(AgentError::ConfigError(
-                format!("Active provider '{}' not found in configuration", provider_name)
-            ));
+            return Err(AgentError::ConfigError(format!(
+                "Active provider '{}' not found in configuration",
+                provider_name
+            )));
         }
 
         let provider_config = provider_config.unwrap();
@@ -170,7 +171,7 @@ impl AgentClient {
         let client_guard = self.llm_client.read().await;
         if client_guard.is_none() {
             return Err(AgentError::ConfigError(
-                "Agent not initialized. Call init_from_config() first.".to_string()
+                "Agent not initialized. Call init_from_config() first.".to_string(),
             ));
         }
 
@@ -191,9 +192,9 @@ impl AgentClient {
 
         // 构建请求
         let config = self.config.read().await;
-        let provider_config = config.current().map_err(|e| {
-            AgentError::ConfigError(e.to_string())
-        })?;
+        let provider_config = config
+            .current()
+            .map_err(|e| AgentError::ConfigError(e.to_string()))?;
 
         let request_config = LlmRequestConfig {
             model: provider_config.model.clone(),
@@ -239,7 +240,10 @@ impl AgentClient {
                     *state = AgentState::Idle;
                 }
 
-                tracing::debug!("Agent response: {} tokens used", response.usage.input_tokens + response.usage.output_tokens);
+                tracing::debug!(
+                    "Agent response: {} tokens used",
+                    response.usage.input_tokens + response.usage.output_tokens
+                );
                 Ok(response.content)
             }
             Err(e) => {
@@ -289,9 +293,7 @@ impl AgentClient {
         if let Some(provider_config) = config.providers.get(&provider) {
             format!(
                 "Provider: {} | Model: {} | MaxTokens: {}",
-                provider,
-                provider_config.model,
-                provider_config.default_max_tokens
+                provider, provider_config.model, provider_config.default_max_tokens
             )
         } else {
             format!("Provider: {} (not configured)", provider)
@@ -314,7 +316,7 @@ impl AgentClient {
         let client_guard = self.llm_client.read().await;
         if client_guard.is_none() {
             return Err(AgentError::ConfigError(
-                "Agent not initialized. Call init_from_config() first.".to_string()
+                "Agent not initialized. Call init_from_config() first.".to_string(),
             ));
         }
 
@@ -329,9 +331,9 @@ impl AgentClient {
 
         // 构建请求配置
         let config = self.config.read().await;
-        let provider_config = config.current().map_err(|e| {
-            AgentError::ConfigError(e.to_string())
-        })?;
+        let provider_config = config
+            .current()
+            .map_err(|e| AgentError::ConfigError(e.to_string()))?;
 
         let request_config = LlmRequestConfig {
             model: provider_config.model.clone(),
@@ -381,7 +383,9 @@ impl AgentClient {
             let client = match client_guard.as_ref() {
                 Some(c) => c,
                 None => {
-                    let _ = tx.send(StreamEvent::Error("Agent not initialized".to_string())).await;
+                    let _ = tx
+                        .send(StreamEvent::Error("Agent not initialized".to_string()))
+                        .await;
                     let _ = tx.send(StreamEvent::Done).await;
                     return;
                 }

@@ -2,30 +2,22 @@
 //!
 //! 测试 ConfigManager 的加载性能。
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use sh_layer1::ConfigManager;
 
 fn bench_config_creation(c: &mut Criterion) {
-    c.bench_function("config_new", |b| {
-        b.iter(|| {
-            black_box(ConfigManager::new())
-        })
-    });
+    c.bench_function("config_new", |b| b.iter(|| black_box(ConfigManager::new())));
 }
 
 fn bench_config_from_env(c: &mut Criterion) {
     c.bench_function("config_from_env", |b| {
-        b.iter(|| {
-            black_box(ConfigManager::from_env())
-        })
+        b.iter(|| black_box(ConfigManager::from_env()))
     });
 }
 
 fn bench_config_default_path(c: &mut Criterion) {
     c.bench_function("config_default_path", |b| {
-        b.iter(|| {
-            black_box(ConfigManager::default_config_path())
-        })
+        b.iter(|| black_box(ConfigManager::default_config_path()))
     });
 }
 
@@ -74,9 +66,7 @@ fn bench_config_list_providers(c: &mut Criterion) {
         }
 
         group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, _| {
-            b.iter(|| {
-                black_box(config.list_providers())
-            })
+            b.iter(|| black_box(config.list_providers()))
         });
     }
     group.finish();

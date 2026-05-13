@@ -2,12 +2,12 @@
 //!
 //! 项目记忆：项目级别的知识库，持久化到文件系统。
 
-use crate::memory_system::{MemoryStore, DecayPolicy, TimeBasedDecay};
-use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use crate::memory_system::{DecayPolicy, MemoryStore, TimeBasedDecay};
+use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
+use parking_lot::RwLock;
 use std::path::PathBuf;
 use std::sync::Arc;
-use parking_lot::RwLock;
 
 /// Project Memory 实现
 ///
@@ -109,7 +109,11 @@ impl MemoryStore for ProjectMemory {
 
     async fn list(&self, limit: Option<usize>) -> Layer3Result<Vec<MemoryEntry>> {
         let cache = self.cache.read();
-        Ok(cache.iter().take(limit.unwrap_or(usize::MAX)).cloned().collect())
+        Ok(cache
+            .iter()
+            .take(limit.unwrap_or(usize::MAX))
+            .cloned()
+            .collect())
     }
 
     async fn clear(&self) -> Layer3Result<usize> {

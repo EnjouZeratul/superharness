@@ -2,12 +2,12 @@
 //!
 //! 测试并发场景下的性能。
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use dashmap::DashMap;
+use parking_lot::Mutex;
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
-use parking_lot::Mutex;
-use dashmap::DashMap;
-use std::collections::HashMap;
 
 // 使用 Mutex 的 HashMap
 fn bench_mutex_hashmap(c: &mut Criterion) {
@@ -54,7 +54,8 @@ fn bench_dashmap(c: &mut Criterion) {
                     let map_clone = Arc::clone(&map);
                     handles.push(thread::spawn(move || {
                         for j in 0..100 {
-                            map_clone.insert(format!("key_{}_{}", i, j), format!("value_{}_{}", i, j));
+                            map_clone
+                                .insert(format!("key_{}_{}", i, j), format!("value_{}_{}", i, j));
                         }
                     }));
                 }

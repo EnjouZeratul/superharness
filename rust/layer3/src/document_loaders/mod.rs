@@ -2,23 +2,23 @@
 //!
 //! 文档加载器：支持多种格式文档的加载。
 
-pub mod text;
+pub mod csv;
+pub mod json;
 pub mod markdown;
 pub mod pdf;
-pub mod json;
-pub mod csv;
+pub mod text;
 
-use crate::types::Layer3Result;
 use crate::retriever_engine::Document;
+use crate::types::Layer3Result;
 use async_trait::async_trait;
 use std::path::PathBuf;
 
 // Re-export loaders
-pub use text::TextLoader;
+pub use csv::CsvLoader;
+pub use json::JsonLoader;
 pub use markdown::MarkdownLoader;
 pub use pdf::PdfLoader;
-pub use json::JsonLoader;
-pub use csv::CsvLoader;
+pub use text::TextLoader;
 
 /// 文档加载器 trait
 ///
@@ -55,7 +55,9 @@ pub struct LoaderRegistry {
 
 impl LoaderRegistry {
     pub fn new() -> Self {
-        Self { loaders: Vec::new() }
+        Self {
+            loaders: Vec::new(),
+        }
     }
 
     pub fn register(&mut self, loader: Box<dyn DocumentLoader>) {
@@ -63,11 +65,15 @@ impl LoaderRegistry {
     }
 
     pub fn get_loader(&self, path: &PathBuf) -> Option<&dyn DocumentLoader> {
-        self.loaders.iter().find(|l| l.supports(path)).map(|l| l.as_ref())
+        self.loaders
+            .iter()
+            .find(|l| l.supports(path))
+            .map(|l| l.as_ref())
     }
 
     pub fn load(&self, path: PathBuf) -> Layer3Result<Document> {
-        let loader = self.get_loader(&path)
+        let loader = self
+            .get_loader(&path)
             .ok_or_else(|| anyhow::anyhow!("No loader for: {:?}", path))?;
 
         // 需要异步调用，这里简化处理

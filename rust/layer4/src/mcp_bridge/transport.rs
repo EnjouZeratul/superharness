@@ -81,8 +81,14 @@ impl StdioTransport {
 
         let mut child = cmd.spawn()?;
 
-        let stdin = child.stdin.take().ok_or_else(|| anyhow!("Failed to open stdin"))?;
-        let stdout = child.stdout.take().ok_or_else(|| anyhow!("Failed to open stdout"))?;
+        let stdin = child
+            .stdin
+            .take()
+            .ok_or_else(|| anyhow!("Failed to open stdin"))?;
+        let stdout = child
+            .stdout
+            .take()
+            .ok_or_else(|| anyhow!("Failed to open stdout"))?;
 
         *self.stdin.lock().await = Some(stdin);
         *self.stdout.lock().await = Some(BufReader::new(stdout));
@@ -96,7 +102,9 @@ impl StdioTransport {
 impl McpTransport for StdioTransport {
     async fn send(&self, message: &McpMessage) -> Result<()> {
         let mut stdin_guard = self.stdin.lock().await;
-        let stdin = stdin_guard.as_mut().ok_or_else(|| anyhow!("Transport not started"))?;
+        let stdin = stdin_guard
+            .as_mut()
+            .ok_or_else(|| anyhow!("Transport not started"))?;
 
         let json = serde_json::to_string(message)?;
         let frame = format!("Content-Length: {}\r\n\r\n{}", json.len(), json);
@@ -107,7 +115,9 @@ impl McpTransport for StdioTransport {
 
     async fn receive(&self) -> Result<Option<McpMessage>> {
         let mut stdout_guard = self.stdout.lock().await;
-        let stdout = stdout_guard.as_mut().ok_or_else(|| anyhow!("Transport not started"))?;
+        let stdout = stdout_guard
+            .as_mut()
+            .ok_or_else(|| anyhow!("Transport not started"))?;
 
         // 读取 Content-Length 头
         let mut header_buf = vec![0u8; 1024];
@@ -190,7 +200,9 @@ impl TcpTransport {
     /// 接受客户端连接 (服务端模式)
     pub async fn accept(&self) -> Result<()> {
         let mut listener_guard = self.listener.lock().await;
-        let listener = listener_guard.as_mut().ok_or_else(|| anyhow!("Not in server mode"))?;
+        let listener = listener_guard
+            .as_mut()
+            .ok_or_else(|| anyhow!("Not in server mode"))?;
 
         let (stream, _) = listener.accept().await?;
         *self.stream.lock().await = Some(stream);
@@ -202,7 +214,9 @@ impl TcpTransport {
 impl McpTransport for TcpTransport {
     async fn send(&self, message: &McpMessage) -> Result<()> {
         let mut stream_guard = self.stream.lock().await;
-        let stream = stream_guard.as_mut().ok_or_else(|| anyhow!("Not connected"))?;
+        let stream = stream_guard
+            .as_mut()
+            .ok_or_else(|| anyhow!("Not connected"))?;
 
         let json = serde_json::to_string(message)?;
         let frame = format!("Content-Length: {}\r\n\r\n{}", json.len(), json);
@@ -213,7 +227,9 @@ impl McpTransport for TcpTransport {
 
     async fn receive(&self) -> Result<Option<McpMessage>> {
         let mut stream_guard = self.stream.lock().await;
-        let stream = stream_guard.as_mut().ok_or_else(|| anyhow!("Not connected"))?;
+        let stream = stream_guard
+            .as_mut()
+            .ok_or_else(|| anyhow!("Not connected"))?;
 
         // 读取 Content-Length 头
         let mut header_buf = vec![0u8; 1024];
@@ -330,8 +346,8 @@ impl McpTransport for MemoryTransport {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::protocol::{McpRequest, RequestId};
+    use super::*;
 
     #[test]
     fn test_parse_content_length() {
@@ -344,7 +360,7 @@ mod tests {
     fn test_find_header_end() {
         let buf = b"Content-Length: 10\r\n\r\n";
         let pos = find_header_end(buf).unwrap();
-        assert_eq!(pos, 18);  // "\r\n\r\n" starts at position 18 (after "Content-Length: 10")
+        assert_eq!(pos, 18); // "\r\n\r\n" starts at position 18 (after "Content-Length: 10")
     }
 
     #[tokio::test]

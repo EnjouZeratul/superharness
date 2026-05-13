@@ -130,9 +130,7 @@ impl TokenStatsComponent {
 
     /// 是否超预算
     pub fn is_over_budget(&self) -> bool {
-        self.budget
-            .map(|b| self.total_tokens > b)
-            .unwrap_or(false)
+        self.budget.map(|b| self.total_tokens > b).unwrap_or(false)
     }
 
     /// 计算成本
@@ -199,7 +197,10 @@ impl TokenStatsComponent {
         let (percentage, label) = if let Some(budget) = self.budget {
             let pct = self.usage_percentage().unwrap_or(0);
             let _remaining = budget.saturating_sub(self.total_tokens);
-            (pct, format!("Budget: {}/{} ({pct}%)", self.total_tokens, budget))
+            (
+                pct,
+                format!("Budget: {}/{} ({pct}%)", self.total_tokens, budget),
+            )
         } else {
             (0, format!("Tokens: {}", self.total_tokens))
         };
@@ -260,8 +261,8 @@ impl TokenStatsComponent {
             ));
         }
 
-        let paragraph = Paragraph::new(Line::from(spans))
-            .block(Block::default().borders(Borders::ALL));
+        let paragraph =
+            Paragraph::new(Line::from(spans)).block(Block::default().borders(Borders::ALL));
 
         f.render_widget(paragraph, area);
     }
@@ -274,7 +275,7 @@ impl TokenStatsComponent {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .title(format!("History ({} samples)", data.len()))
+                    .title(format!("History ({} samples)", data.len())),
             )
             .data(&data)
             .style(Style::default().fg(Color::Cyan));
@@ -300,9 +301,10 @@ impl TokenStatsComponent {
             format!(" Tok:{} ", self.total_tokens)
         };
 
-        let paragraph = Paragraph::new(Line::from(vec![
-            Span::styled(text, Style::default().fg(color)),
-        ]));
+        let paragraph = Paragraph::new(Line::from(vec![Span::styled(
+            text,
+            Style::default().fg(color),
+        )]));
 
         f.render_widget(paragraph, area);
     }

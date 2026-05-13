@@ -54,11 +54,12 @@ impl HttpChannel {
 
     /// 处理 HTTP 请求（模拟接收）
     pub fn handle_request(&self, user_id: &str, content: &str) {
-        let message = InboundMessage::new(&self.channel_id, user_id, content)
-            .with_metadata(serde_json::json!({
+        let message = InboundMessage::new(&self.channel_id, user_id, content).with_metadata(
+            serde_json::json!({
                 "source": "http",
                 "method": "POST"
-            }));
+            }),
+        );
         self.request_queue.write().push_back(message);
     }
 

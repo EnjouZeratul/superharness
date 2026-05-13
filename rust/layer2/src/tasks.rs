@@ -101,17 +101,16 @@ impl Task {
 
     /// 检查是否可以执行（所有依赖已完成）
     pub fn can_execute(&self, completed: &HashMap<TaskId, TaskStatus>) -> bool {
-        self.dependencies.iter().all(|dep_id| {
-            completed.get(dep_id) == Some(&TaskStatus::Completed)
-        })
+        self.dependencies
+            .iter()
+            .all(|dep_id| completed.get(dep_id) == Some(&TaskStatus::Completed))
     }
 
     /// 获取执行时长
     pub fn duration(&self) -> Option<Duration> {
         self.started_at.and_then(|start| {
-            self.completed_at.map(|end| {
-                Duration::from_secs((end - start).num_seconds() as u64)
-            })
+            self.completed_at
+                .map(|end| Duration::from_secs((end - start).num_seconds() as u64))
         })
     }
 }
@@ -127,7 +126,9 @@ impl PartialEq for Task {
 impl Ord for Task {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         // 优先级高的排在前面
-        other.priority.cmp(&self.priority)
+        other
+            .priority
+            .cmp(&self.priority)
             .then_with(|| other.created_at.cmp(&self.created_at))
     }
 }
@@ -232,7 +233,10 @@ impl TaskManagerTrait for TaskManager {
             .map(|(id, t)| (id.clone(), t.status))
             .collect();
 
-        self.queue.write().pop().filter(|t| t.can_execute(&completed))
+        self.queue
+            .write()
+            .pop()
+            .filter(|t| t.can_execute(&completed))
     }
 
     fn count(&self) -> usize {
@@ -240,7 +244,11 @@ impl TaskManagerTrait for TaskManager {
     }
 
     fn count_by_status(&self, status: TaskStatus) -> usize {
-        self.tasks.read().values().filter(|t| t.status == status).count()
+        self.tasks
+            .read()
+            .values()
+            .filter(|t| t.status == status)
+            .count()
     }
 
     fn cleanup_completed(&self) -> usize {
@@ -277,8 +285,7 @@ mod tests {
 
     #[test]
     fn test_task_priority() {
-        let task = Task::new("test", "Test")
-            .with_priority(TaskPriority::High);
+        let task = Task::new("test", "Test").with_priority(TaskPriority::High);
         assert_eq!(task.priority, TaskPriority::High);
     }
 

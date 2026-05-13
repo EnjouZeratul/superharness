@@ -243,7 +243,9 @@ mod tests {
         assert!(!result.valid);
 
         // 正常输入
-        let result = validator.validate("SELECT your option from the menu").unwrap();
+        let result = validator
+            .validate("SELECT your option from the menu")
+            .unwrap();
         assert!(result.valid);
     }
 }

@@ -2,12 +2,12 @@
 //!
 //! 会话记忆：单次会话内的持久化存储。
 
-use crate::memory_system::{MemoryStore, DecayPolicy, TimeBasedDecay};
-use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use crate::memory_system::{DecayPolicy, MemoryStore, TimeBasedDecay};
+use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
+use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
-use parking_lot::RwLock;
 
 /// Session Memory 实现
 ///
@@ -78,7 +78,11 @@ impl MemoryStore for SessionMemory {
 
     async fn list(&self, limit: Option<usize>) -> Layer3Result<Vec<MemoryEntry>> {
         let storage = self.storage.read();
-        Ok(storage.values().take(limit.unwrap_or(usize::MAX)).cloned().collect())
+        Ok(storage
+            .values()
+            .take(limit.unwrap_or(usize::MAX))
+            .cloned()
+            .collect())
     }
 
     async fn clear(&self) -> Layer3Result<usize> {

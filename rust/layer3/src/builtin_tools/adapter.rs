@@ -2,9 +2,9 @@
 //!
 //! 将 Layer 3 builtin_tools 适配为 Layer 2 Tool trait。
 
-use sh_layer2::{Tool as Layer2Tool, ToolResult, Layer2Result, ToolRegistryTrait};
 use crate::builtin_tools::BuiltinTool;
 use async_trait::async_trait;
+use sh_layer2::{Layer2Result, Tool as Layer2Tool, ToolRegistryTrait, ToolResult};
 
 /// 适配器：将 Layer3 BuiltinTool 适配为 Layer2 Tool
 pub struct ToolAdapter {
@@ -36,12 +36,16 @@ impl Layer2Tool for ToolAdapter {
         let args_value: serde_json::Value = if args.is_empty() {
             serde_json::Value::Object(Default::default())
         } else {
-            serde_json::from_str(args)
-                .map_err(|e| sh_layer2::Layer2Error::AgentError(format!("Parse args error: {}", e)))?
+            serde_json::from_str(args).map_err(|e| {
+                sh_layer2::Layer2Error::AgentError(format!("Parse args error: {}", e))
+            })?
         };
 
         // 执行工具
-        let result = self.inner.execute(args_value).await
+        let result = self
+            .inner
+            .execute(args_value)
+            .await
             .map_err(|e| sh_layer2::Layer2Error::AgentError(e.to_string()))?;
 
         // 返回 ToolResult
@@ -56,11 +60,11 @@ impl Layer2Tool for ToolAdapter {
 
 /// 注册所有内置工具到 Layer 2 ToolRegistry
 pub fn register_builtin_tools(registry: &sh_layer2::ToolRegistry) -> anyhow::Result<()> {
+    use super::code::*;
     use super::file_ops::*;
+    use super::memory_tools::*;
     use super::search::*;
     use super::shell::*;
-    use super::code::*;
-    use super::memory_tools::*;
     use super::workflow_tools::*;
 
     // 文件操作工具

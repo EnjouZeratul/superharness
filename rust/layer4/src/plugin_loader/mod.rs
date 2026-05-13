@@ -130,7 +130,11 @@ impl PluginRegistry {
             name: name.clone(),
             version: plugin.version().to_string(),
             description: plugin.description().to_string(),
-            dependencies: plugin.dependencies().iter().map(|s| s.to_string()).collect(),
+            dependencies: plugin
+                .dependencies()
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
             ..Default::default()
         };
 

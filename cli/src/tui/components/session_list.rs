@@ -2,6 +2,7 @@
 //!
 //! 支持会话显示、搜索、排序、筛选等功能。
 
+use chrono::{DateTime, Local};
 use ratatui::{
     layout::Rect,
     style::{Color, Modifier, Style},
@@ -9,7 +10,6 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, Scrollbar, ScrollbarOrientation, ScrollbarState},
     Frame,
 };
-use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 
 /// 会话列表组件
@@ -202,19 +202,29 @@ impl SessionListComponent {
     /// 应用筛选和排序
     fn apply_filters(&mut self) {
         // 筛选
-        let mut indices: Vec<usize> = self.sessions
+        let mut indices: Vec<usize> = self
+            .sessions
             .iter()
             .enumerate()
             .filter(|(_idx, session)| {
                 // 搜索词匹配
-                let matches_search = self.search_term.is_empty() ||
-                    session.name.to_lowercase().contains(&self.search_term.to_lowercase()) ||
-                    session.id.to_lowercase().contains(&self.search_term.to_lowercase()) ||
-                    session.tags.iter().any(|t| t.to_lowercase().contains(&self.search_term.to_lowercase()));
+                let matches_search = self.search_term.is_empty()
+                    || session
+                        .name
+                        .to_lowercase()
+                        .contains(&self.search_term.to_lowercase())
+                    || session
+                        .id
+                        .to_lowercase()
+                        .contains(&self.search_term.to_lowercase())
+                    || session
+                        .tags
+                        .iter()
+                        .any(|t| t.to_lowercase().contains(&self.search_term.to_lowercase()));
 
                 // 状态匹配
-                let matches_status = self.filter_status.is_none() ||
-                    session.status == self.filter_status.unwrap();
+                let matches_status =
+                    self.filter_status.is_none() || session.status == self.filter_status.unwrap();
 
                 matches_search && matches_status
             })
@@ -261,15 +271,14 @@ impl SessionListComponent {
             }
         );
 
-        let block = Block::default()
-            .title(title)
-            .borders(Borders::ALL);
+        let block = Block::default().title(title).borders(Borders::ALL);
 
         let inner = block.inner(area);
         f.render_widget(block, area);
 
         let visible_height = inner.height as usize;
-        let items: Vec<ListItem> = self.filtered_sessions
+        let items: Vec<ListItem> = self
+            .filtered_sessions
             .iter()
             .skip(self.scroll_offset)
             .take(visible_height)
@@ -281,7 +290,9 @@ impl SessionListComponent {
 
                 let status_color = session.status.color();
                 let style = if is_selected {
-                    Style::default().bg(Color::DarkGray).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .bg(Color::DarkGray)
+                        .add_modifier(Modifier::BOLD)
                 } else {
                     Style::default()
                 };
@@ -291,10 +302,7 @@ impl SessionListComponent {
 
                 // 构建行
                 let spans = vec![
-                    Span::styled(
-                        format!("● "),
-                        Style::default().fg(status_color),
-                    ),
+                    Span::styled(format!("● "), Style::default().fg(status_color)),
                     Span::styled(
                         format!("{:20}", session.name.chars().take(20).collect::<String>()),
                         style,
@@ -304,7 +312,10 @@ impl SessionListComponent {
                         Style::default().fg(Color::DarkGray),
                     ),
                     Span::styled(
-                        format!("({} msg, {} tok)", session.message_count, session.tokens_used),
+                        format!(
+                            "({} msg, {} tok)",
+                            session.message_count, session.tokens_used
+                        ),
                         Style::default().fg(Color::Gray),
                     ),
                 ];
@@ -318,8 +329,7 @@ impl SessionListComponent {
 
         // 渲染滚动条
         if self.filtered_sessions.len() > visible_height {
-            let scrollbar = Scrollbar::default()
-                .orientation(ScrollbarOrientation::VerticalRight);
+            let scrollbar = Scrollbar::default().orientation(ScrollbarOrientation::VerticalRight);
 
             let mut scrollbar_state = ScrollbarState::new(self.filtered_sessions.len())
                 .position(self.scroll_offset)

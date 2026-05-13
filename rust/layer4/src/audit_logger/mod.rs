@@ -30,9 +30,7 @@ pub mod logger;
 pub mod storage;
 
 // 主要导出
-pub use entry::{
-    AuditAction, AuditEntry, AuditFilter, AuditResult, ExportFormat,
-};
+pub use entry::{AuditAction, AuditEntry, AuditFilter, AuditResult, ExportFormat};
 pub use logger::{AuditConfig, AuditLogger};
 pub use storage::{AuditStorage, FileStorage, MemoryStorage};
 

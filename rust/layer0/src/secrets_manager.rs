@@ -150,7 +150,9 @@ impl EncryptedStorage {
 
     fn set(&self, key: &str, value: &str) {
         let encrypted = self.encrypt(value);
-        self.encrypted_secrets.write().insert(key.to_string(), encrypted);
+        self.encrypted_secrets
+            .write()
+            .insert(key.to_string(), encrypted);
     }
 
     fn get(&self, key: &str) -> Result<Option<String>, SecretsError> {
@@ -207,7 +209,8 @@ impl SecretsManager {
 
     /// 从环境变量加载密钥
     pub fn load_from_env(&self, key: &str, env_var: &str) -> Result<(), SecretsError> {
-        let value = std::env::var(env_var).map_err(|_| SecretsError::EnvNotSet(env_var.to_string()))?;
+        let value =
+            std::env::var(env_var).map_err(|_| SecretsError::EnvNotSet(env_var.to_string()))?;
 
         self.set(key, &value)?;
         self.log_audit(AuditAction::LoadFromEnv, key, "success")?;
@@ -224,14 +227,17 @@ impl SecretsManager {
 
         // 更新元数据
         let mut metadata = self.metadata.write();
-        metadata.insert(key.to_string(), SecretMetadata {
-            name: key.to_string(),
-            created_at: now,
-            last_accessed: now,
-            last_rotated: now,
-            access_count: 0,
-            requires_rotation: false,
-        });
+        metadata.insert(
+            key.to_string(),
+            SecretMetadata {
+                name: key.to_string(),
+                created_at: now,
+                last_accessed: now,
+                last_rotated: now,
+                access_count: 0,
+                requires_rotation: false,
+            },
+        );
 
         self.log_audit(AuditAction::Set, key, "success")?;
         Ok(())
@@ -258,7 +264,15 @@ impl SecretsManager {
             }
         }
 
-        self.log_audit(AuditAction::Read, key, if result.is_some() { "found" } else { "not_found" })?;
+        self.log_audit(
+            AuditAction::Read,
+            key,
+            if result.is_some() {
+                "found"
+            } else {
+                "not_found"
+            },
+        )?;
         Ok(result)
     }
 
@@ -318,14 +332,17 @@ impl SecretsManager {
 
     /// 获取密钥元数据（不包含实际值）
     pub fn get_metadata(&self, key: &str) -> Option<SecretMetadataInfo> {
-        self.metadata.read().get(key).map(|meta| SecretMetadataInfo {
-            name: meta.name.clone(),
-            age_secs: meta.created_at.elapsed().as_secs(),
-            last_accessed_secs_ago: meta.last_accessed.elapsed().as_secs(),
-            last_rotated_secs_ago: meta.last_rotated.elapsed().as_secs(),
-            access_count: meta.access_count,
-            requires_rotation: meta.requires_rotation,
-        })
+        self.metadata
+            .read()
+            .get(key)
+            .map(|meta| SecretMetadataInfo {
+                name: meta.name.clone(),
+                age_secs: meta.created_at.elapsed().as_secs(),
+                last_accessed_secs_ago: meta.last_accessed.elapsed().as_secs(),
+                last_rotated_secs_ago: meta.last_rotated.elapsed().as_secs(),
+                access_count: meta.access_count,
+                requires_rotation: meta.requires_rotation,
+            })
     }
 
     /// 获取审计日志
@@ -339,7 +356,12 @@ impl SecretsManager {
     }
 
     /// 记录审计日志
-    fn log_audit(&self, action: AuditAction, secret_name: &str, result: &str) -> Result<(), SecretsError> {
+    fn log_audit(
+        &self,
+        action: AuditAction,
+        secret_name: &str,
+        result: &str,
+    ) -> Result<(), SecretsError> {
         if !self.config.audit_enabled {
             return Ok(());
         }

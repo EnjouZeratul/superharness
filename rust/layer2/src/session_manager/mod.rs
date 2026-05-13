@@ -8,15 +8,15 @@
 //! - `lock`: ReadWriteLock 实现
 //! - `context`: 执行上下文
 
+mod context;
+mod lock;
 mod manager;
 mod session;
-mod lock;
-mod context;
 
+pub use context::ExecutionContext;
+pub use lock::ReadWriteLock;
 pub use manager::ConcurrentSessionManager;
 pub use session::{Session, SessionConfig};
-pub use lock::ReadWriteLock;
-pub use context::ExecutionContext;
 
 use async_trait::async_trait;
 
@@ -52,7 +52,11 @@ pub trait SessionManagerTrait: Send + Sync {
     /// # Arguments
     /// * `id` - 会话 ID（可选）
     /// * `config` - 创建新会话时的配置
-    async fn get_or_create(&self, id: Option<&SessionId>, config: SessionConfig) -> Layer2Result<SessionId>;
+    async fn get_or_create(
+        &self,
+        id: Option<&SessionId>,
+        config: SessionConfig,
+    ) -> Layer2Result<SessionId>;
 
     /// 保存会话状态
     ///

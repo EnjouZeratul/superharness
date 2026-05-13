@@ -9,17 +9,19 @@
 //! - `rate_limiter`: 速率限制
 //! - `secrets_manager`: 密钥管理
 
+pub mod access_controller;
 pub mod input_validator;
 pub mod pii_scrubber;
-pub mod access_controller;
 pub mod rate_limiter;
 pub mod secrets_manager;
 
+pub use access_controller::{AccessController, Permission, Role};
 pub use input_validator::{InputValidator, ValidationResult};
 pub use pii_scrubber::{PiiScrubber, ScrubResult};
-pub use access_controller::{AccessController, Permission, Role};
-pub use rate_limiter::{RateLimiter, RateLimitConfig};
-pub use secrets_manager::{SecretsManager, SecretsManagerConfig, AuditAction, AuditLogEntry, SecretMetadataInfo};
+pub use rate_limiter::{RateLimitConfig, RateLimiter};
+pub use secrets_manager::{
+    AuditAction, AuditLogEntry, SecretMetadataInfo, SecretsManager, SecretsManagerConfig,
+};
 
 /// 安全网关 - 所有外部输入的入口
 pub struct SecurityGateway {

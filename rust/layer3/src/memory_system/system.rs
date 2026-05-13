@@ -2,12 +2,12 @@
 //!
 //! 整合四层记忆的统一接口。
 
-use crate::memory_system::{MemoryStore, working::WorkingMemory, session::SessionMemory};
-use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use crate::memory_system::{session::SessionMemory, working::WorkingMemory, MemoryStore};
+use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
+use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
-use parking_lot::RwLock;
 
 /// 统一记忆系统
 ///
@@ -61,7 +61,11 @@ impl UnifiedMemorySystem {
     }
 
     /// 存储到指定层级
-    pub async fn store_at(&self, tier: MemoryTier, content: impl Into<String>) -> Layer3Result<String> {
+    pub async fn store_at(
+        &self,
+        tier: MemoryTier,
+        content: impl Into<String>,
+    ) -> Layer3Result<String> {
         let entry = MemoryEntry {
             id: uuid::Uuid::new_v4().to_string()[..8].to_string(),
             tier,
@@ -261,7 +265,10 @@ mod tests {
         let system = UnifiedMemorySystem::new("test-session");
 
         // 测试工作记忆
-        let id = system.store_at(MemoryTier::Working, "test working memory").await.unwrap();
+        let id = system
+            .store_at(MemoryTier::Working, "test working memory")
+            .await
+            .unwrap();
         assert!(!id.is_empty());
 
         // 测试统计

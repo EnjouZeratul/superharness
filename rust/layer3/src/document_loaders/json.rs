@@ -59,8 +59,11 @@ impl DocumentLoader for JsonLoader {
                 .enumerate()
                 .filter_map(|(i, v)| {
                     if let Ok(s) = serde_json::to_string(&v) {
-                        Some(Document::new(s)
-                            .with_source(format!("{}[{}]", path.to_string_lossy(), i)))
+                        Some(Document::new(s).with_source(format!(
+                            "{}[{}]",
+                            path.to_string_lossy(),
+                            i
+                        )))
                     } else {
                         None
                     }

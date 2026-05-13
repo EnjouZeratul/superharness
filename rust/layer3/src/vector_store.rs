@@ -2,8 +2,8 @@
 //!
 //! 向量存储：持久化向量索引。
 
-use crate::types::{Layer3Result};
 use crate::retriever_engine::{Chunk, RetrievalResult};
+use crate::types::Layer3Result;
 use async_trait::async_trait;
 use std::collections::HashMap;
 
@@ -13,7 +13,12 @@ use std::collections::HashMap;
 #[async_trait]
 pub trait VectorStore: Send + Sync {
     /// 添加向量
-    async fn add(&self, id: String, vector: Vec<f32>, metadata: HashMap<String, serde_json::Value>) -> Layer3Result<bool>;
+    async fn add(
+        &self,
+        id: String,
+        vector: Vec<f32>,
+        metadata: HashMap<String, serde_json::Value>,
+    ) -> Layer3Result<bool>;
 
     /// 批量添加向量
     async fn add_batch(&self, items: Vec<VectorItem>) -> Layer3Result<Vec<bool>>;
@@ -133,8 +138,7 @@ mod tests {
 
     #[test]
     fn test_vector_item_builder() {
-        let item = VectorItem::new("test", vec![1.0, 2.0, 3.0])
-            .with_content("test content");
+        let item = VectorItem::new("test", vec![1.0, 2.0, 3.0]).with_content("test content");
         assert_eq!(item.content, Some("test content".to_string()));
     }
 

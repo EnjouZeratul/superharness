@@ -2,8 +2,8 @@
 //!
 //! Shell 执行工具集。
 
-use crate::types::{Layer3Result, ToolCategory};
 use crate::builtin_tools::BuiltinTool;
+use crate::types::{Layer3Result, ToolCategory};
 use async_trait::async_trait;
 
 /// Bash Tool - Execute shell commands
@@ -49,7 +49,9 @@ impl BuiltinTool for BashTool {
     }
 
     async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
-        let command = args["command"].as_str().ok_or_else(|| anyhow::anyhow!("Missing command parameter"))?;
+        let command = args["command"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing command parameter"))?;
         // Stub - will use tokio::process::Command in production
         Ok(format!("Executed: {}", command))
     }

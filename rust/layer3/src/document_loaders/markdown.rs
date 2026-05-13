@@ -47,8 +47,11 @@ impl DocumentLoader for MarkdownLoader {
                 // 新标题，保存当前节
                 if !current_section.trim().is_empty() {
                     documents.push(
-                        Document::new(current_section.trim().to_string())
-                            .with_source(format!("{}#{}", path.to_string_lossy(), current_title))
+                        Document::new(current_section.trim().to_string()).with_source(format!(
+                            "{}#{}",
+                            path.to_string_lossy(),
+                            current_title
+                        )),
                     );
                 }
                 current_title = line.trim_start_matches('#').trim().to_string();
@@ -62,8 +65,11 @@ impl DocumentLoader for MarkdownLoader {
         // 保存最后一节
         if !current_section.trim().is_empty() {
             documents.push(
-                Document::new(current_section.trim().to_string())
-                    .with_source(format!("{}#{}", path.to_string_lossy(), current_title))
+                Document::new(current_section.trim().to_string()).with_source(format!(
+                    "{}#{}",
+                    path.to_string_lossy(),
+                    current_title
+                )),
             );
         }
 

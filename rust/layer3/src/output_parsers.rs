@@ -2,7 +2,7 @@
 //!
 //! 输出解析器：解析 LLM 输出为结构化数据。
 
-use crate::types::{Layer3Result};
+use crate::types::Layer3Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 

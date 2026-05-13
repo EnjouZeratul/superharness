@@ -80,10 +80,11 @@ impl DocumentLoader for CsvLoader {
                 }
             }
 
-            documents.push(
-                Document::new(content_parts.join(", "))
-                    .with_source(format!("{}#{}", path.to_string_lossy(), i))
-            );
+            documents.push(Document::new(content_parts.join(", ")).with_source(format!(
+                "{}#{}",
+                path.to_string_lossy(),
+                i
+            )));
         }
 
         Ok(documents)

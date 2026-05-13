@@ -2,7 +2,7 @@
 //!
 //! Skills 模块：可复用的能力模块。
 
-use crate::types::{ToolRequest, ToolResponse, Layer3Result};
+use crate::types::{Layer3Result, ToolRequest, ToolResponse};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 

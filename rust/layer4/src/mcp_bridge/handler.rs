@@ -8,9 +8,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use super::protocol::{
-    error_codes, ContentBlock, InitializeParams, InitializeResult, McpErrorData, McpMessage,
-    McpRequest, McpResponse, McpNotification, RequestId, ServerCapabilities, ToolDefinition,
-    ToolResult, Implementation, MCP_VERSION,
+    error_codes, ContentBlock, Implementation, InitializeParams, InitializeResult, McpErrorData,
+    McpMessage, McpNotification, McpRequest, McpResponse, RequestId, ServerCapabilities,
+    ToolDefinition, ToolResult, MCP_VERSION,
 };
 use anyhow::{anyhow, Result};
 
@@ -92,7 +92,11 @@ impl DefaultHandler {
     }
 
     /// 处理调用工具请求
-    async fn handle_call_tool(&self, id: &RequestId, params: Option<&Value>) -> Result<McpResponse> {
+    async fn handle_call_tool(
+        &self,
+        id: &RequestId,
+        params: Option<&Value>,
+    ) -> Result<McpResponse> {
         let params = params.ok_or_else(|| anyhow!("Missing params"))?;
 
         let name = params
@@ -155,7 +159,10 @@ impl McpHandler for DefaultHandler {
                 }
             }
             "tools/list" => self.handle_list_tools(&request.id),
-            "tools/call" => self.handle_call_tool(&request.id, request.params.as_ref()).await,
+            "tools/call" => {
+                self.handle_call_tool(&request.id, request.params.as_ref())
+                    .await
+            }
             "shutdown" => Ok(McpResponse {
                 id: request.id.clone(),
                 result: Some(Value::Null),
@@ -238,7 +245,9 @@ mod tests {
             Arc::new(SimpleToolExecutor(|_name, _args| {
                 Ok(ToolResult {
                     is_error: false,
-                    content: vec![ContentBlock::Text { text: "OK".to_string() }],
+                    content: vec![ContentBlock::Text {
+                        text: "OK".to_string(),
+                    }],
                 })
             })),
         );

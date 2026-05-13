@@ -8,15 +8,15 @@
 //! - `recovery`: CrashRecovery 崩溃恢复
 //! - `checksum`: ChecksumUtils 校验和
 
-mod writer;
 mod atomic;
-mod recovery;
 mod checksum;
+mod recovery;
+mod writer;
 
-pub use writer::CheckpointWriter;
 pub use atomic::AtomicFileWriter;
-pub use recovery::CrashRecovery;
 pub use checksum::ChecksumUtils;
+pub use recovery::CrashRecovery;
+pub use writer::CheckpointWriter;
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -47,13 +47,21 @@ pub trait CheckpointSystemTrait: Send + Sync {
     async fn save(&self, data: &CheckpointData) -> Layer2Result<CheckpointId>;
 
     /// 加载检查点
-    async fn load(&self, session_id: &SessionId, checkpoint_id: Option<&CheckpointId>) -> Layer2Result<Option<CheckpointData>>;
+    async fn load(
+        &self,
+        session_id: &SessionId,
+        checkpoint_id: Option<&CheckpointId>,
+    ) -> Layer2Result<Option<CheckpointData>>;
 
     /// 列出会话的所有检查点
     async fn list(&self, session_id: &SessionId) -> Layer2Result<Vec<CheckpointMeta>>;
 
     /// 删除检查点
-    async fn delete(&self, session_id: &SessionId, checkpoint_id: &CheckpointId) -> Layer2Result<bool>;
+    async fn delete(
+        &self,
+        session_id: &SessionId,
+        checkpoint_id: &CheckpointId,
+    ) -> Layer2Result<bool>;
 
     /// 验证检查点完整性
     fn verify(&self, path: &Path) -> Layer2Result<bool>;

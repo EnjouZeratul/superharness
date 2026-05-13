@@ -2,7 +2,7 @@
 //!
 //! 文本分割器：将长文本分割为小块。
 
-use crate::retriever_engine::{Document, Chunk, ChunkPosition, ChunkingStrategy};
+use crate::retriever_engine::{Chunk, ChunkPosition, ChunkingStrategy, Document};
 use std::collections::HashMap;
 
 /// 递归字符文本分割器
@@ -83,7 +83,11 @@ impl RecursiveCharacterTextSplitter {
 
         for part in parts {
             let part_len = part.len();
-            let sep_len = if self.keep_separator { separator.len() } else { 0 };
+            let sep_len = if self.keep_separator {
+                separator.len()
+            } else {
+                0
+            };
 
             if current_chunk.len() + part_len + sep_len > self.chunk_size {
                 if !current_chunk.is_empty() {
@@ -132,7 +136,13 @@ impl RecursiveCharacterTextSplitter {
         chunks
     }
 
-    fn create_chunk(&self, content: &str, start: usize, index: usize, document: &Document) -> Chunk {
+    fn create_chunk(
+        &self,
+        content: &str,
+        start: usize,
+        index: usize,
+        document: &Document,
+    ) -> Chunk {
         Chunk {
             id: format!("{}-{}", document.id.as_deref().unwrap_or("doc"), index),
             doc_id: document.id.clone().unwrap_or_default(),
@@ -156,7 +166,10 @@ pub struct MarkdownTextSplitter {
 
 impl MarkdownTextSplitter {
     pub fn new(chunk_size: usize, chunk_overlap: usize) -> Self {
-        Self { chunk_size, chunk_overlap }
+        Self {
+            chunk_size,
+            chunk_overlap,
+        }
     }
 }
 

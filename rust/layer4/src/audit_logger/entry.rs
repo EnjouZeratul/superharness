@@ -321,6 +321,6 @@ mod tests {
         let entry = AuditEntry::new("user123", AuditAction::Login, "session");
         let json = serde_json::to_string(&entry).unwrap();
         assert!(json.contains("user123"));
-        assert!(json.contains("Login"));  // Serde uses PascalCase for enum variants
+        assert!(json.contains("Login")); // Serde uses PascalCase for enum variants
     }
 }

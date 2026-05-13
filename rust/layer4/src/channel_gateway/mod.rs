@@ -78,7 +78,11 @@ pub struct InboundMessage {
 }
 
 impl InboundMessage {
-    pub fn new(channel_id: impl Into<String>, user_id: impl Into<String>, content: impl Into<String>) -> Self {
+    pub fn new(
+        channel_id: impl Into<String>,
+        user_id: impl Into<String>,
+        content: impl Into<String>,
+    ) -> Self {
         Self {
             message_id: uuid::Uuid::new_v4().to_string(),
             channel_id: channel_id.into(),
@@ -237,7 +241,11 @@ impl ChannelGateway {
     }
 
     /// 发送消息到指定目标
-    pub async fn send_to(&self, target: &MessageTarget, message: &OutboundMessage) -> Layer4Result<()> {
+    pub async fn send_to(
+        &self,
+        target: &MessageTarget,
+        message: &OutboundMessage,
+    ) -> Layer4Result<()> {
         match target {
             MessageTarget::All => self.broadcast(message).await,
             MessageTarget::Channel(channel_id) => {
@@ -283,9 +291,11 @@ impl ChannelGateway {
         for (_, channel) in channels.iter() {
             if let Some(msg) = channel.try_receive().await? {
                 // 更新路由信息
-                self.router.update_user_channel(&msg.user_id, &msg.channel_id);
+                self.router
+                    .update_user_channel(&msg.user_id, &msg.channel_id);
                 if let Some(ref session_id) = msg.session_id {
-                    self.router.update_session_channel(session_id, &msg.channel_id);
+                    self.router
+                        .update_session_channel(session_id, &msg.channel_id);
                 }
                 return Ok(Some(msg));
             }
@@ -352,7 +362,9 @@ impl MessageRouter {
     }
 
     pub fn register_channel(&self, channel_id: &str, channel_type: ChannelType) {
-        self.channel_registry.write().insert(channel_id.to_string(), channel_type);
+        self.channel_registry
+            .write()
+            .insert(channel_id.to_string(), channel_type);
     }
 
     pub fn unregister_channel(&self, channel_id: &str) {
@@ -364,11 +376,15 @@ impl MessageRouter {
     }
 
     pub fn update_user_channel(&self, user_id: &str, channel_id: &str) {
-        self.user_channels.write().insert(user_id.to_string(), channel_id.to_string());
+        self.user_channels
+            .write()
+            .insert(user_id.to_string(), channel_id.to_string());
     }
 
     pub fn update_session_channel(&self, session_id: &str, channel_id: &str) {
-        self.session_channels.write().insert(session_id.to_string(), channel_id.to_string());
+        self.session_channels
+            .write()
+            .insert(session_id.to_string(), channel_id.to_string());
     }
 
     pub fn find_user_channel(&self, user_id: &str) -> Option<String> {

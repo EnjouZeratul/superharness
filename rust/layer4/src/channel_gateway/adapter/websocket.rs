@@ -55,7 +55,9 @@ impl WebSocketChannel {
 
     /// 注册会话
     pub fn register_session(&self, session_id: &str, user_id: &str) {
-        self.sessions.write().insert(session_id.to_string(), user_id.to_string());
+        self.sessions
+            .write()
+            .insert(session_id.to_string(), user_id.to_string());
     }
 
     /// 注销会话
@@ -65,7 +67,12 @@ impl WebSocketChannel {
 
     /// 接收 WebSocket 消息（模拟）
     pub fn receive_message(&self, session_id: &str, content: &str) {
-        let user_id = self.sessions.read().get(session_id).cloned().unwrap_or_default();
+        let user_id = self
+            .sessions
+            .read()
+            .get(session_id)
+            .cloned()
+            .unwrap_or_default();
         let message = InboundMessage::new(&self.channel_id, &user_id, content)
             .with_session(session_id)
             .with_metadata(serde_json::json!({

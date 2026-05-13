@@ -111,7 +111,8 @@ impl ChatComponent {
 
     /// 导出消息为 JSON
     pub fn export_json(&self) -> String {
-        let export_data: Vec<serde_json::Value> = self.messages
+        let export_data: Vec<serde_json::Value> = self
+            .messages
             .iter()
             .map(|m| {
                 serde_json::json!({
@@ -155,7 +156,11 @@ impl ChatComponent {
     /// 渲染组件
     pub fn render(&self, f: &mut Frame, area: Rect) {
         let title = if let Some(term) = &self.search_term {
-            format!(" Chat (search: \"{}\" - {} results) ", term, self.search_count())
+            format!(
+                " Chat (search: \"{}\" - {} results) ",
+                term,
+                self.search_count()
+            )
         } else {
             " Chat ".to_string()
         };
@@ -176,7 +181,9 @@ impl ChatComponent {
             };
 
             // 检查是否是当前搜索结果
-            let is_current_search = self.search_results.get(self.current_search_index)
+            let is_current_search = self
+                .search_results
+                .get(self.current_search_index)
                 .map(|idx| *idx == msg_idx)
                 .unwrap_or(false);
 

@@ -103,8 +103,10 @@ impl SlidingWindowCounter {
         self.hour_requests.push(now);
 
         // 清理过期记录
-        self.minute_requests.retain(|t| t.elapsed() < Duration::from_secs(60));
-        self.hour_requests.retain(|t| t.elapsed() < Duration::from_secs(3600));
+        self.minute_requests
+            .retain(|t| t.elapsed() < Duration::from_secs(60));
+        self.hour_requests
+            .retain(|t| t.elapsed() < Duration::from_secs(3600));
     }
 
     fn minute_count(&self) -> usize {
@@ -148,7 +150,10 @@ impl RateLimiter {
 
         // 检查滑动窗口（分钟和小时限制）
         let window_result = {
-            let mut counter = self.counters.entry(key.to_string()).or_insert_with(SlidingWindowCounter::new);
+            let mut counter = self
+                .counters
+                .entry(key.to_string())
+                .or_insert_with(SlidingWindowCounter::new);
 
             if counter.minute_count() >= self.config.requests_per_minute as usize {
                 false
@@ -171,16 +176,25 @@ impl RateLimiter {
 
     /// 获取指定 key 的状态
     pub fn get_status(&self, key: &str) -> RateLimitStatus {
-        let tokens_remaining = self.buckets
+        let tokens_remaining = self
+            .buckets
             .get(key)
             .map(|b| b.tokens as u32)
             .unwrap_or(self.config.burst_size);
 
         let minute_remaining = self.config.requests_per_minute
-            - self.counters.get(key).map(|c| c.minute_count() as u32).unwrap_or(0);
+            - self
+                .counters
+                .get(key)
+                .map(|c| c.minute_count() as u32)
+                .unwrap_or(0);
 
         let hour_remaining = self.config.requests_per_hour
-            - self.counters.get(key).map(|c| c.hour_count() as u32).unwrap_or(0);
+            - self
+                .counters
+                .get(key)
+                .map(|c| c.hour_count() as u32)
+                .unwrap_or(0);
 
         RateLimitStatus {
             tokens_remaining,
@@ -194,9 +208,8 @@ impl RateLimiter {
         let now = Instant::now();
 
         // 清理过期的 buckets
-        self.buckets.retain(|_, bucket| {
-            now.duration_since(bucket.last_update) < max_age
-        });
+        self.buckets
+            .retain(|_, bucket| now.duration_since(bucket.last_update) < max_age);
 
         // 清理空的 counters
         self.counters.retain(|_, counter| {
@@ -276,7 +289,11 @@ mod tests {
             }));
         }
 
-        let results: Vec<bool> = futures::future::join_all(tasks).await.into_iter().map(|r| r.unwrap()).collect();
+        let results: Vec<bool> = futures::future::join_all(tasks)
+            .await
+            .into_iter()
+            .map(|r| r.unwrap())
+            .collect();
 
         // 统计成功和失败的请求数
         let success_count = results.iter().filter(|&&r| r).count();
@@ -411,7 +428,10 @@ mod tests {
 
         let status = limiter.get_status("status_key");
         assert!(status.tokens_remaining < 20, "Tokens should be consumed");
-        assert!(status.minute_remaining < 100, "Minute count should increase");
+        assert!(
+            status.minute_remaining < 100,
+            "Minute count should increase"
+        );
     }
 
     #[test]

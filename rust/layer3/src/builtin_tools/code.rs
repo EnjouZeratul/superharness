@@ -2,8 +2,8 @@
 //!
 //! 代码分析工具集：LSP 相关工具。
 
-use crate::types::{Layer3Result, ToolCategory, CodeLocation};
 use crate::builtin_tools::BuiltinTool;
+use crate::types::{CodeLocation, Layer3Result, ToolCategory};
 use async_trait::async_trait;
 
 /// Go to Definition Tool

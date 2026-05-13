@@ -100,7 +100,11 @@ impl AuditStorage for MemoryStorage {
                         entry.user_id,
                         entry.action.as_str(),
                         entry.resource_type,
-                        if entry.result.is_success() { "success" } else { "failure" }
+                        if entry.result.is_success() {
+                            "success"
+                        } else {
+                            "failure"
+                        }
                     ));
                 }
                 Ok(csv.into_bytes())
@@ -114,7 +118,11 @@ impl AuditStorage for MemoryStorage {
                         entry.user_id,
                         entry.action.as_str(),
                         entry.resource_type,
-                        if entry.result.is_success() { "SUCCESS" } else { "FAILURE" }
+                        if entry.result.is_success() {
+                            "SUCCESS"
+                        } else {
+                            "FAILURE"
+                        }
                     ));
                 }
                 Ok(syslog.into_bytes())
@@ -222,7 +230,11 @@ impl AuditStorage for FileStorage {
                         entry.user_id,
                         entry.action.as_str(),
                         entry.resource_type,
-                        if entry.result.is_success() { "success" } else { "failure" }
+                        if entry.result.is_success() {
+                            "success"
+                        } else {
+                            "failure"
+                        }
                     ));
                 }
                 Ok(csv.into_bytes())
@@ -236,7 +248,11 @@ impl AuditStorage for FileStorage {
                         entry.user_id,
                         entry.action.as_str(),
                         entry.resource_type,
-                        if entry.result.is_success() { "SUCCESS" } else { "FAILURE" }
+                        if entry.result.is_success() {
+                            "SUCCESS"
+                        } else {
+                            "FAILURE"
+                        }
                     ));
                 }
                 Ok(syslog.into_bytes())
@@ -255,7 +271,10 @@ impl AuditStorage for FileStorage {
             // 检查文件名中的日期
             let filename = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
-            if let Some(date_str) = filename.strip_prefix("audit-").and_then(|s| s.strip_suffix(".jsonl")) {
+            if let Some(date_str) = filename
+                .strip_prefix("audit-")
+                .and_then(|s| s.strip_suffix(".jsonl"))
+            {
                 if let Ok(file_date) = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
                     let file_datetime = file_date.and_hms_opt(0, 0, 0).unwrap().and_utc();
                     if file_datetime < before {
@@ -277,8 +296,8 @@ impl AuditStorage for FileStorage {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::entry::AuditAction;
+    use super::*;
     use tempfile::tempdir;
 
     #[tokio::test]
@@ -296,9 +315,18 @@ mod tests {
     async fn test_memory_storage_limit() {
         let storage = MemoryStorage::new(2);
 
-        storage.save(&AuditEntry::new("user1", AuditAction::Read, "doc")).await.unwrap();
-        storage.save(&AuditEntry::new("user2", AuditAction::Read, "doc")).await.unwrap();
-        storage.save(&AuditEntry::new("user3", AuditAction::Read, "doc")).await.unwrap();
+        storage
+            .save(&AuditEntry::new("user1", AuditAction::Read, "doc"))
+            .await
+            .unwrap();
+        storage
+            .save(&AuditEntry::new("user2", AuditAction::Read, "doc"))
+            .await
+            .unwrap();
+        storage
+            .save(&AuditEntry::new("user3", AuditAction::Read, "doc"))
+            .await
+            .unwrap();
 
         let count = storage.count().await.unwrap();
         assert_eq!(count, 2);
@@ -307,9 +335,15 @@ mod tests {
     #[tokio::test]
     async fn test_export_json() {
         let storage = MemoryStorage::new(100);
-        storage.save(&AuditEntry::new("user1", AuditAction::Login, "session")).await.unwrap();
+        storage
+            .save(&AuditEntry::new("user1", AuditAction::Login, "session"))
+            .await
+            .unwrap();
 
-        let data = storage.export(ExportFormat::Json, &AuditFilter::default()).await.unwrap();
+        let data = storage
+            .export(ExportFormat::Json, &AuditFilter::default())
+            .await
+            .unwrap();
         let json_str = String::from_utf8(data).unwrap();
         assert!(json_str.contains("user1"));
     }

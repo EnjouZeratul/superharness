@@ -2,19 +2,19 @@
 //!
 //! 内置工具集：提供 40+ 常用工具的实现。
 
+pub mod adapter;
+pub mod code;
 pub mod file_ops;
+pub mod memory_tools;
+pub mod network;
 pub mod search;
 pub mod shell;
-pub mod network;
-pub mod code;
-pub mod memory_tools;
 pub mod workflow_tools;
-pub mod adapter;
 
 // Re-export adapter for Layer 2 integration
-pub use adapter::{ToolAdapter, register_builtin_tools};
+pub use adapter::{register_builtin_tools, ToolAdapter};
 
-use crate::types::{ToolMeta, ToolCategory, Layer3Result};
+use crate::types::{Layer3Result, ToolCategory, ToolMeta};
 use async_trait::async_trait;
 use std::collections::HashMap;
 
@@ -132,18 +132,9 @@ pub const FILE_OPS_TOOLS: &[&str] = &[
     "move_file",
 ];
 
-pub const SEARCH_TOOLS: &[&str] = &[
-    "grep",
-    "glob",
-    "find_in_files",
-    "search_content",
-];
+pub const SEARCH_TOOLS: &[&str] = &["grep", "glob", "find_in_files", "search_content"];
 
-pub const SHELL_TOOLS: &[&str] = &[
-    "bash",
-    "run_command",
-    "shell_exec",
-];
+pub const SHELL_TOOLS: &[&str] = &["bash", "run_command", "shell_exec"];
 
 pub const CODE_TOOLS: &[&str] = &[
     "go_to_definition",
@@ -152,18 +143,9 @@ pub const CODE_TOOLS: &[&str] = &[
     "list_symbols",
 ];
 
-pub const MEMORY_TOOLS: &[&str] = &[
-    "save_memory",
-    "load_memory",
-    "query_memory",
-    "clear_memory",
-];
+pub const MEMORY_TOOLS: &[&str] = &["save_memory", "load_memory", "query_memory", "clear_memory"];
 
-pub const WORKFLOW_TOOLS: &[&str] = &[
-    "create_checkpoint",
-    "restore_checkpoint",
-    "create_subtask",
-];
+pub const WORKFLOW_TOOLS: &[&str] = &["create_checkpoint", "restore_checkpoint", "create_subtask"];
 
 #[cfg(test)]
 mod tests {

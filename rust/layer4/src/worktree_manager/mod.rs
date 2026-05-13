@@ -74,7 +74,12 @@ pub struct Worktree {
 }
 
 impl Worktree {
-    pub fn new(id: impl Into<String>, name: impl Into<String>, path: PathBuf, branch: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        path: PathBuf,
+        branch: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             name: name.into(),
@@ -138,13 +143,19 @@ impl WorktreeManager {
         };
 
         let output = Command::new("git")
-            .args(&["worktree", "add", &worktree_path.to_string_lossy(), &branch_arg])
+            .args(&[
+                "worktree",
+                "add",
+                &worktree_path.to_string_lossy(),
+                &branch_arg,
+            ])
             .current_dir(&self.root_path)
             .output();
 
         match output {
             Ok(o) if o.status.success() => {
-                let worktree = Worktree::new(&id, &config.name, worktree_path.clone(), &config.branch);
+                let worktree =
+                    Worktree::new(&id, &config.name, worktree_path.clone(), &config.branch);
                 self.worktrees.write().insert(id.clone(), worktree.clone());
                 tracing::info!("Created worktree: {} at {:?}", config.name, worktree_path);
                 Ok(worktree)

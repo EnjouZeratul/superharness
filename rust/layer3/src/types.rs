@@ -59,7 +59,11 @@ pub struct ToolResponse {
 }
 
 impl ToolResponse {
-    pub fn success(call_id: impl Into<String>, name: impl Into<String>, content: impl Into<String>) -> Self {
+    pub fn success(
+        call_id: impl Into<String>,
+        name: impl Into<String>,
+        content: impl Into<String>,
+    ) -> Self {
         Self {
             call_id: call_id.into(),
             name: name.into(),
@@ -69,7 +73,11 @@ impl ToolResponse {
         }
     }
 
-    pub fn error(call_id: impl Into<String>, name: impl Into<String>, error: impl Into<String>) -> Self {
+    pub fn error(
+        call_id: impl Into<String>,
+        name: impl Into<String>,
+        error: impl Into<String>,
+    ) -> Self {
         Self {
             call_id: call_id.into(),
             name: name.into(),

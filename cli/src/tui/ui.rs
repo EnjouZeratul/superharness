@@ -24,10 +24,10 @@ pub fn render(
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(1),              // 状态栏
-            Constraint::Min(1),                 // 聊天区域
-            Constraint::Length(tools_height),  // 工具显示（动态）
-            Constraint::Length(3),              // 输入区域
+            Constraint::Length(1),            // 状态栏
+            Constraint::Min(1),               // 聊天区域
+            Constraint::Length(tools_height), // 工具显示（动态）
+            Constraint::Length(3),            // 输入区域
         ])
         .split(f.area());
 

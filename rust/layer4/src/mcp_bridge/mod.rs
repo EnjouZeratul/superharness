@@ -33,11 +33,13 @@ pub mod transport;
 pub use bridge::{McpBridge, McpBridgeConfig};
 pub use handler::{DefaultHandler, McpHandler, SimpleToolExecutor, ToolExecutor};
 pub use protocol::{
-    error_codes, ClientCapabilities, ContentBlock, InitializeParams, InitializeResult,
-    Implementation, McpError, McpErrorData, McpMessage, McpNotification, McpRequest, McpResponse,
+    error_codes, ClientCapabilities, ContentBlock, Implementation, InitializeParams,
+    InitializeResult, McpError, McpErrorData, McpMessage, McpNotification, McpRequest, McpResponse,
     RequestId, ResourceContent, ServerCapabilities, ToolDefinition, ToolResult, MCP_VERSION,
 };
-pub use transport::{McpTransport, McpTransportType, MemoryTransport, TcpTransport, StdioTransport};
+pub use transport::{
+    McpTransport, McpTransportType, MemoryTransport, StdioTransport, TcpTransport,
+};
 
 #[cfg(test)]
 mod tests {

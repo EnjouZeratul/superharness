@@ -62,7 +62,10 @@ impl CrashRecovery {
     ///
     /// 从最新的有效检查点恢复
     pub fn recover_session(&self, session_id: &SessionId) -> Layer2Result<Option<RecoveryResult>> {
-        let session_dir = self.storage_path.join(session_id.to_string()).join("checkpoints");
+        let session_dir = self
+            .storage_path
+            .join(session_id.to_string())
+            .join("checkpoints");
 
         if !session_dir.exists() {
             return Ok(None);
@@ -111,8 +114,14 @@ impl CrashRecovery {
 
         // 按修改时间排序（最新的在前）
         checkpoints.sort_by(|a, b| {
-            let a_time = a.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
-            let b_time = b.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
+            let a_time = a
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::UNIX_EPOCH);
+            let b_time = b
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::UNIX_EPOCH);
             b_time.cmp(&a_time)
         });
 
@@ -147,7 +156,10 @@ impl CrashRecovery {
 
     /// 标记会话为活跃
     pub fn mark_session_active(&self, session_id: &SessionId) -> Layer2Result<()> {
-        let meta_path = self.storage_path.join(session_id.to_string()).join("session_meta.json");
+        let meta_path = self
+            .storage_path
+            .join(session_id.to_string())
+            .join("session_meta.json");
 
         if meta_path.exists() {
             let content = std::fs::read_to_string(&meta_path)?;
@@ -163,8 +175,15 @@ impl CrashRecovery {
     }
 
     /// 标记会话为终止
-    pub fn mark_session_terminated(&self, session_id: &SessionId, reason: &str) -> Layer2Result<()> {
-        let meta_path = self.storage_path.join(session_id.to_string()).join("session_meta.json");
+    pub fn mark_session_terminated(
+        &self,
+        session_id: &SessionId,
+        reason: &str,
+    ) -> Layer2Result<()> {
+        let meta_path = self
+            .storage_path
+            .join(session_id.to_string())
+            .join("session_meta.json");
 
         if meta_path.exists() {
             let content = std::fs::read_to_string(&meta_path)?;

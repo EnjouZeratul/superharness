@@ -20,9 +20,9 @@ pub mod components;
 mod event;
 pub mod ui;
 
+use crate::agent::{AgentClient, AgentError};
 use app::App;
 use components::{ChatComponent, InputComponent, StatusComponent, ToolDisplayComponent};
-use crate::agent::{AgentClient, AgentError};
 
 /// 运行 TUI 界面
 pub fn run() -> Result<()> {
@@ -61,7 +61,15 @@ pub fn run_with_session(session: Option<String>) -> Result<()> {
     status.set_message_count(chat.message_count());
 
     // 主循环
-    let res = run_app(&mut terminal, &mut app, &mut chat, &mut input, &mut status, &mut tools, agent);
+    let res = run_app(
+        &mut terminal,
+        &mut app,
+        &mut chat,
+        &mut input,
+        &mut status,
+        &mut tools,
+        agent,
+    );
 
     // 恢复终端
     disable_raw_mode()?;
@@ -106,7 +114,9 @@ fn run_app(
 
             chat.add_message(app::Message {
                 role: app::Role::System,
-                content: "Agent initialized successfully. Press Enter to send a message, Ctrl+C to quit.".to_string(),
+                content:
+                    "Agent initialized successfully. Press Enter to send a message, Ctrl+C to quit."
+                        .to_string(),
             });
 
             // 设置状态栏信息
@@ -174,7 +184,8 @@ fn run_app(
                                     "llm_request".to_string(),
                                     serde_json::to_string(&serde_json::json!({
                                         "prompt": content,
-                                    })).unwrap_or_default(),
+                                    }))
+                                    .unwrap_or_default(),
                                 );
                                 tools.set_running(tool_idx);
 
@@ -185,13 +196,19 @@ fn run_app(
                                     if agent_guard.is_initialized().await {
                                         agent_guard.send_message(&content).await
                                     } else {
-                                        Err(AgentError::ConfigError("Agent not initialized".to_string()))
+                                        Err(AgentError::ConfigError(
+                                            "Agent not initialized".to_string(),
+                                        ))
                                     }
                                 });
 
                                 match response {
                                     Ok(response_content) => {
-                                        tools.complete_tool_call(tool_idx, "LLM response received".to_string(), false);
+                                        tools.complete_tool_call(
+                                            tool_idx,
+                                            "LLM response received".to_string(),
+                                            false,
+                                        );
                                         chat.add_message(app::Message {
                                             role: app::Role::Assistant,
                                             content: response_content,
@@ -364,9 +381,7 @@ fn handle_key_event(
         }
 
         // Tab: 自动补全（占位）
-        (KeyModifiers::NONE, KeyCode::Tab) => {
-            Ok(KeyAction::None)
-        }
+        (KeyModifiers::NONE, KeyCode::Tab) => Ok(KeyAction::None),
 
         // Enter: 发送消息（在多行模式下可能需要特殊处理）
         (KeyModifiers::NONE, KeyCode::Enter) => {

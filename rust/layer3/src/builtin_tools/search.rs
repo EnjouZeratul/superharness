@@ -2,8 +2,8 @@
 //!
 //! 搜索工具集：grep、glob、文件搜索等。
 
-use crate::types::{Layer3Result, ToolCategory};
 use crate::builtin_tools::BuiltinTool;
+use crate::types::{Layer3Result, ToolCategory};
 use async_trait::async_trait;
 
 /// Grep Tool - Search content in files
@@ -85,7 +85,9 @@ impl BuiltinTool for GlobTool {
     }
 
     async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
-        let pattern = args["pattern"].as_str().ok_or_else(|| anyhow::anyhow!("Missing pattern parameter"))?;
+        let pattern = args["pattern"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Missing pattern parameter"))?;
         // Stub implementation
         Ok(format!("Files matching '{}': ...", pattern))
     }

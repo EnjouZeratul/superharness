@@ -86,11 +86,25 @@ impl InputComponent {
         // 找到前一个单词的起始位置
         let mut pos = self.cursor_position;
         // 跳过空格
-        while pos > 0 && self.input.chars().nth(pos - 1).map(|c| c.is_whitespace()).unwrap_or(false) {
+        while pos > 0
+            && self
+                .input
+                .chars()
+                .nth(pos - 1)
+                .map(|c| c.is_whitespace())
+                .unwrap_or(false)
+        {
             pos -= 1;
         }
         // 删除单词字符
-        while pos > 0 && self.input.chars().nth(pos - 1).map(|c| !c.is_whitespace()).unwrap_or(false) {
+        while pos > 0
+            && self
+                .input
+                .chars()
+                .nth(pos - 1)
+                .map(|c| !c.is_whitespace())
+                .unwrap_or(false)
+        {
             pos -= 1;
         }
 
@@ -209,11 +223,25 @@ impl InputComponent {
 
         let mut pos = self.cursor_position;
         // 跳过空格
-        while pos > 0 && self.input.chars().nth(pos - 1).map(|c| c.is_whitespace()).unwrap_or(false) {
+        while pos > 0
+            && self
+                .input
+                .chars()
+                .nth(pos - 1)
+                .map(|c| c.is_whitespace())
+                .unwrap_or(false)
+        {
             pos -= 1;
         }
         // 移动到单词开始
-        while pos > 0 && self.input.chars().nth(pos - 1).map(|c| !c.is_whitespace()).unwrap_or(false) {
+        while pos > 0
+            && self
+                .input
+                .chars()
+                .nth(pos - 1)
+                .map(|c| !c.is_whitespace())
+                .unwrap_or(false)
+        {
             pos -= 1;
         }
         self.cursor_position = pos;
@@ -227,11 +255,25 @@ impl InputComponent {
 
         let mut pos = self.cursor_position;
         // 跳过当前单词
-        while pos < self.input.len() && self.input.chars().nth(pos).map(|c| !c.is_whitespace()).unwrap_or(false) {
+        while pos < self.input.len()
+            && self
+                .input
+                .chars()
+                .nth(pos)
+                .map(|c| !c.is_whitespace())
+                .unwrap_or(false)
+        {
             pos += 1;
         }
         // 跳过空格
-        while pos < self.input.len() && self.input.chars().nth(pos).map(|c| c.is_whitespace()).unwrap_or(false) {
+        while pos < self.input.len()
+            && self
+                .input
+                .chars()
+                .nth(pos)
+                .map(|c| c.is_whitespace())
+                .unwrap_or(false)
+        {
             pos += 1;
         }
         self.cursor_position = pos;
@@ -408,7 +450,10 @@ impl InputComponent {
 
         // 构建显示内容
         let display_lines: Vec<Line> = if self.input.is_empty() {
-            vec![Line::from(Span::styled(&self.placeholder, Style::default().fg(Color::DarkGray)))]
+            vec![Line::from(Span::styled(
+                &self.placeholder,
+                Style::default().fg(Color::DarkGray),
+            ))]
         } else {
             // 多行显示
             self.input

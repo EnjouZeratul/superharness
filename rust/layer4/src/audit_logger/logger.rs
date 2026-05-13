@@ -119,8 +119,14 @@ impl AuditLogger {
         resource_type: &str,
         resource_id: Option<&str>,
     ) -> Result<()> {
-        self.log_action(user_id, action, resource_type, resource_id, AuditResult::Success)
-            .await
+        self.log_action(
+            user_id,
+            action,
+            resource_type,
+            resource_id,
+            AuditResult::Success,
+        )
+        .await
     }
 
     /// 记录失败操作
@@ -212,7 +218,12 @@ impl AuditLogger {
     }
 
     /// 创建审计条目构建器
-    pub fn builder(&self, user_id: &str, action: AuditAction, resource_type: &str) -> AuditEntryBuilder {
+    pub fn builder(
+        &self,
+        user_id: &str,
+        action: AuditAction,
+        resource_type: &str,
+    ) -> AuditEntryBuilder {
         AuditEntryBuilder {
             entry: AuditEntry::new(user_id, action, resource_type),
             logger: self,
@@ -295,8 +306,14 @@ mod tests {
     async fn test_query() {
         let logger = AuditLogger::default();
 
-        logger.log_success("user1", AuditAction::Read, "doc", None).await.unwrap();
-        logger.log_success("user2", AuditAction::Read, "doc", None).await.unwrap();
+        logger
+            .log_success("user1", AuditAction::Read, "doc", None)
+            .await
+            .unwrap();
+        logger
+            .log_success("user2", AuditAction::Read, "doc", None)
+            .await
+            .unwrap();
 
         let filter = AuditFilter {
             user_id: Some("user1".to_string()),
@@ -316,8 +333,8 @@ mod tests {
         };
         let logger = AuditLogger::new(config);
 
-        let entry = AuditEntry::new("user1", AuditAction::Create, "user")
-            .with_details(serde_json::json!({
+        let entry =
+            AuditEntry::new("user1", AuditAction::Create, "user").with_details(serde_json::json!({
                 "username": "test",
                 "password": "secret123"
             }));
@@ -355,7 +372,10 @@ mod tests {
         };
         let logger = AuditLogger::new(config);
 
-        logger.log_success("user1", AuditAction::Read, "doc", None).await.unwrap();
+        logger
+            .log_success("user1", AuditAction::Read, "doc", None)
+            .await
+            .unwrap();
 
         let count = logger.count().await.unwrap();
         assert_eq!(count, 0);

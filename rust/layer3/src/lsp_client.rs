@@ -2,8 +2,8 @@
 //!
 //! Language Server Protocol 客户端。
 
-use crate::types::{Layer3Result, CodeLocation, CodeRange};
 use crate::query_engine::{SymbolInfo, SymbolKind};
+use crate::types::{CodeLocation, CodeRange, Layer3Result};
 use async_trait::async_trait;
 use std::path::PathBuf;
 
@@ -19,7 +19,12 @@ pub trait LspClient: Send + Sync {
     async fn shutdown(&self) -> Layer3Result<bool>;
 
     /// 打开文档
-    async fn open_document(&self, uri: String, language_id: String, content: String) -> Layer3Result<bool>;
+    async fn open_document(
+        &self,
+        uri: String,
+        language_id: String,
+        content: String,
+    ) -> Layer3Result<bool>;
 
     /// 关闭文档
     async fn close_document(&self, uri: String) -> Layer3Result<bool>;
@@ -117,13 +122,26 @@ pub struct SignatureHelpOptions {
 #[async_trait]
 pub trait LspRequester: LspClient {
     /// 发送定义请求
-    async fn request_definition(&self, uri: String, position: Position) -> Layer3Result<Option<LocationLink>>;
+    async fn request_definition(
+        &self,
+        uri: String,
+        position: Position,
+    ) -> Layer3Result<Option<LocationLink>>;
 
     /// 发送引用请求
-    async fn request_references(&self, uri: String, position: Position, include_declaration: bool) -> Layer3Result<Vec<LocationLink>>;
+    async fn request_references(
+        &self,
+        uri: String,
+        position: Position,
+        include_declaration: bool,
+    ) -> Layer3Result<Vec<LocationLink>>;
 
     /// 发送悬停请求
-    async fn request_hover(&self, uri: String, position: Position) -> Layer3Result<Option<HoverResult>>;
+    async fn request_hover(
+        &self,
+        uri: String,
+        position: Position,
+    ) -> Layer3Result<Option<HoverResult>>;
 
     /// 发送文档符号请求
     async fn request_document_symbols(&self, uri: String) -> Layer3Result<Vec<DocumentSymbol>>;

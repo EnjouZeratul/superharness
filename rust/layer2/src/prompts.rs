@@ -105,7 +105,7 @@ impl PromptManager {
     fn register_default_templates(&self) {
         let system = PromptTemplate::new(
             "system",
-            "You are a helpful AI assistant. Be concise and accurate."
+            "You are a helpful AI assistant. Be concise and accurate.",
         )
         .with_description("Default system prompt");
 
@@ -117,7 +117,7 @@ impl PromptManager {
 
         let task = PromptTemplate::new(
             "task",
-            "Task: {{task_description}}\n\nContext: {{context}}\n\nPlease complete this task."
+            "Task: {{task_description}}\n\nContext: {{context}}\n\nPlease complete this task.",
         )
         .with_description("General task prompt template");
 

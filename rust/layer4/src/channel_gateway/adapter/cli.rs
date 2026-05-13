@@ -49,8 +49,8 @@ impl CliChannel {
 
     /// 推送带会话 ID 的输入消息
     pub fn push_input_with_session(&self, user_id: &str, content: &str, session_id: &str) {
-        let message = InboundMessage::new(&self.channel_id, user_id, content)
-            .with_session(session_id);
+        let message =
+            InboundMessage::new(&self.channel_id, user_id, content).with_session(session_id);
         self.input_queue.write().push_back(message);
     }
 

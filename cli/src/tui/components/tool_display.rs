@@ -133,30 +133,47 @@ impl ToolDisplayComponent {
 
     /// 获取成功数量
     pub fn success_count(&self) -> usize {
-        self.tool_calls.iter().filter(|c| c.status == ToolStatus::Success).count()
+        self.tool_calls
+            .iter()
+            .filter(|c| c.status == ToolStatus::Success)
+            .count()
     }
 
     /// 获取失败数量
     pub fn failed_count(&self) -> usize {
-        self.tool_calls.iter().filter(|c| c.status == ToolStatus::Failed).count()
+        self.tool_calls
+            .iter()
+            .filter(|c| c.status == ToolStatus::Failed)
+            .count()
     }
 
     /// 渲染组件
     pub fn render(&self, f: &mut Frame, area: Rect, collapsed: bool) {
         if collapsed {
             // 折叠模式：只显示统计
-            let running = self.tool_calls.iter().filter(|c| c.status == ToolStatus::Running).count();
+            let running = self
+                .tool_calls
+                .iter()
+                .filter(|c| c.status == ToolStatus::Running)
+                .count();
             let success = self.success_count();
             let failed = self.failed_count();
 
             let status_line = if running > 0 {
-                format!("🔧 Tools: {} running, {} success, {} failed", running, success, failed)
+                format!(
+                    "🔧 Tools: {} running, {} success, {} failed",
+                    running, success, failed
+                )
             } else {
-                format!("🔧 Tools: {} calls ({} success, {} failed)", self.count(), success, failed)
+                format!(
+                    "🔧 Tools: {} calls ({} success, {} failed)",
+                    self.count(),
+                    success,
+                    failed
+                )
             };
 
-            let paragraph = Paragraph::new(status_line)
-                .style(Style::default().fg(Color::Yellow));
+            let paragraph = Paragraph::new(status_line).style(Style::default().fg(Color::Yellow));
             f.render_widget(paragraph, area);
             return;
         }
@@ -175,7 +192,8 @@ impl ToolDisplayComponent {
                     ToolStatus::Failed => ("❌", Color::Red),
                 };
 
-                let duration_str = call.duration
+                let duration_str = call
+                    .duration
                     .map(|d| format!("{:.0}ms", d.as_millis()))
                     .unwrap_or_default();
 
@@ -226,7 +244,9 @@ impl ToolDisplayComponent {
 
     /// 检查是否有正在运行的工具
     pub fn has_running(&self) -> bool {
-        self.tool_calls.iter().any(|c| c.status == ToolStatus::Running)
+        self.tool_calls
+            .iter()
+            .any(|c| c.status == ToolStatus::Running)
     }
 }
 

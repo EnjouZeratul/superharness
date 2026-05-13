@@ -141,7 +141,11 @@ impl StatusComponent {
             Span::raw(" "),
             Span::styled(
                 format!("{}", conn_icon),
-                Style::default().fg(if self.connected { Color::Green } else { Color::Red }),
+                Style::default().fg(if self.connected {
+                    Color::Green
+                } else {
+                    Color::Red
+                }),
             ),
             Span::raw(" "),
             Span::styled(
@@ -149,7 +153,10 @@ impl StatusComponent {
                 Style::default().fg(agent_color),
             ),
             Span::styled(
-                format!("{}{}Msgs: {} | ", provider_info, session_info, self.message_count),
+                format!(
+                    "{}{}Msgs: {} | ",
+                    provider_info, session_info, self.message_count
+                ),
                 Style::default().fg(Color::White),
             ),
             Span::styled(

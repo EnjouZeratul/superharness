@@ -52,8 +52,11 @@ impl DocumentLoader for TextLoader {
             .filter(|p| !p.trim().is_empty())
             .enumerate()
             .map(|(i, p)| {
-                Document::new(p.to_string())
-                    .with_source(format!("{}#{}", path.to_string_lossy(), i))
+                Document::new(p.to_string()).with_source(format!(
+                    "{}#{}",
+                    path.to_string_lossy(),
+                    i
+                ))
             })
             .collect())
     }

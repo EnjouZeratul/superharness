@@ -163,7 +163,9 @@ impl ToolRegistryTrait for ToolRegistry {
     }
 
     async fn execute(&self, name: &str, args: &str) -> Layer2Result<ToolResult> {
-        let tool = self.get(name).ok_or_else(|| Layer2Error::ToolNotFound(name.to_string()))?;
+        let tool = self
+            .get(name)
+            .ok_or_else(|| Layer2Error::ToolNotFound(name.to_string()))?;
 
         tool.execute(args).await
     }

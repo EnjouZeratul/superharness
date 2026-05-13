@@ -143,8 +143,18 @@ impl HookSystemTrait for HookSystem {
     }
 
     fn count(&self, event: HookEvent) -> (usize, usize) {
-        let before = self.before_hooks.read().get(&event).map(|v| v.len()).unwrap_or(0);
-        let after = self.after_hooks.read().get(&event).map(|v| v.len()).unwrap_or(0);
+        let before = self
+            .before_hooks
+            .read()
+            .get(&event)
+            .map(|v| v.len())
+            .unwrap_or(0);
+        let after = self
+            .after_hooks
+            .read()
+            .get(&event)
+            .map(|v| v.len())
+            .unwrap_or(0);
         (before, after)
     }
 }

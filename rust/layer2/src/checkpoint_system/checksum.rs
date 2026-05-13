@@ -47,8 +47,14 @@ impl ChecksumUtils {
         let checksum = Self::compute_checksum(&data);
 
         if let Some(obj) = data.as_object_mut() {
-            obj.insert(CHECKSUM_FIELD.to_string(), serde_json::Value::String(checksum));
-            obj.insert(VERSION_FIELD.to_string(), serde_json::Value::String(CHECKPOINT_VERSION.to_string()));
+            obj.insert(
+                CHECKSUM_FIELD.to_string(),
+                serde_json::Value::String(checksum),
+            );
+            obj.insert(
+                VERSION_FIELD.to_string(),
+                serde_json::Value::String(CHECKPOINT_VERSION.to_string()),
+            );
         }
 
         data
@@ -80,10 +86,13 @@ impl ChecksumUtils {
         };
 
         if version != CHECKPOINT_VERSION {
-            return (false, Some(format!(
-                "Version mismatch: expected {}, got {}",
-                CHECKPOINT_VERSION, version
-            )));
+            return (
+                false,
+                Some(format!(
+                    "Version mismatch: expected {}, got {}",
+                    CHECKPOINT_VERSION, version
+                )),
+            );
         }
 
         // 计算实际校验和
@@ -96,11 +105,14 @@ impl ChecksumUtils {
         let actual_checksum = Self::compute_checksum(&data_copy);
 
         if expected_checksum != actual_checksum {
-            return (false, Some(format!(
-                "Checksum mismatch: expected {}..., got {}...",
-                &expected_checksum[..16.min(expected_checksum.len())],
-                &actual_checksum[..16.min(actual_checksum.len())]
-            )));
+            return (
+                false,
+                Some(format!(
+                    "Checksum mismatch: expected {}..., got {}...",
+                    &expected_checksum[..16.min(expected_checksum.len())],
+                    &actual_checksum[..16.min(actual_checksum.len())]
+                )),
+            );
         }
 
         (true, None)

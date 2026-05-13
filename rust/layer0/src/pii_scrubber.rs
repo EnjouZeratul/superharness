@@ -40,16 +40,29 @@ struct PiiPatterns {
 impl PiiPatterns {
     fn get() -> &'static Self {
         static PATTERNS: OnceLock<PiiPatterns> = OnceLock::new();
-        PATTERNS.get_or_init(|| {
-            PiiPatterns {
-                patterns: vec![
-                    (PiiType::Email, Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").unwrap()),
-                    (PiiType::Phone, Regex::new(r"\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}").unwrap()),
-                    (PiiType::CreditCard, Regex::new(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b").unwrap()),
-                    (PiiType::SSN, Regex::new(r"\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b").unwrap()),
-                    (PiiType::IPAddress, Regex::new(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b").unwrap()),
-                ],
-            }
+        PATTERNS.get_or_init(|| PiiPatterns {
+            patterns: vec![
+                (
+                    PiiType::Email,
+                    Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").unwrap(),
+                ),
+                (
+                    PiiType::Phone,
+                    Regex::new(r"\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}").unwrap(),
+                ),
+                (
+                    PiiType::CreditCard,
+                    Regex::new(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b").unwrap(),
+                ),
+                (
+                    PiiType::SSN,
+                    Regex::new(r"\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b").unwrap(),
+                ),
+                (
+                    PiiType::IPAddress,
+                    Regex::new(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b").unwrap(),
+                ),
+            ],
         })
     }
 }
@@ -81,7 +94,9 @@ impl PiiScrubber {
                 detected_types.insert(*pii_type);
                 replacements += matches.len();
                 // 执行替换
-                scrubbed = pattern.replace_all(&scrubbed, self.replacement.as_str()).into_owned();
+                scrubbed = pattern
+                    .replace_all(&scrubbed, self.replacement.as_str())
+                    .into_owned();
             }
         }
 
@@ -120,13 +135,20 @@ impl PiiScrubber {
     /// 检查文本是否包含 PII
     pub fn contains_pii(&self, text: &str) -> bool {
         let patterns = PiiPatterns::get();
-        patterns.patterns.iter().any(|(_, pattern)| pattern.is_match(text))
+        patterns
+            .patterns
+            .iter()
+            .any(|(_, pattern)| pattern.is_match(text))
     }
 
     /// 统计文本中 PII 出现次数
     pub fn count_pii(&self, text: &str) -> usize {
         let patterns = PiiPatterns::get();
-        patterns.patterns.iter().map(|(_, pattern)| pattern.find_iter(text).count()).sum()
+        patterns
+            .patterns
+            .iter()
+            .map(|(_, pattern)| pattern.find_iter(text).count())
+            .sum()
     }
 }
 
@@ -221,7 +243,10 @@ mod tests {
         for i in 0..1000 {
             large_text.push_str(&format!(
                 "用户{}: email{}@test.com, phone: 123-456-{:04}, IP: 192.168.1.{}\n",
-                i, i, i % 10000, i % 256
+                i,
+                i,
+                i % 10000,
+                i % 256
             ));
         }
 
@@ -283,7 +308,10 @@ mod tests {
         let result = scrubber.scrub("Server IP: 192.168.1.123 and phone: 192-168-1234");
 
         // 两种类型都应该被检测和替换
-        assert!(result.detected_types.contains(&PiiType::IPAddress) || result.detected_types.contains(&PiiType::Phone));
+        assert!(
+            result.detected_types.contains(&PiiType::IPAddress)
+                || result.detected_types.contains(&PiiType::Phone)
+        );
     }
 
     #[test]

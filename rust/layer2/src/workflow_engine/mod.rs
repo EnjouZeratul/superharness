@@ -3,12 +3,12 @@
 //! DAG 工作流引擎，支持节点依赖和并行执行。
 
 mod dag;
-mod node;
 mod executor;
+mod node;
 
 pub use dag::Dag;
-pub use node::{Node, NodeStatus};
 pub use executor::WorkflowExecutor;
+pub use node::{Node, NodeStatus};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};

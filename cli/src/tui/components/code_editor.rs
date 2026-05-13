@@ -178,7 +178,11 @@ impl CodeEditorComponent {
 
     /// 插入换行
     fn insert_newline(&mut self) {
-        let current_line = self.lines.get(self.cursor_line).cloned().unwrap_or_default();
+        let current_line = self
+            .lines
+            .get(self.cursor_line)
+            .cloned()
+            .unwrap_or_default();
         let before_cursor: String = current_line.chars().take(self.cursor_col).collect();
         let after_cursor: String = current_line.chars().skip(self.cursor_col).collect();
 
@@ -186,16 +190,15 @@ impl CodeEditorComponent {
         let indent = self.get_line_indent(&before_cursor);
 
         self.lines[self.cursor_line] = before_cursor;
-        self.lines.insert(self.cursor_line + 1, format!("{}{}", indent, after_cursor));
+        self.lines
+            .insert(self.cursor_line + 1, format!("{}{}", indent, after_cursor));
         self.cursor_line += 1;
         self.cursor_col = indent.len();
     }
 
     /// 获取行缩进
     fn get_line_indent(&self, line: &str) -> String {
-        line.chars()
-            .take_while(|c| c.is_whitespace())
-            .collect()
+        line.chars().take_while(|c| c.is_whitespace()).collect()
     }
 
     /// 删除字符
@@ -263,11 +266,19 @@ impl CodeEditorComponent {
                     self.cursor_col -= 1;
                 } else if self.cursor_line > 0 {
                     self.cursor_line -= 1;
-                    self.cursor_col = self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0);
+                    self.cursor_col = self
+                        .lines
+                        .get(self.cursor_line)
+                        .map(|l| l.len())
+                        .unwrap_or(0);
                 }
             }
             CursorDirection::Right => {
-                let line_len = self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0);
+                let line_len = self
+                    .lines
+                    .get(self.cursor_line)
+                    .map(|l| l.len())
+                    .unwrap_or(0);
                 if self.cursor_col < line_len {
                     self.cursor_col += 1;
                 } else if self.cursor_line + 1 < self.lines.len() {
@@ -279,7 +290,10 @@ impl CodeEditorComponent {
                 if self.cursor_line > 0 {
                     self.cursor_line -= 1;
                     self.cursor_col = self.cursor_col.min(
-                        self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0)
+                        self.lines
+                            .get(self.cursor_line)
+                            .map(|l| l.len())
+                            .unwrap_or(0),
                     );
                 }
             }
@@ -287,7 +301,10 @@ impl CodeEditorComponent {
                 if self.cursor_line + 1 < self.lines.len() {
                     self.cursor_line += 1;
                     self.cursor_col = self.cursor_col.min(
-                        self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0)
+                        self.lines
+                            .get(self.cursor_line)
+                            .map(|l| l.len())
+                            .unwrap_or(0),
                     );
                 }
             }
@@ -295,7 +312,11 @@ impl CodeEditorComponent {
                 self.cursor_col = 0;
             }
             CursorDirection::LineEnd => {
-                self.cursor_col = self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0);
+                self.cursor_col = self
+                    .lines
+                    .get(self.cursor_line)
+                    .map(|l| l.len())
+                    .unwrap_or(0);
             }
             CursorDirection::FileStart => {
                 self.cursor_line = 0;
@@ -303,7 +324,11 @@ impl CodeEditorComponent {
             }
             CursorDirection::FileEnd => {
                 self.cursor_line = self.lines.len().saturating_sub(1);
-                self.cursor_col = self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0);
+                self.cursor_col = self
+                    .lines
+                    .get(self.cursor_line)
+                    .map(|l| l.len())
+                    .unwrap_or(0);
             }
             CursorDirection::WordForward => {
                 self.move_word_forward();
@@ -344,7 +369,11 @@ impl CodeEditorComponent {
         if self.cursor_col == 0 {
             if self.cursor_line > 0 {
                 self.cursor_line -= 1;
-                self.cursor_col = self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0);
+                self.cursor_col = self
+                    .lines
+                    .get(self.cursor_line)
+                    .map(|l| l.len())
+                    .unwrap_or(0);
             }
             return;
         }
@@ -436,15 +465,16 @@ impl CodeEditorComponent {
     /// 复制选中内容
     pub fn copy(&mut self) {
         if let (Some(start_line), Some(start_col)) =
-            (self.selection_start_line, self.selection_start_col) {
+            (self.selection_start_line, self.selection_start_col)
+        {
             // 计算选区范围
-            let (min_line, min_col, max_line, max_col) =
-                if start_line < self.cursor_line ||
-                   (start_line == self.cursor_line && start_col < self.cursor_col) {
-                    (start_line, start_col, self.cursor_line, self.cursor_col)
-                } else {
-                    (self.cursor_line, self.cursor_col, start_line, start_col)
-                };
+            let (min_line, min_col, max_line, max_col) = if start_line < self.cursor_line
+                || (start_line == self.cursor_line && start_col < self.cursor_col)
+            {
+                (start_line, start_col, self.cursor_line, self.cursor_col)
+            } else {
+                (self.cursor_line, self.cursor_col, start_line, start_col)
+            };
 
             self.clipboard.clear();
             for line_num in min_line..=max_line {
@@ -483,14 +513,19 @@ impl CodeEditorComponent {
             }
         } else {
             // 多行粘贴
-            let current_line = self.lines.get(self.cursor_line).cloned().unwrap_or_default();
+            let current_line = self
+                .lines
+                .get(self.cursor_line)
+                .cloned()
+                .unwrap_or_default();
             let before: String = current_line.chars().take(self.cursor_col).collect();
             let after: String = current_line.chars().skip(self.cursor_col).collect();
 
             self.lines[self.cursor_line] = format!("{}{}", before, lines[0]);
 
             for (i, paste_line) in lines[1..].iter().enumerate() {
-                self.lines.insert(self.cursor_line + 1 + i, paste_line.to_string());
+                self.lines
+                    .insert(self.cursor_line + 1 + i, paste_line.to_string());
             }
 
             if let Some(last) = self.lines.get_mut(self.cursor_line + lines.len() - 1) {
@@ -498,7 +533,11 @@ impl CodeEditorComponent {
             }
 
             self.cursor_line += lines.len() - 1;
-            self.cursor_col = self.lines.get(self.cursor_line).map(|l| l.len()).unwrap_or(0);
+            self.cursor_col = self
+                .lines
+                .get(self.cursor_line)
+                .map(|l| l.len())
+                .unwrap_or(0);
         }
     }
 
@@ -531,14 +570,15 @@ impl CodeEditorComponent {
         self.modified = true;
 
         if let (Some(start_line), Some(start_col)) =
-            (self.selection_start_line, self.selection_start_col) {
-            let (min_line, min_col, max_line, max_col) =
-                if start_line < self.cursor_line ||
-                   (start_line == self.cursor_line && start_col < self.cursor_col) {
-                    (start_line, start_col, self.cursor_line, self.cursor_col)
-                } else {
-                    (self.cursor_line, self.cursor_col, start_line, start_col)
-                };
+            (self.selection_start_line, self.selection_start_col)
+        {
+            let (min_line, min_col, max_line, max_col) = if start_line < self.cursor_line
+                || (start_line == self.cursor_line && start_col < self.cursor_col)
+            {
+                (start_line, start_col, self.cursor_line, self.cursor_col)
+            } else {
+                (self.cursor_line, self.cursor_col, start_line, start_col)
+            };
 
             if min_line == max_line {
                 if let Some(line) = self.lines.get_mut(min_line) {
@@ -546,10 +586,14 @@ impl CodeEditorComponent {
                 }
             } else {
                 // 删除多行选区
-                let first_part: String = self.lines.get(min_line)
+                let first_part: String = self
+                    .lines
+                    .get(min_line)
                     .map(|l| l.chars().take(min_col).collect())
                     .unwrap_or_default();
-                let last_part: String = self.lines.get(max_line)
+                let last_part: String = self
+                    .lines
+                    .get(max_line)
                     .map(|l| l.chars().skip(max_col).collect())
                     .unwrap_or_default();
 
@@ -616,9 +660,7 @@ impl CodeEditorComponent {
             self.column_number()
         );
 
-        let block = Block::default()
-            .title(title)
-            .borders(Borders::ALL);
+        let block = Block::default().title(title).borders(Borders::ALL);
 
         let inner = block.inner(area);
         f.render_widget(block, area);
@@ -634,9 +676,10 @@ impl CodeEditorComponent {
                 let is_current_line = line_num == self.cursor_line;
                 let line_num_str = format!("{:4} ", line_num + 1);
 
-                let mut spans = vec![
-                    Span::styled(line_num_str, Style::default().fg(Color::DarkGray))
-                ];
+                let mut spans = vec![Span::styled(
+                    line_num_str,
+                    Style::default().fg(Color::DarkGray),
+                )];
 
                 // 渲染行内容
                 for (col_idx, c) in line.chars().enumerate() {
@@ -652,7 +695,10 @@ impl CodeEditorComponent {
 
                 // 光标在行末
                 if is_current_line && self.cursor_col >= line.len() {
-                    spans.push(Span::styled(" ", Style::default().bg(Color::White).fg(Color::Black)));
+                    spans.push(Span::styled(
+                        " ",
+                        Style::default().bg(Color::White).fg(Color::Black),
+                    ));
                 }
 
                 lines_to_render.push(Line::from(spans));

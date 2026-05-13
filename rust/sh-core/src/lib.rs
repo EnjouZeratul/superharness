@@ -11,10 +11,12 @@ pub use sh_layer4 as layer4;
 
 // 常用类型快捷导出
 pub use sh_layer0::SecurityGateway;
-pub use sh_layer1::{LlmClient, StorageEngine, CostTracker};
-pub use sh_layer2::{AgentRuntime, ConcurrentSessionManager as SessionManager, CheckpointWriter};
-pub use sh_layer3::{DefaultToolExecutor as ToolExecutor, QueryEngine, UnifiedMemorySystem as MemorySystem};
-pub use sh_layer4::{McpBridge, PluginLoader, AuditLogger};
+pub use sh_layer1::{CostTracker, LlmClient, StorageEngine};
+pub use sh_layer2::{AgentRuntime, CheckpointWriter, ConcurrentSessionManager as SessionManager};
+pub use sh_layer3::{
+    DefaultToolExecutor as ToolExecutor, QueryEngine, UnifiedMemorySystem as MemorySystem,
+};
+pub use sh_layer4::{AuditLogger, McpBridge, PluginLoader};
 
 use pyo3::prelude::*;
 
@@ -65,7 +67,9 @@ mod py_bindings {
         #[new]
         fn new() -> Self {
             Self {
-                inner: std::sync::Arc::new(tokio::sync::Mutex::new(sh_layer0::SecurityGateway::new())),
+                inner: std::sync::Arc::new(tokio::sync::Mutex::new(
+                    sh_layer0::SecurityGateway::new(),
+                )),
             }
         }
 
@@ -73,7 +77,10 @@ mod py_bindings {
             let inner = self.inner.clone();
             pyo3_async_runtimes::tokio::run(py, async move {
                 let gateway = inner.lock().await;
-                gateway.validate_input(&input).await.map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
+                gateway
+                    .validate_input(&input)
+                    .await
+                    .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
             })
         }
     }
@@ -143,7 +150,9 @@ mod py_bindings {
 
     #[pyclass(name = "SessionManager")]
     pub struct PySessionManager {
-        inner: std::sync::Arc<tokio::sync::Mutex<Option<sh_layer2::session_manager::ConcurrentSessionManager>>>,
+        inner: std::sync::Arc<
+            tokio::sync::Mutex<Option<sh_layer2::session_manager::ConcurrentSessionManager>>,
+        >,
     }
 
     #[pymethods]
@@ -221,13 +230,13 @@ mod py_bindings {
                 AgentState::Idle | AgentState::Paused => {
                     *state = AgentState::Running;
                     Ok(())
-                },
-                AgentState::Running => {
-                    Err(pyo3::exceptions::PyRuntimeError::new_err("Agent is already running"))
-                },
-                AgentState::Error => {
-                    Err(pyo3::exceptions::PyRuntimeError::new_err("Agent is in error state"))
-                },
+                }
+                AgentState::Running => Err(pyo3::exceptions::PyRuntimeError::new_err(
+                    "Agent is already running",
+                )),
+                AgentState::Error => Err(pyo3::exceptions::PyRuntimeError::new_err(
+                    "Agent is in error state",
+                )),
             }
         }
 
@@ -238,10 +247,10 @@ mod py_bindings {
                 AgentState::Running => {
                     *state = AgentState::Paused;
                     Ok(())
-                },
-                _ => {
-                    Err(pyo3::exceptions::PyRuntimeError::new_err("Agent is not running"))
-                },
+                }
+                _ => Err(pyo3::exceptions::PyRuntimeError::new_err(
+                    "Agent is not running",
+                )),
             }
         }
 
@@ -255,12 +264,10 @@ mod py_bindings {
         fn execute(&self, task: &str) -> PyResult<String> {
             let state = self.state.blocking_lock();
             match *state {
-                AgentState::Running => {
-                    Ok(format!("Executing: {}", task))
-                },
-                _ => {
-                    Err(pyo3::exceptions::PyRuntimeError::new_err("Agent is not running"))
-                },
+                AgentState::Running => Ok(format!("Executing: {}", task)),
+                _ => Err(pyo3::exceptions::PyRuntimeError::new_err(
+                    "Agent is not running",
+                )),
             }
         }
 
@@ -432,7 +439,13 @@ mod py_bindings {
         }
 
         /// 记录操作
-        fn log<'py>(&self, py: Python<'py>, user_id: &str, action: &str, resource_type: &str) -> PyResult<()> {
+        fn log<'py>(
+            &self,
+            py: Python<'py>,
+            user_id: &str,
+            action: &str,
+            resource_type: &str,
+        ) -> PyResult<()> {
             let inner = self.inner.clone();
             let audit_action = match action {
                 "login" => sh_layer4::AuditAction::Login,
@@ -448,7 +461,10 @@ mod py_bindings {
             let entry = sh_layer4::AuditEntry::new(user_id, audit_action, resource_type);
 
             pyo3_async_runtimes::tokio::run(py, async move {
-                inner.log(entry).await.map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
+                inner
+                    .log(entry)
+                    .await
+                    .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
             })?;
 
             Ok(())
@@ -458,7 +474,10 @@ mod py_bindings {
         fn count<'py>(&self, py: Python<'py>) -> PyResult<usize> {
             let inner = self.inner.clone();
             pyo3_async_runtimes::tokio::run(py, async move {
-                inner.count().await.map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
+                inner
+                    .count()
+                    .await
+                    .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
             })
         }
     }

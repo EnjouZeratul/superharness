@@ -2,13 +2,13 @@
 //!
 //! 工具执行器的默认实现。
 
-use crate::tool_executor::{ToolExecutor, ExecutionContext, ToolValidator};
-use crate::types::{ToolRequest, ToolResponse, ToolMeta, Layer3Result, Layer3Error};
-use crate::builtin_tools::{BuiltinToolRegistry, BuiltinTool};
+use crate::builtin_tools::{BuiltinTool, BuiltinToolRegistry};
+use crate::tool_executor::{ExecutionContext, ToolExecutor, ToolValidator};
+use crate::types::{Layer3Error, Layer3Result, ToolMeta, ToolRequest, ToolResponse};
 use async_trait::async_trait;
+use parking_lot::RwLock;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
-use parking_lot::RwLock;
 use std::time::Instant;
 
 /// 默认工具执行器
@@ -81,11 +81,15 @@ impl ToolExecutor for DefaultToolExecutor {
         let start = Instant::now();
 
         // 查找工具
-        let tool = self.builtin.get(&request.name)
+        let tool = self
+            .builtin
+            .get(&request.name)
             .ok_or_else(|| Layer3Error::ToolNotFound(request.name.clone()))?;
 
         // 执行工具
-        let result = tool.execute(request.arguments.clone()).await
+        let result = tool
+            .execute(request.arguments.clone())
+            .await
             .map_err(|e| Layer3Error::ToolExecutionFailed(e.to_string()))?;
 
         let duration_ms = start.elapsed().as_millis() as u64;

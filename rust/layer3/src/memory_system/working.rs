@@ -2,12 +2,12 @@
 //!
 //! 工作记忆：当前对话上下文，临时存储。
 
-use crate::memory_system::{MemoryStore, DecayPolicy, TimeBasedDecay};
-use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use crate::memory_system::{DecayPolicy, MemoryStore, TimeBasedDecay};
+use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
+use parking_lot::RwLock;
 use std::collections::VecDeque;
 use std::sync::Arc;
-use parking_lot::RwLock;
 
 /// Working Memory 实现
 ///
@@ -85,7 +85,11 @@ impl MemoryStore for WorkingMemory {
 
     async fn list(&self, limit: Option<usize>) -> Layer3Result<Vec<MemoryEntry>> {
         let buffer = self.buffer.read();
-        Ok(buffer.iter().take(limit.unwrap_or(usize::MAX)).cloned().collect())
+        Ok(buffer
+            .iter()
+            .take(limit.unwrap_or(usize::MAX))
+            .cloned()
+            .collect())
     }
 
     async fn clear(&self) -> Layer3Result<usize> {

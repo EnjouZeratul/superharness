@@ -2,7 +2,7 @@
 //!
 //! 进程管理器：管理后台进程的生命周期。
 
-use crate::types::{ProcessState, ProcessInfo, Layer3Result};
+use crate::types::{Layer3Result, ProcessInfo, ProcessState};
 use async_trait::async_trait;
 use std::collections::HashMap;
 
@@ -20,7 +20,12 @@ pub trait ProcessManager: Send + Sync {
     ///
     /// # Returns
     /// * `u32` - 进程 PID
-    async fn start(&self, command: String, args: Vec<String>, working_dir: Option<String>) -> Layer3Result<u32>;
+    async fn start(
+        &self,
+        command: String,
+        args: Vec<String>,
+        working_dir: Option<String>,
+    ) -> Layer3Result<u32>;
 
     /// 停止进程
     ///

@@ -2,7 +2,7 @@
 //!
 //! 防护栏：输入输出安全检查。
 
-use crate::types::{Layer3Result};
+use crate::types::Layer3Result;
 use async_trait::async_trait;
 
 /// 防护栏 trait
@@ -101,7 +101,10 @@ pub struct LengthGuard {
 
 impl LengthGuard {
     pub fn new(min_length: usize, max_length: usize) -> Self {
-        Self { min_length, max_length }
+        Self {
+            min_length,
+            max_length,
+        }
     }
 }
 
@@ -182,10 +185,18 @@ impl GuardRail for RegexGuard {
 
     async fn check_input(&self, input: &str) -> Layer3Result<GuardResult> {
         let matches = self.pattern.is_match(input);
-        let passed = if self.block_matches { !matches } else { matches };
+        let passed = if self.block_matches {
+            !matches
+        } else {
+            matches
+        };
         Ok(GuardResult {
             passed,
-            issue: if passed { None } else { Some(GuardIssue::FormatError) },
+            issue: if passed {
+                None
+            } else {
+                Some(GuardIssue::FormatError)
+            },
             suggestion: None,
         })
     }

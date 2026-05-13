@@ -4,8 +4,8 @@
 
 use crate::types::{Layer3Result, ToolRequest, ToolResponse};
 use async_trait::async_trait;
-use std::path::PathBuf;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 /// 沙箱运行时 trait
 ///
@@ -19,10 +19,19 @@ pub trait SandboxRuntime: Send + Sync {
     async fn destroy(&self, id: &SandboxId) -> Layer3Result<bool>;
 
     /// 在沙箱中执行代码
-    async fn execute(&self, id: &SandboxId, code: &str, language: &str) -> Layer3Result<ExecutionResult>;
+    async fn execute(
+        &self,
+        id: &SandboxId,
+        code: &str,
+        language: &str,
+    ) -> Layer3Result<ExecutionResult>;
 
     /// 在沙箱中执行工具
-    async fn execute_tool(&self, id: &SandboxId, request: ToolRequest) -> Layer3Result<ToolResponse>;
+    async fn execute_tool(
+        &self,
+        id: &SandboxId,
+        request: ToolRequest,
+    ) -> Layer3Result<ToolResponse>;
 
     /// 获取沙箱状态
     async fn status(&self, id: &SandboxId) -> Layer3Result<SandboxStatus>;

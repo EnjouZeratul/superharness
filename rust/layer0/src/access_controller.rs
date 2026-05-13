@@ -57,13 +57,14 @@ impl AccessController {
         let mut roles = HashMap::new();
 
         // Admin 角色 - 所有权限
-        let admin_perms: HashSet<Permission> = [
-            Permission::new("*", "*"),
-        ].into_iter().collect();
-        roles.insert("admin".to_string(), Role {
-            name: "admin".to_string(),
-            permissions: admin_perms,
-        });
+        let admin_perms: HashSet<Permission> = [Permission::new("*", "*")].into_iter().collect();
+        roles.insert(
+            "admin".to_string(),
+            Role {
+                name: "admin".to_string(),
+                permissions: admin_perms,
+            },
+        );
 
         // User 角色 - 基本权限
         let user_perms: HashSet<Permission> = [
@@ -71,20 +72,27 @@ impl AccessController {
             Permission::new("session", "write"),
             Permission::new("tool", "execute"),
             Permission::new("agent", "run"),
-        ].into_iter().collect();
-        roles.insert("user".to_string(), Role {
-            name: "user".to_string(),
-            permissions: user_perms,
-        });
+        ]
+        .into_iter()
+        .collect();
+        roles.insert(
+            "user".to_string(),
+            Role {
+                name: "user".to_string(),
+                permissions: user_perms,
+            },
+        );
 
         // Guest 角色 - 最小权限
-        let guest_perms: HashSet<Permission> = [
-            Permission::new("session", "read"),
-        ].into_iter().collect();
-        roles.insert("guest".to_string(), Role {
-            name: "guest".to_string(),
-            permissions: guest_perms,
-        });
+        let guest_perms: HashSet<Permission> =
+            [Permission::new("session", "read")].into_iter().collect();
+        roles.insert(
+            "guest".to_string(),
+            Role {
+                name: "guest".to_string(),
+                permissions: guest_perms,
+            },
+        );
 
         roles
     }

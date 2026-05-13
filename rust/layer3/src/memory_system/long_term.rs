@@ -2,12 +2,12 @@
 //!
 //! 长期记忆：跨项目的通用知识，使用向量存储。
 
-use crate::memory_system::{MemoryStore, DecayPolicy, TimeBasedDecay};
-use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use crate::memory_system::{DecayPolicy, MemoryStore, TimeBasedDecay};
 use crate::retriever_engine::RetrieverEngine;
+use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
-use std::sync::Arc;
 use parking_lot::RwLock;
+use std::sync::Arc;
 
 /// Long-term Memory 实现
 ///
@@ -49,8 +49,7 @@ impl MemoryStore for LongTermMemory {
         // 存储到检索引擎（如果有）
         if let Some(retriever) = &self.retriever {
             use crate::retriever_engine::Document;
-            let doc = Document::new(&entry.content)
-                .with_source(&entry.id);
+            let doc = Document::new(&entry.content).with_source(&entry.id);
             retriever.index(vec![doc]).await?;
         }
 
@@ -81,7 +80,9 @@ impl MemoryStore for LongTermMemory {
     async fn query(&self, query: &MemoryQuery) -> Layer3Result<Vec<MemoryEntry>> {
         // 使用向量检索
         if let Some(retriever) = &self.retriever {
-            let results = retriever.retrieve(&query.query, query.limit.unwrap_or(10)).await?;
+            let results = retriever
+                .retrieve(&query.query, query.limit.unwrap_or(10))
+                .await?;
             let entries: Vec<MemoryEntry> = results
                 .into_iter()
                 .map(|r| MemoryEntry {
@@ -111,7 +112,11 @@ impl MemoryStore for LongTermMemory {
 
     async fn list(&self, limit: Option<usize>) -> Layer3Result<Vec<MemoryEntry>> {
         let cache = self.cache.read();
-        Ok(cache.iter().take(limit.unwrap_or(usize::MAX)).cloned().collect())
+        Ok(cache
+            .iter()
+            .take(limit.unwrap_or(usize::MAX))
+            .cloned()
+            .collect())
     }
 
     async fn clear(&self) -> Layer3Result<usize> {

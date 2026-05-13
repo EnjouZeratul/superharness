@@ -206,7 +206,9 @@ impl AgentRuntimeTrait for AgentRuntime {
 
     async fn send_message(&self, _session_id: &SessionId, _message: &str) -> Layer2Result<()> {
         // TODO: 实现消息发送逻辑
-        Err(anyhow::anyhow!("AgentRuntime::send_message not implemented"))
+        Err(anyhow::anyhow!(
+            "AgentRuntime::send_message not implemented"
+        ))
     }
 
     async fn submit_tool_result(
@@ -216,7 +218,9 @@ impl AgentRuntimeTrait for AgentRuntime {
         _result: ToolResult,
     ) -> Layer2Result<()> {
         // TODO: 实现工具结果提交逻辑
-        Err(anyhow::anyhow!("AgentRuntime::submit_tool_result not implemented"))
+        Err(anyhow::anyhow!(
+            "AgentRuntime::submit_tool_result not implemented"
+        ))
     }
 }
 

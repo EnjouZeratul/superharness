@@ -4,7 +4,7 @@
 
 pub mod executor;
 
-use crate::types::{ToolRequest, ToolResponse, ToolMeta, Layer3Result};
+use crate::types::{Layer3Result, ToolMeta, ToolRequest, ToolResponse};
 use async_trait::async_trait;
 
 // Re-export executor implementation
