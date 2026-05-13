@@ -98,17 +98,18 @@ jobs:
 
       - name: Configure Python paths (macOS)
         run: |
-          echo "RUSTFLAGS=-L ${pythonLocation}/lib" >> $GITHUB_ENV
+          echo "RUSTFLAGS=-L $pythonLocation/lib" >> $GITHUB_ENV
         if: runner.os == 'macOS'
 
       - name: Configure Python paths (Windows)
+        shell: pwsh
         run: |
-          echo "RUSTFLAGS=/LIBPATH:${env:pythonLocation}\libs" >> $env:GITHUB_ENV
+          echo "RUSTFLAGS=/LIBPATH:$env:pythonLocation\libs" >> $env:GITHUB_ENV
         if: runner.os == 'Windows'
 
       - name: Configure Python paths (Linux)
         run: |
-          echo "RUSTFLAGS=-L ${pythonLocation}/lib" >> $GITHUB_ENV
+          echo "RUSTFLAGS=-L $pythonLocation/lib" >> $GITHUB_ENV
         if: runner.os == 'Linux'
 
       - name: Build all
