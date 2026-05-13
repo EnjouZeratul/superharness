@@ -102,15 +102,9 @@ jobs:
           command: build
           args: --release --manifest-path rust/sh-core/Cargo.toml --out dist
           rust-toolchain: stable
-        if: runner.os == 'macos'
 
-      - name: Build (non-macOS)
-        run: cargo build --release --verbose
-        if: runner.os != 'macos'
-
-      - name: Build CLI (macOS)
-        run: cargo build --release --verbose -p superharness
-        if: runner.os == 'macos'
+      - name: Build CLI
+        run: cargo build --release --verbose -p superharness-cli
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
