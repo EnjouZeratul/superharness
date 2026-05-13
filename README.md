@@ -1,5 +1,10 @@
 # SuperHarness
 
+[![CI](https://github.com/EnjouZeratul/superharness/actions/workflows/ci.yml/badge.svg)](https://github.com/EnjouZeratul/superharness/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://www.rust-lang.org/)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+
 **SuperHarness 是简洁可靠的 Agent 运行时。**
 
 Rust 核心性能 + Python 友好接口 + 完整 Agent 能力
@@ -114,7 +119,8 @@ superharness/
 │   ├── layer2/       # Core Engine
 │   ├── layer3/       # Capabilities
 │   ├── layer4/       # Integration
-│   └── sh-core/      # 核心 crate
+│   ├── sh-core/      # 核心 crate (纯 Rust)
+│   └── sh-python/    # Python 绑定
 ├── cli/              # CLI 产品
 ├── python/           # Python SDK
 ├── docs/             # 文档
