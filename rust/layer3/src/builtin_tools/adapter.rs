@@ -97,6 +97,7 @@ pub fn register_builtin_tools(registry: &sh_layer2::ToolRegistry) -> anyhow::Res
 
 #[cfg(test)]
 mod tests {
+    use super::super::file_ops::ReadFileTool;
     use super::*;
 
     #[test]
