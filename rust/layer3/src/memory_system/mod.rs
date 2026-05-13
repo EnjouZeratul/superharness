@@ -1,0 +1,143 @@
+//! # Memory System
+//!
+//! 分层记忆系统：Working -> Session -> Project -> LongTerm
+
+pub mod working;
+pub mod session;
+pub mod project;
+pub mod long_term;
+pub mod system;
+
+// Re-export unified system and implementations
+pub use system::UnifiedMemorySystem;
+pub use working::WorkingMemory;
+pub use session::SessionMemory;
+pub use project::ProjectMemory;
+pub use long_term::LongTermMemory;
+
+use crate::types::{MemoryEntry, MemoryTier, MemoryQuery, Layer3Result};
+use async_trait::async_trait;
+use std::collections::HashMap;
+
+/// 记忆存储 trait
+///
+/// 定义单层记忆存储的核心接口。
+#[async_trait]
+pub trait MemoryStore: Send + Sync {
+    /// 记忆层级
+    fn tier(&self) -> MemoryTier;
+
+    /// 存储记忆条目
+    async fn store(&self, entry: MemoryEntry) -> Layer3Result<String>;
+
+    /// 获取记忆条目
+    async fn get(&self, id: &str) -> Layer3Result<Option<MemoryEntry>>;
+
+    /// 删除记忆条目
+    async fn delete(&self, id: &str) -> Layer3Result<bool>;
+
+    /// 查询记忆（按内容搜索）
+    async fn query(&self, query: &MemoryQuery) -> Layer3Result<Vec<MemoryEntry>>;
+
+    /// 列出所有记忆（按时间排序）
+    async fn list(&self, limit: Option<usize>) -> Layer3Result<Vec<MemoryEntry>>;
+
+    /// 清空该层所有记忆
+    async fn clear(&self) -> Layer3Result<usize>;
+
+    /// 记忆条目数量
+    async fn count(&self) -> Layer3Result<usize>;
+}
+
+/// 记忆系统 trait
+///
+/// 统一管理所有记忆层级的接口。
+#[async_trait]
+pub trait MemorySystem: Send + Sync {
+    /// 存储记忆到指定层级
+    async fn store(&self, tier: MemoryTier, content: String) -> Layer3Result<String>;
+
+    /// 从指定层级获取记忆
+    async fn get(&self, tier: MemoryTier, id: &str) -> Layer3Result<Option<MemoryEntry>>;
+
+    /// 跨层级查询记忆
+    ///
+    /// 默认从 Working -> Session -> Project -> LongTerm 依次查询
+    async fn query_all(&self, query: &MemoryQuery) -> Layer3Result<Vec<MemoryEntry>>;
+
+    /// 在指定层级查询
+    async fn query(&self, tier: MemoryTier, query: &MemoryQuery) -> Layer3Result<Vec<MemoryEntry>>;
+
+    /// 删除指定层级记忆
+    async fn delete(&self, tier: MemoryTier, id: &str) -> Layer3Result<bool>;
+
+    /// 清空指定层级
+    async fn clear(&self, tier: MemoryTier) -> Layer3Result<usize>;
+
+    /// 获取层级统计
+    async fn stats(&self) -> Layer3Result<HashMap<MemoryTier, usize>>;
+}
+
+/// 记忆重要性评估 trait
+pub trait ImportanceScorer: Send + Sync {
+    /// 计算记忆重要性分数 (0.0-1.0)
+    fn score(&self, entry: &MemoryEntry) -> f32;
+}
+
+/// 记忆衰减策略 trait
+///
+/// 定义记忆如何随时间衰减重要性。
+pub trait DecayPolicy: Send + Sync {
+    /// 计算衰减后的重要性
+    fn decay(&self, entry: &MemoryEntry, current_time: chrono::DateTime<chrono::Utc>) -> f32;
+
+    /// 是否应该清理该记忆
+    fn should_evict(&self, entry: &MemoryEntry) -> bool;
+}
+
+/// 默认衰减策略：基于时间和访问频率
+pub struct TimeBasedDecay {
+    /// 衰减率（每天）
+    decay_rate: f32,
+    /// 最低保留重要性
+    min_threshold: f32,
+}
+
+impl TimeBasedDecay {
+    pub fn new(decay_rate: f32, min_threshold: f32) -> Self {
+        Self { decay_rate, min_threshold }
+    }
+}
+
+impl Default for TimeBasedDecay {
+    fn default() -> Self {
+        Self {
+            decay_rate: 0.1,
+            min_threshold: 0.1,
+        }
+    }
+}
+
+impl DecayPolicy for TimeBasedDecay {
+    fn decay(&self, entry: &MemoryEntry, current_time: chrono::DateTime<chrono::Utc>) -> f32 {
+        let days_since_access = (current_time - entry.last_accessed).num_days() as f32;
+        let decayed = entry.importance * (1.0 - self.decay_rate * days_since_access);
+        decayed.max(0.0)
+    }
+
+    fn should_evict(&self, entry: &MemoryEntry) -> bool {
+        entry.importance < self.min_threshold
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_decay_policy_default() {
+        let decay = TimeBasedDecay::default();
+        assert_eq!(decay.decay_rate, 0.1);
+        assert_eq!(decay.min_threshold, 0.1);
+    }
+}

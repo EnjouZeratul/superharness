@@ -1,0 +1,72 @@
+//! TUI UI 渲染
+
+use ratatui::{
+    layout::{Constraint, Direction, Layout, Rect},
+    Frame,
+};
+
+use super::app::App;
+use super::components::{ChatComponent, InputComponent, StatusComponent, ToolDisplayComponent};
+
+/// 渲染 TUI 界面
+pub fn render(
+    f: &mut Frame,
+    _app: &App,
+    chat: &ChatComponent,
+    input: &InputComponent,
+    status: &StatusComponent,
+    tools: &ToolDisplayComponent,
+    show_tools: bool,
+) {
+    // 工具显示的高度（折叠模式为1行统计）
+    let tools_height = if show_tools { 4 } else { 0 };
+
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(1),              // 状态栏
+            Constraint::Min(1),                 // 聊天区域
+            Constraint::Length(tools_height),  // 工具显示（动态）
+            Constraint::Length(3),              // 输入区域
+        ])
+        .split(f.area());
+
+    // 渲染状态栏
+    render_status(f, chunks[0], status);
+
+    // 渲染聊天区域
+    render_chat(f, chunks[1], chat);
+
+    // 工具显示区域
+    if show_tools {
+        render_tools_collapsed(f, chunks[2], tools);
+    }
+
+    // 渲染输入区域
+    render_input(f, chunks[3], input);
+}
+
+/// 渲染状态栏
+fn render_status(f: &mut Frame, area: Rect, status: &StatusComponent) {
+    status.render(f, area);
+}
+
+/// 渲染聊天区域
+fn render_chat(f: &mut Frame, area: Rect, chat: &ChatComponent) {
+    chat.render(f, area);
+}
+
+/// 渲染输入区域
+fn render_input(f: &mut Frame, area: Rect, input: &InputComponent) {
+    input.render(f, area);
+}
+
+/// 渲染工具显示（折叠模式）
+fn render_tools_collapsed(f: &mut Frame, area: Rect, tools: &ToolDisplayComponent) {
+    tools.render(f, area, true);
+}
+
+/// 渲染工具显示（展开模式）
+pub fn render_tools_expanded(f: &mut Frame, area: Rect, tools: &ToolDisplayComponent) {
+    tools.render(f, area, false);
+}

@@ -1,0 +1,102 @@
+[workspace]
+resolver = "2"
+members = [
+    "rust/sh-core",
+    "rust/layer0",
+    "rust/layer1",
+    "rust/layer2",
+    "rust/layer3",
+    "rust/layer4",
+    "cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["SuperHarness Team"]
+license = "MIT"
+repository = "https://github.com/superharness/superharness"
+homepage = "https://github.com/superharness/superharness"
+documentation = "https://docs.rs/superharness"
+keywords = ["agent", "llm", "ai", "runtime", "terminal"]
+categories = ["development-tools", "api-bindings", "command-line-utilities"]
+
+[workspace.dependencies]
+# 异步运行时
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# 错误处理
+anyhow = "1.0"
+thiserror = "2.0"
+
+# 可观测性
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Python 绑定
+pyo3 = { version = "0.23", features = ["extension-module"] }
+pyo3-async-runtimes = { version = "0.23", features = ["tokio-runtime"] }
+
+# HTTP 客户端
+reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# 存储
+sled = "0.34"  # 嵌入式数据库
+
+# 配置
+config = "0.14"
+
+# 缓存
+moka = { version = "0.12", features = ["future"] }
+
+# 并发
+parking_lot = "0.12"
+dashmap = "6.1"
+
+# 日志
+log = "0.4"
+
+# 时间
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1.11", features = ["v4", "serde"] }
+
+# 正则
+regex = "1.11"
+
+# SHA-256 校验和
+sha2 = "0.10"
+
+# 目录路径
+dirs = "5.0"
+
+# Glob 文件匹配
+glob = "0.3"
+
+# 测试
+tempfile = "3.14"
+criterion = "0.5"
+
+# Layer 内部依赖（共享）
+sh-layer0 = { version = "0.1.0", path = "rust/layer0" }
+sh-layer1 = { version = "0.1.0", path = "rust/layer1" }
+sh-layer2 = { version = "0.1.0", path = "rust/layer2" }
+sh-layer3 = { version = "0.1.0", path = "rust/layer3" }
+sh-layer4 = { version = "0.1.0", path = "rust/layer4" }
+sh-core = { version = "0.1.0", path = "rust/sh-core" }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+
+[profile.dev]
+opt-level = 0

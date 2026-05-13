@@ -1,0 +1,39 @@
+[package]
+name = "sh-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "SuperHarness Core - Unified re-exports for all layers"
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/sh-core"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+sh-layer0.workspace = true
+sh-layer1.workspace = true
+sh-layer2.workspace = true
+sh-layer3.workspace = true
+sh-layer4.workspace = true
+
+# Python 绑定
+pyo3.workspace = true
+pyo3-async-runtimes.workspace = true
+
+tokio.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+chrono.workspace = true
+
+[lib]
+name = "sh_core"
+crate-type = ["cdylib", "rlib"]
+
+[dev-dependencies]
+tempfile.workspace = true

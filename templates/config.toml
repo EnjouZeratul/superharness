@@ -1,0 +1,96 @@
+# SuperHarness Configuration Template
+# Copy to ~/.superharness/config.toml or ./.superharness/config.toml
+
+# ========================================
+# Provider Configuration
+# ========================================
+
+# Current provider: anthropic | openai | google | custom
+provider = "anthropic"
+
+# API Key (recommended to use environment variable)
+# api_key = "your-api-key-here"
+# Or use environment variable expansion:
+api_key = "${ANTHROPIC_API_KEY}"
+
+# Base URL (optional, for custom endpoints)
+# base_url = "https://api.anthropic.com"
+
+# ========================================
+# Model Configuration
+# ========================================
+
+# Primary model
+model = "claude-sonnet-4-6"
+
+# Small/fast model for simple tasks
+small_model = "claude-haiku-4-5"
+
+# Effort level: low | medium | high | max
+effort_level = "medium"
+
+# ========================================
+# Generation Parameters
+# ========================================
+
+# Maximum tokens per response
+max_tokens = 8192
+
+# Temperature (0.0 - 1.0)
+temperature = 0.7
+
+# ========================================
+# Budget & Limits
+# ========================================
+
+# Optional: Budget limit (in USD)
+# budget = 100.0
+
+# Disable traffic statistics
+disable_traffic = false
+
+# ========================================
+# Paths
+# ========================================
+
+# Worktrees directory (for git worktrees)
+# worktrees_dir = "~/.claude/worktrees"
+
+# Plugins directory
+# plugins_dir = "~/.claude/plugins"
+
+# ========================================
+# Logging
+# ========================================
+
+# Log level: debug | info | warn | error
+log_level = "info"
+
+# ========================================
+# Audit Configuration
+# ========================================
+
+# Enable audit logging
+audit_enabled = true
+
+# Audit log retention (days)
+audit_retention_days = 90
+
+# ========================================
+# Multiple Providers (Optional)
+# ========================================
+
+[providers.anthropic]
+api_key = "${ANTHROPIC_API_KEY}"
+default_model = "claude-sonnet-4-6"
+small_model = "claude-haiku-4-5"
+
+[providers.openai]
+api_key = "${OPENAI_API_KEY}"
+default_model = "gpt-4.1"
+small_model = "gpt-4.1-mini"
+
+[providers.google]
+api_key = "${GOOGLE_API_KEY}"
+default_model = "gemini-2.5-pro"
+small_model = "gemini-2.5-flash"

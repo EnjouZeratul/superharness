@@ -1,0 +1,30 @@
+[package]
+name = "sh-layer0"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "SuperHarness Layer 0: Security Gateway"
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/sh-layer0"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+regex.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+parking_lot.workspace = true
+dashmap.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio.workspace = true
+futures.workspace = true
