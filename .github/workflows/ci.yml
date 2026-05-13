@@ -96,21 +96,14 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Configure Python paths (macOS)
-        run: |
-          echo "RUSTFLAGS=-L $pythonLocation/lib" >> $GITHUB_ENV
-        if: runner.os == 'macOS'
+      - name: Configure PyO3 Python path
+        run: echo "PYO3_PYTHON=$pythonLocation/bin/python3" >> $GITHUB_ENV
+        if: runner.os != 'Windows'
 
-      - name: Configure Python paths (Windows)
+      - name: Configure PyO3 Python path (Windows)
         shell: pwsh
-        run: |
-          echo "RUSTFLAGS=/LIBPATH:$env:pythonLocation\libs" >> $env:GITHUB_ENV
+        run: echo "PYO3_PYTHON=$env:pythonLocation\python.exe" >> $env:GITHUB_ENV
         if: runner.os == 'Windows'
-
-      - name: Configure Python paths (Linux)
-        run: |
-          echo "RUSTFLAGS=-L $pythonLocation/lib" >> $GITHUB_ENV
-        if: runner.os == 'Linux'
 
       - name: Build all
         run: cargo build --release --verbose
