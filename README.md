@@ -1,9 +1,230 @@
 # Continuum
 
-[![CI](https://github.com/continuum-ai/continuum/actions/workflows/ci.yml/badge.svg)](https://github.com/continuum-ai/continuum/actions/workflows/ci.yml)
+[![CI](https://github.com/EnjouZeratul/continuum/actions/workflows/ci.yml/badge.svg)](https://github.com/EnjouZeratul/continuum/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://www.rust-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+
+**Continuum is a concise and reliable Agent runtime.**
+
+Rust core performance + Python friendly interface + full Agent capabilities
+
+[中文版](#中文版)
+
+---
+
+## Product Positioning
+
+Continuum is two equally important products:
+
+| Product | Description | Analogy |
+|---------|-------------|---------|
+| **CLI** | Terminal Agent product | Claude Code + Aider + OpenClaw CLI |
+| **Python SDK** | AI application development framework | LangChain + LangGraph + SmolAgents |
+
+---
+
+## Core Features
+
+### Security First
+- Layer 0 Security Gateway: All external inputs must be validated
+- PII data scrubbing, access control, rate limiting
+
+### Performance Core
+- Rust core engine (70% modules)
+- Concurrent-safe session management
+- Efficient checkpoint system
+
+### Developer Friendly
+- Python thin-layer interface, simple and intuitive
+- Complete type hints
+- Comprehensive documentation
+
+### Observability
+- Built-in cost tracking
+- Real-time Token statistics
+- Execution process replay
+
+---
+
+## Quick Start
+
+### CLI Usage
+
+```bash
+# Install
+cargo install continuum
+
+# Run a task
+continuum run "Analyze this project structure"
+
+# Start TUI mode
+continuum tui
+
+# Manage sessions
+continuum session list
+continuum session resume <session_id>
+```
+
+### Python SDK Usage
+
+```python
+from continuum_sdk import Agent, SessionManager
+
+# Create Agent
+agent = Agent(
+    model="claude-sonnet-4-6",
+    tools=["file_read", "file_write", "bash"]
+)
+
+# Run a task
+result = await agent.run("Help me refactor this function")
+
+# Session management
+session = SessionManager()
+session.save("my_session")
+session.load("my_session")
+```
+
+---
+
+## Architecture
+
+### Six-Layer Architecture
+
+```
+Layer 5: Interface     → CLI + Python SDK
+Layer 4: Integration   → MCP, Plugin, Worktree
+Layer 3: Capabilities  → Tools, Memory, Query Engine
+Layer 2: Core          → Agent Runtime, Session, Checkpoint
+Layer 1: Foundation    → LLM Client, Storage, Cost Tracker
+Layer 0: Security      → Input Validator, PII Scrubber, Access Control
+```
+
+### Dependency Rules
+
+- Layer N can only depend on Layer N-1
+- No circular dependencies
+- Security gateway is the entry point for all external inputs
+
+See [ARCHITECTURE_V4.md](docs/ARCHITECTURE_V4.md) for details.
+
+---
+
+## Project Structure
+
+```
+continuum/
+├── rust/              # Rust core code
+│   ├── layer0/       # Security Gateway
+│   ├── layer1/       # Foundation
+│   ├── layer2/       # Core Engine
+│   ├── layer3/       # Capabilities
+│   ├── layer4/       # Integration
+│   ├── sh-core/      # Core crate (pure Rust)
+│   └── sh-python/    # Python bindings
+├── cli/              # CLI product
+├── python/           # Python SDK
+├── docs/             # Documentation
+└── tests/            # Tests
+```
+
+See [PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for details.
+
+---
+
+## Development
+
+### Build
+
+```bash
+# Build Rust core
+cargo build --release
+
+# Build Python package
+maturin develop
+
+# Run tests
+cargo test
+pytest
+```
+
+### Code Standards
+
+See [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md)
+
+Core principles:
+- Single file, single responsibility
+- No genesis files
+- Reuse reusable interfaces
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [ARCHITECTURE_V4.md](docs/ARCHITECTURE_V4.md) | Complete architecture design |
+| [PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | Project directory structure |
+| [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md) | Design philosophy and code standards |
+| [SUPER_PROJECT_VISION.md](docs/SUPER_PROJECT_VISION.md) | Project vision |
+| [DIFFERENTIATION_STRATEGY.md](docs/DIFFERENTIATION_STRATEGY.md) | Differentiation strategy |
+
+---
+
+## Competitive Benchmark
+
+### Claude Code
+- ✅ 40+ built-in tools
+- ✅ Query Engine
+- ✅ LSP Client
+- ✅ Worktree Manager
+- ✅ Cost Tracking
+- ✅ Streaming output
+- ✅ Session persistence
+
+### OpenClaw
+- ✅ Plugin SDK
+- ✅ Channel Gateway
+- ✅ Process Management
+- ✅ Sandbox Runtime
+- ✅ Audit Logger
+
+### LangChain/LangGraph
+- ✅ Workflow Engine
+- ✅ Memory System
+- ✅ Tool Registry
+- ✅ Retrieval Engine
+- ✅ Output Parsers
+
+---
+
+## Development Status
+
+🚧 **In Development**
+
+Current progress:
+- [x] Architecture design
+- [x] Layer 0 Security Gateway
+- [x] Layer 1 Foundation modules
+- [ ] Layer 2 Core Engine
+- [ ] Layer 3 Capabilities
+- [ ] Layer 4 Integration
+- [ ] CLI product
+- [ ] Python SDK
+
+---
+
+## License
+
+MIT
+
+---
+
+<h2 id="中文版">中文版</h2>
+
+<details>
+<summary>点击展开中文版</summary>
 
 **Continuum 是简洁可靠的 Agent 运行时。**
 
@@ -67,7 +288,7 @@ continuum session resume <session_id>
 ### Python SDK 使用
 
 ```python
-from continuum import Agent, SessionManager
+from continuum_sdk import Agent, SessionManager
 
 # 创建 Agent
 agent = Agent(
@@ -216,3 +437,5 @@ pytest
 ## License
 
 MIT
+
+</details>
