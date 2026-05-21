@@ -1,4 +1,4 @@
-//! superharness tools 子命令
+//! continuum tools 子命令
 
 use anyhow::Result;
 

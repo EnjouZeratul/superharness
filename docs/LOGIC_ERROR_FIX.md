@@ -28,7 +28,7 @@
 
 **问题表述**：
 ```
-❌ 错误认知: "SuperHarness 要比 SmolAgents 更super"
+❌ 错误认知: "Continuum 要比 SmolAgents 更super"
    → 与 SmolAgents 比拼"极简"是战略错误
 ```
 
@@ -71,7 +71,7 @@
 **正确理解**：
 ```
 SmolAgents = 小型框架（入门级）
-SuperHarness = 高级框架（生产级）
+Continuum = 高级框架（生产级）
 
 两者是定位层级不同，不是同一赛道的零和竞争
 ```
@@ -86,17 +86,17 @@ SuperHarness = 高级框架（生产级）
 
 **问题表述**：
 ```
-最终定位: "SuperHarness = SmolAgents + 企业级可靠性 + 成本透明 + 可观测性"
+最终定位: "Continuum = SmolAgents + 企业级可靠性 + 成本透明 + 可观测性"
 ```
 
 **谬误分析**：
 | 品牌名 | 暗示语义 | 文档定位 | 匹配度 |
 |--------|---------|---------|--------|
-| SuperHarness | 超级/强大/超越 | 可靠性+可观测性 | 低 |
+| Continuum | 超级/强大/超越 | 可靠性+可观测性 | 低 |
 
 - "Super" 是进取型语义（更强、更卓越）
 - "可靠性+可观测性"是防守型语义（稳定、安全）
-- 用户看到"SuperHarness"期望的是"超强框架"，而非"稳定框架"
+- 用户看到"Continuum"期望的是"超强框架"，而非"稳定框架"
 
 ---
 
@@ -104,10 +104,10 @@ SuperHarness = 高级框架（生产级）
 
 **严重程度：中**
 
-**问题位置**：多处文档使用 `SuperHarness = SmolAgents + ...`
+**问题位置**：多处文档使用 `Continuum = SmolAgents + ...`
 
 **谬误分析**：
-- 这个公式暗示 SuperHarness 是 SmolAgents 的"扩展版"
+- 这个公式暗示 Continuum 是 SmolAgents 的"扩展版"
 - 削弱品牌独立性
 - "Super"应代表独立强大，而非依附
 
@@ -126,14 +126,14 @@ Super = Superior（超越）+ Supersonic（极速）+ Superstructure（超级架
 - Superstructure：架构优越（分层设计、可扩展）
 ```
 
-### 3.2 SmolAgents vs SuperHarness 的正确关系
+### 3.2 SmolAgents vs Continuum 的正确关系
 
 ```
 SmolAgents = 小型框架
 定位：入门级、学习研究、HF生态绑定
 核心价值：降低门槛
 
-SuperHarness = 高级框架
+Continuum = 高级框架
 定位：生产级、企业级、OpenAI/Anthropic 生态
 核心价值：强大架构
 
@@ -148,7 +148,7 @@ SuperHarness = 高级框架
 SmolAgents 极简 → HF 已占位 → 不能比极简 → 只能做 HF 不做的事 → 依附定位
 
 ✓ 正确逻辑链:
-SmolAgents 极简 → HF 的定位选择 → SuperHarness 走不同定位 →
+SmolAgents 极简 → HF 的定位选择 → Continuum 走不同定位 →
 "Super"暗示强大 → 做强大架构 → 独立品牌定位
 ```
 
@@ -162,16 +162,16 @@ SmolAgents 极简 → HF 的定位选择 → SuperHarness 走不同定位 →
 
 **当前表述（删除）**：
 ```
-❌ 错误认知: "SuperHarness 要比 SmolAgents 更super"
+❌ 错误认知: "Continuum 要比 SmolAgents 更super"
    → 与 SmolAgents 比拼"极简"是战略错误
 ```
 
 **替换为**：
 ```
-❌ 错误认知: "SuperHarness 要复制 SmolAgents 的极简定位"
+❌ 错误认知: "Continuum 要复制 SmolAgents 的极简定位"
    → SmolAgents 有 HuggingFace 品牌背书，先发优势明显
 
-✓ 正确认知: "SuperHarness 走差异化的强大架构定位"
+✓ 正确认知: "Continuum 走差异化的强大架构定位"
    → "Super"代表强大、超越，而非更小
    → 利用 SmolAgents 的战略盲区（HF 商业利益冲突）
    → 定位为"生产级框架"，与 SmolAgents 的"入门级框架"形成层级互补
@@ -183,12 +183,12 @@ SmolAgents 极简 → HF 的定位选择 → SuperHarness 走不同定位 →
 
 **当前表述（删除）**：
 ```
-> "SuperHarness = SmolAgents + 企业级可靠性 + 成本透明 + 可观测性"
+> "Continuum = SmolAgents + 企业级可靠性 + 成本透明 + 可观测性"
 ```
 
 **替换为**：
 ```
-> "SuperHarness 是简洁可靠的 Agent 运行时"
+> "Continuum 是简洁可靠的 Agent 运行时"
 >
 > 核心能力：可靠性 + 成本透明 + 可观测性
 >
@@ -232,10 +232,10 @@ Super = Superior（超越）+ Stronger（更强）+ Richer（更完善）
 ```
 差异化竞争方向:
 
-SuperHarness 不是"不与 SmolAgents 竞争极简"，
+Continuum 不是"不与 SmolAgents 竞争极简"，
 而是"走不同的定位路线"：
 
-| SmolAgents | SuperHarness |
+| SmolAgents | Continuum |
 |------------|--------------|
 | 入门级框架 | 生产级框架 |
 | 学习研究 | 企业应用 |
@@ -251,19 +251,19 @@ SuperHarness 不是"不与 SmolAgents 竞争极简"，
 
 ### 一句话定位
 
-> **"SmolAgents 让你理解 Agent，SuperHarness 让你生产 Agent"**
+> **"SmolAgents 让你理解 Agent，Continuum 让你生产 Agent"**
 
 ### 品牌故事
 
 ```
-为什么叫 SuperHarness？
+为什么叫 Continuum？
 
 SmolAgents = "Smol"（小）= 入门级、学习友好
-SuperHarness = "Super"（强）= 生产级、架构强大
+Continuum = "Super"（强）= 生产级、架构强大
 
 不是对立关系，而是定位不同：
 - SmolAgents：让学习者理解 Agent 原理
-- SuperHarness：让开发者生产 Agent 产品
+- Continuum：让开发者生产 Agent 产品
 
 "Super" 的三重含义：
 - Superior：能力超越（企业级功能）

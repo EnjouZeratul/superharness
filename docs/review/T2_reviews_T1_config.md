@@ -71,8 +71,8 @@ pub struct ProviderConfig {
 **建议**: 统一为一个枚举，删除重复定义。
 
 ### 4. 环境变量名不一致 (低优先级)
-**Python**: `SUPERHARNESS_*` (loader.py:84)
-**Rust**: `SUPERHARNESS_*` (config_manager.rs:138)
+**Python**: `CONTINUUM_*` (loader.py:84)
+**Rust**: `CONTINUUM_*` (config_manager.rs:138)
 
 **确认**: 两者一致，无问题。
 

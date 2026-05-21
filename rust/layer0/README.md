@@ -1,8 +1,8 @@
 # sh-layer0
 
-SuperHarness Layer 0: Security Gateway
+Continuum Layer 0: Security Gateway
 
-This layer provides security validation and sanitization for all inputs and outputs in the SuperHarness agent runtime.
+This layer provides security validation and sanitization for all inputs and outputs in the Continuum agent runtime.
 
 ## Features
 

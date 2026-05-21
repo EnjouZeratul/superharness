@@ -1,5 +1,5 @@
-# SuperHarness Configuration Template
-# Copy to ~/.superharness/config.toml or ./.superharness/config.toml
+# Continuum Configuration Template
+# Copy to ~/.continuum/config.toml or ./.continuum/config.toml
 
 # ========================================
 # Provider Configuration

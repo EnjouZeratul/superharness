@@ -45,3 +45,11 @@ target/
 *.log
 .env
 .env.local
+.env.test
+test,env
+*.bak
+
+# Secrets - never commit
+*_key*
+*_secret*
+*_token*

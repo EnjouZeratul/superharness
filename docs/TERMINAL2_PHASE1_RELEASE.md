@@ -107,20 +107,20 @@ rust/
 
 ```toml
 [package]
-name = "superharness-layer1"
+name = "continuum-layer1"
 version = "1.0.0"
 edition = "2021"
-description = "SuperHarness Layer 1 - 基础设施层"
+description = "Continuum Layer 1 - 基础设施层"
 license = "MIT"
-repository = "https://github.com/superharness/superharness"
-homepage = "https://github.com/superharness/superharness"
-documentation = "https://docs.rs/superharness-layer1"
+repository = "https://github.com/continuum/continuum"
+homepage = "https://github.com/continuum/continuum"
+documentation = "https://docs.rs/continuum-layer1"
 keywords = ["agent", "llm", "ai", "runtime"]
 categories = ["development-tools", "api-bindings"]
 
 [dependencies]
 # 依赖其他 layer 时使用精确版本
-superharness-layer0 = { version = "1.0.0", path = "../layer0" }
+continuum-layer0 = { version = "1.0.0", path = "../layer0" }
 ```
 
 ---

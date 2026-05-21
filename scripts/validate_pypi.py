@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SuperHarness PyPI 安装验证脚本
+"""Continuum PyPI 安装验证脚本
 
 用户在发布后运行此脚本验证安装是否成功。
 """
@@ -11,42 +11,42 @@ def check_imports():
     print("=== 检查 SDK 导入 ===\n")
 
     try:
-        from superharness_sdk import Agent
+        from continuum_sdk import Agent
         print("✓ Agent 导入成功")
     except ImportError as e:
         print(f"✗ Agent 导入失败: {e}")
         return False
 
     try:
-        from superharness_sdk import Session
+        from continuum_sdk import Session
         print("✓ Session 导入成功")
     except ImportError as e:
         print(f"✗ Session 导入失败: {e}")
         return False
 
     try:
-        from superharness_sdk import ConfigLoader
+        from continuum_sdk import ConfigLoader
         print("✓ ConfigLoader 导入成功")
     except ImportError as e:
         print(f"✗ ConfigLoader 导入失败: {e}")
         return False
 
     try:
-        from superharness_sdk.tools import ToolRegistry
+        from continuum_sdk.tools import ToolRegistry
         print("✓ ToolRegistry 导入成功")
     except ImportError as e:
         print(f"✗ ToolRegistry 导入失败: {e}")
         return False
 
     try:
-        from superharness_sdk.memory import Memory
+        from continuum_sdk.memory import Memory
         print("✓ Memory 导入成功")
     except ImportError as e:
         print(f"✗ Memory 导入失败: {e}")
         return False
 
     try:
-        from superharness_sdk.workflow import DAG
+        from continuum_sdk.workflow import DAG
         print("✓ DAG 导入成功")
     except ImportError as e:
         print(f"✗ DAG 导入失败: {e}")
@@ -60,8 +60,8 @@ def check_version():
     print("\n=== 检查版本 ===\n")
 
     try:
-        import superharness_sdk
-        version = superharness_sdk.__version__
+        import continuum_sdk
+        version = continuum_sdk.__version__
         print(f"✓ SDK 版本: {version}")
         return True
     except Exception as e:
@@ -74,7 +74,7 @@ def check_simple_usage():
     print("\n=== 检查简单使用 ===\n")
 
     try:
-        from superharness_sdk import Agent
+        from continuum_sdk import Agent
         agent = Agent.__new__(Agent)  # 不实际初始化，只检查类可用
         print("✓ Agent 类可用")
         return True
@@ -84,7 +84,7 @@ def check_simple_usage():
 
 
 def main():
-    print("SuperHarness PyPI 安装验证\n")
+    print("Continuum PyPI 安装验证\n")
     print("=" * 40)
 
     results = []

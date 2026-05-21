@@ -1,4 +1,4 @@
-# SuperHarness 测试策略设计文档
+# Continuum 测试策略设计文档
 
 > 版本: v1.0
 > 日期: 2026-05-10
@@ -144,8 +144,8 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from httpx import Response, Request
 
-from superharness.llm.providers.openai import OpenAIProvider
-from superharness.llm.messages import Message, LLMResponse, ToolCall, FunctionCall
+from continuum.llm.providers.openai import OpenAIProvider
+from continuum.llm.messages import Message, LLMResponse, ToolCall, FunctionCall
 
 
 class TestOpenAIProvider:
@@ -302,8 +302,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch, MagicMock, AsyncMock
 
-from superharness.session.manager import SessionManager, Checkpoint
-from superharness.session.state import AgentState, ExecutionContext
+from continuum.session.manager import SessionManager, Checkpoint
+from continuum.session.state import AgentState, ExecutionContext
 
 
 class TestSessionManager:
@@ -312,7 +312,7 @@ class TestSessionManager:
     @pytest.fixture
     def temp_storage(self, tmp_path):
         """创建临时存储目录"""
-        storage_dir = tmp_path / ".superharness" / "sessions"
+        storage_dir = tmp_path / ".continuum" / "sessions"
         storage_dir.mkdir(parents=True, exist_ok=True)
         return storage_dir
 
@@ -626,8 +626,8 @@ import pytest
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from superharness.error.retry import RetryExecutor, RetryConfig, BackoffType
-from superharness.error.classifier import ErrorType, ClassifiedError
+from continuum.error.retry import RetryExecutor, RetryConfig, BackoffType
+from continuum.error.classifier import ErrorType, ClassifiedError
 
 
 class TestRetryExecutor:
@@ -844,15 +844,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime
 
 # 项目导入
-from superharness.llm.providers.openai import OpenAIProvider
-from superharness.llm.providers.anthropic import AnthropicProvider
-from superharness.llm.messages import Message, LLMResponse, ToolCall, FunctionCall
-from superharness.context.manager import ContextManager
-from superharness.context.budget import TokenBudgetManager, TokenBudgetConfig
-from superharness.session.manager import SessionManager, Checkpoint
-from superharness.session.state import AgentState, ExecutionContext
-from superharness.tools.registry import ToolRegistry
-from superharness.error.retry import RetryExecutor, RetryConfig
+from continuum.llm.providers.openai import OpenAIProvider
+from continuum.llm.providers.anthropic import AnthropicProvider
+from continuum.llm.messages import Message, LLMResponse, ToolCall, FunctionCall
+from continuum.context.manager import ContextManager
+from continuum.context.budget import TokenBudgetManager, TokenBudgetConfig
+from continuum.session.manager import SessionManager, Checkpoint
+from continuum.session.state import AgentState, ExecutionContext
+from continuum.tools.registry import ToolRegistry
+from continuum.error.retry import RetryExecutor, RetryConfig
 
 
 # ==================== 异步配置 ====================
@@ -877,7 +877,7 @@ def mock_env_api_keys(monkeypatch):
 @pytest.fixture
 def temp_storage_dir(tmp_path):
     """临时存储目录"""
-    storage = tmp_path / ".superharness"
+    storage = tmp_path / ".continuum"
     storage.mkdir()
     return storage
 
@@ -1134,9 +1134,9 @@ import asyncio
 from unittest.mock import AsyncMock, patch, MagicMock
 from datetime import datetime
 
-from superharness import Harness, Agent
-from superharness.llm.messages import Message, LLMResponse, ToolCall, FunctionCall
-from superharness.session.state import AgentState
+from continuum import Harness, Agent
+from continuum.llm.messages import Message, LLMResponse, ToolCall, FunctionCall
+from continuum.session.state import AgentState
 
 
 class TestAgentFlow:
@@ -1380,9 +1380,9 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch, AsyncMock
 
-from superharness.session.manager import SessionManager
-from superharness.session.state import AgentState, ExecutionContext
-from superharness.session.checkpoint import Checkpoint, CheckpointValidator
+from continuum.session.manager import SessionManager
+from continuum.session.state import AgentState, ExecutionContext
+from continuum.session.checkpoint import Checkpoint, CheckpointValidator
 
 
 class TestSessionFlow:
@@ -1609,7 +1609,7 @@ class TestSessionFlow:
 
         # When: 篡改checkpoint文件
         checkpoint_file = (
-            tmp_path / ".superharness" / "sessions" /
+            tmp_path / ".continuum" / "sessions" /
             "checksum_test" / "checkpoints" /
             f"cp_{checkpoint.checkpoint_id}.json"
         )
@@ -1650,9 +1650,9 @@ class TestSessionFlow:
 - 验证状态完整性
 
 场景3: CLI命令E2E测试
-- 验证superharness run命令
-- 验证superharness chat命令
-- 验证superharness continue命令
+- 验证continuum run命令
+- 验证continuum chat命令
+- 验证continuum continue命令
 ```
 
 ### 4.2 E2E测试用例
@@ -1665,8 +1665,8 @@ import pytest
 import os
 import asyncio
 
-from superharness import Harness, Agent
-from superharness.llm.messages import Message
+from continuum import Harness, Agent
+from continuum.llm.messages import Message
 
 
 # 跳过条件：无真实API Key
@@ -1824,10 +1824,10 @@ class TestCrashRecovery:
         # Phase 4: 验证任务完成
 
         # 简化版本：直接测试SessionManager
-        from superharness.session.manager import SessionManager
-        from superharness.session.state import ExecutionContext, AgentState
+        from continuum.session.manager import SessionManager
+        from continuum.session.state import ExecutionContext, AgentState
 
-        storage = test_project / ".superharness" / "sessions"
+        storage = test_project / ".continuum" / "sessions"
         storage.mkdir(parents=True)
 
         manager = SessionManager(storage_path=str(storage))
@@ -1872,7 +1872,7 @@ class TestCrashRecovery:
     def test_cli_continue_command(self, test_project):
         """测试CLI continue命令"""
         # Given: 创建checkpoint
-        session_dir = test_project / ".superharness" / "sessions" / "cli_test_session"
+        session_dir = test_project / ".continuum" / "sessions" / "cli_test_session"
         checkpoint_dir = session_dir / "checkpoints"
         checkpoint_dir.mkdir(parents=True)
 
@@ -1905,7 +1905,7 @@ class TestCrashRecovery:
         # When: 运行continue命令
         # 注：实际测试需要subprocess运行CLI
         # result = subprocess.run(
-        #     ["superharness", "continue"],
+        #     ["continuum", "continue"],
         #     cwd=str(test_project),
         #     capture_output=True,
         #     text=True
@@ -1949,14 +1949,14 @@ class TestCLICommands:
     def test_cli_run_command_help(self):
         """测试CLI run命令帮助"""
         result = subprocess.run(
-            ["superharness", "run", "--help"],
+            ["continuum", "run", "--help"],
             capture_output=True,
             text=True
         )
 
         # 如果CLI未安装，跳过
         if result.returncode != 0 and "not found" in result.stderr:
-            pytest.skip("superharness CLI not installed")
+            pytest.skip("continuum CLI not installed")
 
         assert "usage:" in result.stdout.lower() or "Usage:" in result.stdout
 
@@ -1964,14 +1964,14 @@ class TestCLICommands:
     def test_cli_demo_mode(self):
         """测试CLI demo模式（无需API Key）"""
         result = subprocess.run(
-            ["superharness", "demo"],
+            ["continuum", "demo"],
             capture_output=True,
             text=True,
             timeout=30
         )
 
         if result.returncode != 0 and "not found" in result.stderr:
-            pytest.skip("superharness CLI not installed")
+            pytest.skip("continuum CLI not installed")
 
         # demo模式应该输出一些内容
         if result.returncode == 0:
@@ -1985,7 +1985,7 @@ class TestCLICommands:
     def test_cli_run_basic_task(self, cli_env):
         """测试CLI run执行基本任务"""
         result = subprocess.run(
-            ["superharness", "run", "输出Hello World"],
+            ["continuum", "run", "输出Hello World"],
             capture_output=True,
             text=True,
             timeout=60,
@@ -2001,7 +2001,7 @@ class TestCLICommands:
         """测试CLI chat模式启动"""
         # chat模式是交互式的，只测试启动
         proc = subprocess.Popen(
-            ["superharness", "chat"],
+            ["continuum", "chat"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -2019,7 +2019,7 @@ class TestCLICommands:
             proc.kill()
             proc.wait()
         except FileNotFoundError:
-            pytest.skip("superharness CLI not installed")
+            pytest.skip("continuum CLI not installed")
 ```
 
 ---
@@ -2065,7 +2065,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["src/superharness"]
+source = ["src/continuum"]
 branch = true
 omit = [
     "tests/*",
@@ -2107,7 +2107,7 @@ pytest tests/integration -v
 pytest tests/e2e -v -m e2e
 
 # 运行带覆盖率报告
-pytest --cov=superharness --cov-report=html --cov-report=term
+pytest --cov=continuum --cov-report=html --cov-report=term
 
 # 并行执行测试
 pytest -n auto
@@ -2157,7 +2157,7 @@ jobs:
       - name: Run unit tests
         run: |
           pytest tests/unit -v \
-            --cov=superharness \
+            --cov=continuum \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=80
@@ -2326,7 +2326,7 @@ test-e2e:
 
 # 生成覆盖率报告
 coverage:
-	pytest --cov=superharness --cov-report=html --cov-report=term
+	pytest --cov=continuum --cov-report=html --cov-report=term
 	@echo "Coverage report generated in htmlcov/index.html"
 
 # 代码检查
@@ -2419,7 +2419,7 @@ def check_coverage() -> bool:
     """检查测试覆盖率"""
     print("Checking test coverage...")
     code, output = run_command(
-        "pytest --cov=superharness --cov-report=term --cov-fail-under=80"
+        "pytest --cov=continuum --cov-report=term --cov-fail-under=80"
     )
 
     if code != 0:

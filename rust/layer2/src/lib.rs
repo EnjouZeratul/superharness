@@ -1,4 +1,4 @@
-//! # SuperHarness Layer 2: Core Engine
+//! # Continuum Layer 2: Core Engine
 //!
 //! Agent 运行时核心引擎。
 //!
@@ -53,7 +53,8 @@ pub use hook_system::{HookCallback, HookContext, HookSystem, HookSystemTrait};
 
 pub use checkpoint_system::{
     AtomicFileWriter, CheckpointData, CheckpointSystemTrait, CheckpointWriter, ChecksumUtils,
-    CrashRecovery,
+    CrashRecovery, ErrorCategory, ErrorRecovery, FallbackStrategy, InterruptedSession,
+    RecoveryAction, RecoveryLayer, RecoveryResult, RetryPolicy, SessionRecovery,
 };
 
 pub use tasks::{Task, TaskManager, TaskManagerTrait, TaskPriority, TaskStatus};

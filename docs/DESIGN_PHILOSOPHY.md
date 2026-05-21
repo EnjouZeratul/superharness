@@ -1,4 +1,4 @@
-# SuperHarness 设计理念与代码规范
+# Continuum 设计理念与代码规范
 
 > 版本: v1.0
 > 日期: 2026-05-10
@@ -178,13 +178,13 @@ const DEFAULT_TIMEOUT_SECS: u64 = 30;
 
 ```
 // Cargo.toml 中的包名
-sh-layer0  # sh = SuperHarness 缩写，layer0 表示层级
+sh-layer0  # sh = Continuum 缩写，layer0 表示层级
 sh-layer1
 sh-core
 
 // Python 模块
-superharness_sdk
-superharness_cli
+continuum_sdk
+continuum_cli
 ```
 
 ---
@@ -457,4 +457,4 @@ sessions.insert(id, session);
 ---
 
 **文档状态**: v1.0 设计理念完成
-**适用范围**: SuperHarness 全部代码
+**适用范围**: Continuum 全部代码

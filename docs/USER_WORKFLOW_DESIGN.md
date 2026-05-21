@@ -1,4 +1,4 @@
-# SuperHarness 用户工作流设计方案
+# Continuum 用户工作流设计方案
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -207,12 +207,12 @@
 #### 入口设计
 ```bash
 # 方式1：一键安装运行（推荐）
-pip install superharness
-superharness demo
+pip install continuum
+continuum demo
 
 # 输出示例：
 ┌──────────────────────────────────────────────────────────────┐
-│ SuperHarness v0.1.0 - 演示模式                                │
+│ Continuum v0.1.0 - 演示模式                                │
 ├──────────────────────────────────────────────────────────────┤
 │ 正在启动内置演示...                                           │
 │                                                              │
@@ -236,7 +236,7 @@ superharness demo
 │                                                              │
 │ 下一步:                                                       │
 │   export OPENAI_API_KEY=xxx                                  │
-│   superharness run "你的任务"                                 │
+│   continuum run "你的任务"                                 │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -273,23 +273,23 @@ DEMO_TASKS = [
 ```bash
 # 最小配置：仅API Key
 export OPENAI_API_KEY=sk-xxx
-superharness run "帮我分析README.md的内容"
+continuum run "帮我分析README.md的内容"
 
 # 推荐配置：API Key + 基础偏好
 export OPENAI_API_KEY=sk-xxx
 export SH_MODEL=gpt-4o-mini        # 默认低成本模型
 export SH_MAX_COST=0.5            # 最大成本$0.5
-superharness run "分析项目依赖关系"
+continuum run "分析项目依赖关系"
 ```
 
 #### 首次真实任务流程
 ```
 用户执行：
-$ superharness run "分析项目依赖关系"
+$ continuum run "分析项目依赖关系"
 
 系统响应：
 ┌──────────────────────────────────────────────────────────────┐
-│ SuperHarness v0.1.0                                          │
+│ Continuum v0.1.0                                          │
 │ 模型: gpt-4o-mini | 预算上限: $0.50                           │
 ├──────────────────────────────────────────────────────────────┤
 │ 首次使用提示:                                                 │
@@ -338,7 +338,7 @@ $ superharness run "分析项目依赖关系"
 │ 📊 执行轮次: 5/10 | ✓ 成功率: 100%                            │
 │                                                              │
 │ 💾 会话已自动保存                                             │
-│ 恢复命令: superharness continue --last                       │
+│ 恢复命令: continuum continue --last                       │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -370,10 +370,10 @@ $ superharness run "分析项目依赖关系"
 #### 交互模式切换
 ```bash
 # 模式1：单次执行（快速任务）
-superharness run "任务描述"
+continuum run "任务描述"
 
 # 模式2：交互对话（探索性任务）
-superharness chat
+continuum chat
 > 帮我分析这个架构设计
 [Agent响应]
 > 如果用微服务呢？
@@ -382,7 +382,7 @@ superharness chat
 [会话已保存]
 
 # 模式3：恢复会话（继续任务）
-superharness continue
+continuum continue
 📂 恢复会话: session_abc123
 最后活动: 2小时前 | 任务: 架构设计讨论
 > 继续上次的讨论...
@@ -423,7 +423,7 @@ superharness continue
 
 #### Python API设计
 ```python
-from superharness import Agent, SessionManager, CostTracker
+from continuum import Agent, SessionManager, CostTracker
 
 # 基础用法
 agent = Agent(model="gpt-4o-mini")
@@ -626,7 +626,7 @@ async def replay_session(session_id):
    "终于找到一个靠谱的Agent框架"
 
 3. 技术文章引用
-   "我用SuperHarness实现了..."
+   "我用Continuum实现了..."
 
 传播支持：
 - README有清晰的价值说明
@@ -810,7 +810,7 @@ Claude Code行为：
 
 ### 4.4 竞品工作流对比总结
 
-| 维度 | Aider | Cursor | Claude Code | SuperHarness目标 |
+| 维度 | Aider | Cursor | Claude Code | Continuum目标 |
 |------|-------|--------|-------------|-----------------|
 | **入口复杂度** | 极低(单命令) | 极低(快捷键) | 低(单命令) | 极低(单命令) |
 | **配置需求** | 零配置 | 零配置 | API Key | 零配置+API Key |
@@ -823,20 +823,20 @@ Claude Code行为：
 
 ---
 
-## 五、SuperHarness完整工作流方案
+## 五、Continuum完整工作流方案
 
 ### 5.1 核心命令体系（对标Aider极简）
 
 ```bash
 # 三核心命令（与UX_DESIGN_BEST_PRACTICE一致）
-superharness run "task"      # 执行任务（快速）
-superharness chat            # 交互模式（探索）
-superharness continue        # 恢复会话（延续）
+continuum run "task"      # 执行任务（快速）
+continuum chat            # 交互模式（探索）
+continuum continue        # 恢复会话（延续）
 
 # 辅助命令
-superharness config          # 配置管理
-superharness status          # 状态查看
-superharness sessions        # 会话列表
+continuum config          # 配置管理
+continuum status          # 状态查看
+continuum sessions        # 会话列表
 ```
 
 ### 5.2 典型用户旅程示例
@@ -848,13 +848,13 @@ superharness sessions        # 会话列表
 [00:00] 用户看到推荐
         来源：同事分享 / GitHub搜索
 
-[00:01] pip install superharness
+[00:01] pip install continuum
         输出：安装进度条
 
-[00:02] superharness demo
+[00:02] continuum demo
         输出：
         ┌──────────────────────────────────┐
-        │ SuperHarness 演示模式             │
+        │ Continuum 演示模式             │
         │ 正在分析当前目录...               │
         │ ✓ 完成                           │
         │                                  │
@@ -863,14 +863,14 @@ superharness sessions        # 会话列表
         │                                  │
         │ 下一步:                           │
         │ export OPENAI_API_KEY=xxx        │
-        │ superharness run "你的任务"       │
+        │ continuum run "你的任务"       │
         └──────────────────────────────────┘
 
 [00:03] 用户理解能力
         心理："这东西能分析代码结构"
 
 [00:05] export OPENAI_API_KEY=xxx
-        superharness run "检查这个项目的代码风格"
+        continuum run "检查这个项目的代码风格"
 
 [00:08] 看到真实结果
         心理："真的有用！而且告诉我花了多少钱"
@@ -886,7 +886,7 @@ superharness sessions        # 会话列表
 [任务] 重构用户认证模块
 
 Step 1: 启动交互模式
-$ superharness chat
+$ continuum chat
 
 Step 2: 描述任务
 > 重构auth.py模块，要求：
@@ -941,10 +941,10 @@ Step 5: 中断与恢复
 用户选择: P
 
 ✓ 已保存检查点: checkpoint_step3
-恢复命令: superharness continue --checkpoint step3
+恢复命令: continuum continue --checkpoint step3
 
 Step 6: 恢复执行（第二天）
-$ superharness continue
+$ continuum continue
 
 📂 恢复会话: session_auth_refactor
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -977,7 +977,7 @@ Step 1: 设置预算上限
 $ export SH_BUDGET=0.5  # $0.5上限
 
 Step 2: 执行任务
-$ superharness run "分析整个项目的架构"
+$ continuum run "分析整个项目的架构"
 
 Step 3: 成本预警
 [3/10] 分析模块依赖...
@@ -1073,7 +1073,7 @@ Layer 3: 用户介入（完全可控）
 ✓ 检查点已保存
   名称: manual_20260509_143215
   标签: 完成代码重构
-  恢复: superharness continue --checkpoint manual_20260509_143215
+  恢复: continuum continue --checkpoint manual_20260509_143215
 ```
 
 ---
@@ -1085,9 +1085,9 @@ Layer 3: 用户介入（完全可控）
 ```
 Week 1-2:
 ├── 三核心命令实现
-│   ├── superharness run "task"
-│   ├── superharness chat
-│   └── superharness continue
+│   ├── continuum run "task"
+│   ├── continuum chat
+│   └── continuum continue
 │
 ├── 零配置启动
 │   ├── 内置演示模式（无API Key）
@@ -1232,7 +1232,7 @@ Week 9-16:
 
 ### 8.2 一句话总结
 
-> **SuperHarness的用户工作流目标是：让用户在2分钟内完成首次成功体验，5分钟内理解核心价值，并能在任何中断后无缝继续工作。**
+> **Continuum的用户工作流目标是：让用户在2分钟内完成首次成功体验，5分钟内理解核心价值，并能在任何中断后无缝继续工作。**
 
 ---
 

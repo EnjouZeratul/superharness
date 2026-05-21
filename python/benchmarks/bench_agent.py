@@ -75,13 +75,13 @@ def format_result(result: BenchResult) -> str:
 
 def bench_agent_creation():
     """测试 Agent 创建时间"""
-    from superharness_sdk import Agent
+    from continuum_sdk import Agent
     return Agent()
 
 
 def bench_agent_start():
     """测试 Agent 启动时间"""
-    from superharness_sdk import Agent
+    from continuum_sdk import Agent
     agent = Agent()
     agent.start()
     return agent
@@ -89,7 +89,7 @@ def bench_agent_start():
 
 def bench_agent_run():
     """测试 Agent run 方法时间"""
-    from superharness_sdk import Agent
+    from continuum_sdk import Agent
     agent = Agent()
     agent.start()
     return agent.run("test task", auto_start=False)
@@ -97,7 +97,7 @@ def bench_agent_run():
 
 def bench_agent_chat():
     """测试 Agent chat 方法时间"""
-    from superharness_sdk import Agent
+    from continuum_sdk import Agent
     agent = Agent()
     agent.start()
     return agent.chat("hello")
@@ -105,21 +105,21 @@ def bench_agent_chat():
 
 def bench_agent_with_config():
     """测试带配置的 Agent 创建时间"""
-    from superharness_sdk import Agent, Config
+    from continuum_sdk import Agent, Config
     config = Config(provider="anthropic", model="claude-sonnet-4-6")
     return Agent(config=config)
 
 
 def bench_agent_create_session():
     """测试会话创建时间"""
-    from superharness_sdk import Agent
+    from continuum_sdk import Agent
     agent = Agent()
     return agent.create_session()
 
 
 def bench_agent_register_tool():
     """测试工具注册时间"""
-    from superharness_sdk import Agent
+    from continuum_sdk import Agent
     agent = Agent()
     for i in range(10):
         agent.register_tool(f"tool_{i}", lambda x: x)

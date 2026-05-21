@@ -1,4 +1,4 @@
-//! # SuperHarness CLI
+//! # Continuum CLI
 //!
 //! 终端 Agent 产品入口点。
 
@@ -9,6 +9,7 @@ mod agent;
 mod cli;
 mod commands;
 mod config;
+mod git;
 mod integration;
 mod output;
 mod tui;

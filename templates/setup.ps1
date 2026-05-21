@@ -1,4 +1,4 @@
-# SuperHarness Setup Script for PowerShell
+# Continuum Setup Script for PowerShell
 # Run: ./setup.ps1
 
 param(
@@ -35,10 +35,10 @@ function Write-Info {
 }
 
 # Main
-Write-Header "SuperHarness Configuration Setup"
+Write-Header "Continuum Configuration Setup"
 
 # 1. Create config directory
-$ConfigDir = "$env:USERPROFILE\.superharness"
+$ConfigDir = "$env:USERPROFILE\.continuum"
 if (-not (Test-Path $ConfigDir)) {
     New-Item -ItemType Directory -Path $ConfigDir -Force | Out-Null
     Write-Success "Created config directory: $ConfigDir"
@@ -66,14 +66,14 @@ if ((Test-Path $ConfigFile) -and -not $Force) {
 Write-Header "Environment Variables"
 
 if ($ApiKey) {
-    [Environment]::SetEnvironmentVariable("SUPERHARNESS_API_KEY", $ApiKey, "User")
-    [Environment]::SetEnvironmentVariable("SUPERHARNESS_PROVIDER", $Provider, "User")
-    Write-Success "Set SUPERHARNESS_API_KEY and SUPERHARNESS_PROVIDER"
+    [Environment]::SetEnvironmentVariable("CONTINUUM_API_KEY", $ApiKey, "User")
+    [Environment]::SetEnvironmentVariable("CONTINUUM_PROVIDER", $Provider, "User")
+    Write-Success "Set CONTINUUM_API_KEY and CONTINUUM_PROVIDER"
 } else {
     Write-Info "No API key provided. Set it manually:"
     Write-Host ""
-    Write-Host "  `$env:SUPERHARNESS_API_KEY = 'your-api-key'"
-    Write-Host "  [Environment]::SetEnvironmentVariable('SUPERHARNESS_API_KEY', 'your-api-key', 'User')"
+    Write-Host "  `$env:CONTINUUM_API_KEY = 'your-api-key'"
+    Write-Host "  [Environment]::SetEnvironmentVariable('CONTINUUM_API_KEY', 'your-api-key', 'User')"
     Write-Host ""
 }
 
@@ -86,12 +86,12 @@ Write-Host "Provider: $Provider"
 # 5. Test
 Write-Header "Quick Test"
 Write-Host "Testing Python SDK..."
-python -c "from superharness_sdk import Agent, Config; c = Config.from_default(); print(f'Config: {c}')"
+python -c "from continuum_sdk import Agent, Config; c = Config.from_default(); print(f'Config: {c}')"
 
 Write-Header "Setup Complete!"
 Write-Host "Next steps:"
 Write-Host "  1. Set your API key:"
-Write-Host "     `$env:SUPERHARNESS_API_KEY = 'your-key'"
+Write-Host "     `$env:CONTINUUM_API_KEY = 'your-key'"
 Write-Host ""
-Write-Host "  2. Run SuperHarness:"
-Write-Host "     superharness run 'your task'"
+Write-Host "  2. Run Continuum:"
+Write-Host "     continuum run 'your task'"

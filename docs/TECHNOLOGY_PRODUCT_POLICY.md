@@ -1,4 +1,4 @@
-# SuperHarness 技术与产品方针
+# Continuum 技术与产品方针
 
 > 最后更新: 2026-05-09
 > 基于: 十三轮专家评审 + 开源精神定位
@@ -7,7 +7,7 @@
 
 ## 一、核心定位
 
-**SuperHarness 是简洁可靠的 Agent 运行时。**
+**Continuum 是简洁可靠的 Agent 运行时。**
 
 **一句话定位**："让你的 Agent 不再'盲开'"
 
@@ -25,7 +25,7 @@
 
 ### 与 SmolAgents 定位差异
 
-| 功能方向 | SmolAgents 定位 | SuperHarness 定位 |
+| 功能方向 | SmolAgents 定位 | Continuum 定位 |
 |----------|----------------|-------------------|
 | 极简设计 | 核心目标 | 非核心目标 |
 | 生产可靠性 | 非核心目标 | 核心目标 |
@@ -77,7 +77,7 @@
 
 **新定位**: 面向产品开发者的可配置 Agent 引擎
 
-| 用户类型 | 需求 | SuperHarness 价值 |
+| 用户类型 | 需求 | Continuum 价值 |
 |----------|------|-------------------|
 | SaaS 产品开发者 | 集成 Agent 到产品 | SDK 形态 + 可嵌入 |
 | 原型开发者 | 快速实验 | YAML 配置 + 模板库 |
@@ -209,7 +209,7 @@ class Checkpoint:
 #### 6.1.3 存储位置
 
 ```
-~/.superharness/
+~/.continuum/
 ├── sessions/
 │   └── {session_id}/
 │       ├── checkpoints/
@@ -468,11 +468,11 @@ class SessionState:
 | 框架 | 直接依赖数 | 总依赖数（含传递） |
 |------|-----------|------------------|
 | SmolAgents | ~3 | ~8 |
-| SuperHarness | ~5 | ~10 |
+| Continuum | ~5 | ~10 |
 | LangChain | ~15+ | 50+ |
 | AutoGen | ~20+ | 80+ |
 
-**结论**：SuperHarness 相比 SmolAgents 略重，但仍远轻于 LangChain/AutoGen。我们应在文档中诚实表述为"轻量级，非极简"。
+**结论**：Continuum 相比 SmolAgents 略重，但仍远轻于 LangChain/AutoGen。我们应在文档中诚实表述为"轻量级，非极简"。
 
 ---
 
@@ -528,7 +528,7 @@ MVP发布前必须满足：
 | Level 1 | 用户 | 使用项目 | 社区支持、文档访问 |
 | Level 2 | Issue贡献者 | 提交≥3个有效Issue | Issue优先处理、贡献者名单展示 |
 | Level 3 | 代码贡献者 | 合并≥1个PR | PR优先审查、Dev频道访问 |
-| Level 4 | 核心贡献者 | 合并≥5个PR + 持续参与≥3月 | 代码审查权、Roadmap投票、@superharness.dev邮箱 |
+| Level 4 | 核心贡献者 | 合并≥5个PR + 持续参与≥3月 | 代码审查权、Roadmap投票、@continuum.dev邮箱 |
 | Level 5 | 维护者 | 核心贡献者 + 维护者提名 | 合并权限、发布决策、项目代表权 |
 
 **晋升评估周期**：每季度末进行等级评估
@@ -548,13 +548,13 @@ MVP发布前必须满足：
 - 未经许可发布他人私人信息
 - 其他不道德或不专业的行为
 
-**举报方式**：conduct@superharness.dev
+**举报方式**：conduct@continuum.dev
 
 ### 9.3 安全披露政策
 
 **安全漏洞报告流程**：
 
-1. **报告渠道**：security@superharness.dev
+1. **报告渠道**：security@continuum.dev
 2. **加密通信**：PGP公钥可在项目Wiki获取
 3. **响应承诺**：确认收到后48小时内回复
 4. **修复流程**：维护者修复→验证→发布安全版本→公开披露
@@ -671,7 +671,7 @@ MVP发布前必须满足：
 
 ### 最终定位
 
-> **SuperHarness 是简洁可靠的 Agent 运行时**
+> **Continuum 是简洁可靠的 Agent 运行时**
 >
 > MVP核心功能：会话无缝延续（⚠️ 热度低但技术定位正确）
 >

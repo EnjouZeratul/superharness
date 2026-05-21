@@ -8,7 +8,7 @@
 
 ## 测试概览
 
-本文档记录 SuperHarness Python SDK 的性能基准测试结果。
+本文档记录 Continuum Python SDK 的性能基准测试结果。
 
 ---
 

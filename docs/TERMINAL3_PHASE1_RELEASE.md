@@ -140,13 +140,13 @@ docs/
    twine upload dist/*
 
 2. 发布到 crates.io (按顺序):
-   cargo publish -p superharness-layer0
-   cargo publish -p superharness-layer1
+   cargo publish -p continuum-layer0
+   cargo publish -p continuum-layer1
    ...
 
 3. 验证安装:
-   pip install superharness
-   python -c "from superharness import Agent"
+   pip install continuum
+   python -c "from continuum import Agent"
 
 4. 端到端测试:
    配置真实API key

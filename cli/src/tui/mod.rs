@@ -56,7 +56,7 @@ pub fn run_with_session(session: Option<String>) -> Result<()> {
     // 添加欢迎消息
     chat.add_message(app::Message {
         role: app::Role::System,
-        content: "Welcome to SuperHarness TUI! Initializing Agent...".to_string(),
+        content: "Welcome to Continuum TUI! Initializing Agent...".to_string(),
     });
     status.set_message_count(chat.message_count());
 
@@ -134,7 +134,7 @@ fn run_app(
         Err(AgentError::ConfigError(msg)) => {
             chat.add_message(app::Message {
                 role: app::Role::System,
-                content: format!("Configuration error: {}\n\nPlease configure your API key:\n  superharness config add-provider anthropic --key YOUR_KEY\nOr set environment variable:\n  export SUPERHARNESS_API_KEY=YOUR_KEY", msg),
+                content: format!("Configuration error: {}\n\nPlease configure your API key:\n  continuum config add-provider anthropic --key YOUR_KEY\nOr set environment variable:\n  export CONTINUUM_API_KEY=YOUR_KEY", msg),
             });
             status.set_connected(false);
         }

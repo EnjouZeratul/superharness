@@ -1,11 +1,11 @@
-# SuperHarness Python SDK
+# Continuum Python SDK
 
 A production-grade agent framework with crash safety guarantees.
 
 ## Quick Start (3 steps)
 
 ```python
-from superharness import Agent
+from continuum import Agent
 
 agent = Agent()  # Auto-loads config from environment
 result = agent.run("your task")
@@ -14,22 +14,24 @@ result = agent.run("your task")
 ## Installation
 
 ```bash
-pip install superharness
+pip install continuum
 ```
 
 ## Configuration
 
 ### Environment Variables
 
+Priority: `CONTINUUM_*` > `CONTINUUM_*` > `ANTHROPIC_*`
+
 ```bash
-export SUPERHARNESS_API_KEY=your_api_key
-export SUPERHARNESS_PROVIDER=anthropic  # or openai, google
-export SUPERHARNESS_MODEL=claude-sonnet-4-6
+export CONTINUUM_API_KEY=your_api_key
+export CONTINUUM_PROVIDER=anthropic  # or openai, google
+export CONTINUUM_MODEL=claude-sonnet-4-6
 ```
 
 ### Config File
 
-Create `~/.superharness/config.toml`:
+Create `~/.continuum/config.toml`:
 
 ```toml
 [providers.anthropic]
@@ -59,7 +61,7 @@ audit_enabled = true
 ## API Reference
 
 ```python
-from superharness import Agent, Session, Config
+from continuum import Agent, Session, Config
 
 # Agent
 agent = Agent(name="my-agent", model="claude-sonnet-4-6")
@@ -75,7 +77,7 @@ session.load(session_id)  # Resume session
 
 # Config
 config = Config.from_env()  # Load from environment
-config = Config.from_file("~/.superharness/config.toml")  # Load from file
+config = Config.from_file("~/.continuum/config.toml")  # Load from file
 config.use("openai")  # Switch provider
 ```
 

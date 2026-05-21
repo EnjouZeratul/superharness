@@ -1,8 +1,8 @@
 # sh-core
 
-SuperHarness Core - Unified re-exports for all layers
+Continuum Core - Unified re-exports for all layers
 
-This crate provides a single entry point for all SuperHarness Rust components, with Python bindings via PyO3.
+This crate provides a single entry point for all Continuum Rust components, with Python bindings via PyO3.
 
 ## Features
 

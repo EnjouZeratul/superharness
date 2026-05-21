@@ -65,19 +65,19 @@
 - [ ] 预计时间: 2小时
 
 #### T1.4: Python SDK Agent API
-- [ ] 创建 `python/superharness_sdk/agent/__init__.py`
-- [ ] 创建 `python/superharness_sdk/agent/runtime.py`
+- [ ] 创建 `python/continuum_sdk/agent/__init__.py`
+- [ ] 创建 `python/continuum_sdk/agent/runtime.py`
 - [ ] 实现 Agent 类基础 API
 - [ ] 预计时间: 1.5小时
 
 #### T1.5: Python SDK Session API
-- [ ] 创建 `python/superharness_sdk/agent/session.py`
+- [ ] 创建 `python/continuum_sdk/agent/session.py`
 - [ ] 实现 Session 类 API
 - [ ] 预计时间: 1小时
 
 #### T1.6: Python SDK Config API
-- [ ] 创建 `python/superharness_sdk/config/__init__.py`
-- [ ] 创建 `python/superharness_sdk/config/loader.py`
+- [ ] 创建 `python/continuum_sdk/config/__init__.py`
+- [ ] 创建 `python/continuum_sdk/config/loader.py`
 - [ ] 实现配置加载 API
 - [ ] 预计时间: 1小时
 
@@ -143,7 +143,7 @@ cli/src/integration/
 └── audit.rs
 
 Python SDK:
-python/superharness_sdk/
+python/continuum_sdk/
 ├── __init__.py
 ├── agent/
 │   ├── __init__.py

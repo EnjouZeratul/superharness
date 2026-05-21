@@ -1,6 +1,6 @@
 # sh-layer4
 
-SuperHarness Layer 4: Integration
+Continuum Layer 4: Integration
 
 This layer provides integration components combining all lower layers:
 - Complete agent implementation

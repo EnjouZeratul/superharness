@@ -30,7 +30,7 @@
 ## 优点
 
 1. **环境变量支持完善**
-   - 支持 `SUPERHARNESS_*` 环境变量前缀
+   - 支持 `CONTINUUM_*` 环境变量前缀
    - 支持 `${VAR_NAME}` 环境变量引用展开
    - `resolve_env_refs()` 方法实现了引用解析
 
@@ -44,7 +44,7 @@
    - 提供商配置结构完整（api_key, base_url, model等）
 
 4. **Python SDK高度兼容**
-   - 环境变量命名与Python SDK一致 (`SUPERHARNESS_*`)
+   - 环境变量命名与Python SDK一致 (`CONTINUUM_*`)
    - 配置结构与Python Config类匹配
    - TOML格式与Python TOML模板兼容
 
@@ -111,12 +111,12 @@ Python SDK的Config类已实现与Rust ConfigManager的对应功能:
 
 | 环境变量 | Rust | Python |
 |----------|------|--------|
-| SUPERHARNESS_PROVIDER | ✅ | ✅ |
-| SUPERHARNESS_API_KEY | ✅ | ✅ |
-| SUPERHARNESS_BASE_URL | ✅ | ✅ |
-| SUPERHARNESS_MODEL | ✅ | ✅ |
-| SUPERHARNESS_SMALL_MODEL | ❌ | ✅ |
-| SUPERHARNESS_EFFORT_LEVEL | ❌ | ✅ |
+| CONTINUUM_PROVIDER | ✅ | ✅ |
+| CONTINUUM_API_KEY | ✅ | ✅ |
+| CONTINUUM_BASE_URL | ✅ | ✅ |
+| CONTINUUM_MODEL | ✅ | ✅ |
+| CONTINUUM_SMALL_MODEL | ❌ | ✅ |
+| CONTINUUM_EFFORT_LEVEL | ❌ | ✅ |
 
 **建议:** Rust ConfigManager应添加 `small_model` 和 `effort_level` 支持
 

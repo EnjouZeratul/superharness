@@ -3,4 +3,5 @@
 pub mod config;
 pub mod run;
 pub mod session;
+pub mod tool_exec;
 pub mod tools;

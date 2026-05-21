@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "superharness"
+name = "continuum-agent-sdk"
 version = "1.0.0"
 description = "Production-Grade Agent Framework with Crash Safety Guarantees"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "SuperHarness Team"}
+    {name = "Continuum Team"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -38,18 +38,18 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/superharness/superharness"
-Documentation = "https://superharness.readthedocs.io"
-Repository = "https://github.com/superharness/superharness"
-Issues = "https://github.com/superharness/superharness/issues"
+Homepage = "https://github.com/continuum-ai/continuum"
+Documentation = "https://continuum-agent-sdk.readthedocs.io"
+Repository = "https://github.com/continuum-ai/continuum"
+Issues = "https://github.com/continuum-ai/continuum/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["superharness", "superharness_sdk"]
+packages = ["continuum", "continuum_sdk"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/superharness",
-    "/superharness_sdk",
+    "/continuum",
+    "/continuum_sdk",
     "/tests",
     "/benchmarks",
 ]
@@ -63,7 +63,7 @@ addopts = "-v --tb=short"
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["superharness", "superharness_sdk"]
+source = ["continuum", "continuum_sdk"]
 branch = true
 
 [tool.coverage.report]

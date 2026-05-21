@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "superharness"
+name = "continuum"
 version = "0.1.0"
 description = "Production-Grade Agent Framework with Crash Safety Guarantees"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "SuperHarness Team" }
+    { name = "Continuum Team" }
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -34,10 +34,10 @@ dev = [
 ]
 
 [project.scripts]
-superharness = "superharness.cli:main"
+continuum = "continuum.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/superharness"]
+packages = ["src/continuum"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -54,7 +54,7 @@ addopts = "-v --tb=short"
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["src/superharness"]
+source = ["src/continuum"]
 branch = true
 
 [tool.coverage.report]

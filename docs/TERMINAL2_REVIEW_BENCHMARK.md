@@ -20,7 +20,7 @@ Terminal 2 擅长: Rust底层、性能优化
 ## 任务清单
 
 ### R2.1: 代码互审 - Python SDK Core
-- [ ] 审查 `python/superharness_sdk/`
+- [ ] 审查 `python/continuum_sdk/`
 - [ ] 检查点:
   - [ ] PyO3绑定是否正确使用
   - [ ] 内存管理是否有泄漏风险
@@ -30,7 +30,7 @@ Terminal 2 擅长: Rust底层、性能优化
 - [ ] 预计时间: 1小时
 
 ### R2.2: 代码互审 - Python Config API
-- [ ] 审查 `python/superharness_sdk/config/`
+- [ ] 审查 `python/continuum_sdk/config/`
 - [ ] 检查点:
   - [ ] 配置加载逻辑
   - [ ] Rust ConfigManager 调用方式

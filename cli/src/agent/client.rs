@@ -108,7 +108,7 @@ impl AgentClient {
         // 检查是否有配置的提供商
         if config.providers.is_empty() {
             return Err(AgentError::ConfigError(
-                "No providers configured. Use 'superharness config add-provider' or set environment variables.".to_string()
+                "No providers configured. Use 'continuum config add-provider' or set environment variables.".to_string()
             ));
         }
 
@@ -128,7 +128,7 @@ impl AgentClient {
         // 检查 API 密钥
         if provider_config.api_key.is_empty() {
             return Err(AgentError::ConfigError(
-                format!("API key not set for provider '{}'. Use 'superharness config set provider.{}.api_key YOUR_KEY' or set environment variable.",
+                format!("API key not set for provider '{}'. Use 'continuum config set provider.{}.api_key YOUR_KEY' or set environment variable.",
                     provider_name, provider_name)
             ));
         }
@@ -200,7 +200,7 @@ impl AgentClient {
             model: provider_config.model.clone(),
             max_tokens: provider_config.default_max_tokens,
             temperature: provider_config.default_temperature,
-            system_prompt: Some("You are a helpful AI assistant running in SuperHarness terminal. Be concise and helpful.".to_string()),
+            system_prompt: Some("You are a helpful AI assistant running in Continuum terminal. Be concise and helpful.".to_string()),
             stop_sequences: vec![],
         };
 
@@ -339,7 +339,7 @@ impl AgentClient {
             model: provider_config.model.clone(),
             max_tokens: provider_config.default_max_tokens,
             temperature: provider_config.default_temperature,
-            system_prompt: Some("You are a helpful AI assistant running in SuperHarness terminal. Be concise and helpful.".to_string()),
+            system_prompt: Some("You are a helpful AI assistant running in Continuum terminal. Be concise and helpful.".to_string()),
             stop_sequences: vec![],
         };
 

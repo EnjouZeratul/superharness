@@ -1,10 +1,10 @@
-# SuperHarness v1.0.0 Release Notes
+# Continuum v1.0.0 Release Notes
 
 **Release Date**: 2026-05-12
 
 ## Overview
 
-SuperHarness is a terminal agent framework with a 6-layer architecture, supporting multiple AI providers and providing both Python SDK and CLI interfaces.
+Continuum is a terminal agent framework with a 6-layer architecture, supporting multiple AI providers and providing both Python SDK and CLI interfaces.
 
 ## Highlights
 
@@ -29,7 +29,7 @@ Layer 5: Interface           → Python SDK, CLI
 ### 🐍 Python SDK - 3 Step Quick Start
 
 ```python
-from superharness_sdk import Agent
+from continuum_sdk import Agent
 
 agent = Agent()
 result = agent.run("hello")
@@ -55,14 +55,14 @@ sh run "分析这个项目"
 ### Python SDK
 
 ```bash
-pip install superharness
+pip install continuum
 ```
 
 ### CLI (from source)
 
 ```bash
-git clone https://github.com/xxx/superharness
-cd superharness
+git clone https://github.com/xxx/continuum
+cd continuum
 cargo install --path cli
 ```
 
@@ -113,7 +113,7 @@ sh config add-provider anthropic --api-key your-key
 ### 2. Python SDK
 
 ```python
-from superharness_sdk import Agent, Session
+from continuum_sdk import Agent, Session
 
 # Simple usage
 agent = Agent()
@@ -161,7 +161,7 @@ SH_ANTHROPIC_API_KEY   >  config file  >  built-in
 
 ## Known Issues
 
-None at this time. Please report issues at [GitHub Issues](https://github.com/xxx/superharness/issues).
+None at this time. Please report issues at [GitHub Issues](https://github.com/xxx/continuum/issues).
 
 ---
 
@@ -187,9 +187,9 @@ Thank you to all contributors:
 ## Feedback
 
 We welcome your feedback! Please reach out via:
-- GitHub Issues: [Report bugs](https://github.com/xxx/superharness/issues)
-- GitHub Discussions: [Ask questions](https://github.com/xxx/superharness/discussions)
+- GitHub Issues: [Report bugs](https://github.com/xxx/continuum/issues)
+- GitHub Discussions: [Ask questions](https://github.com/xxx/continuum/discussions)
 
 ---
 
-*SuperHarness - Making AI Agents Easy*
+*Continuum - Making AI Agents Easy*

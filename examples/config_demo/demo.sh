@@ -1,11 +1,11 @@
 #!/bin/bash
-# SuperHarness 配置流程演示
+# Continuum 配置流程演示
 # 从零配置到运行 Agent 的完整流程
 
 set -e
 
 echo "=========================================="
-echo "SuperHarness 配置流程演示"
+echo "Continuum 配置流程演示"
 echo "=========================================="
 echo ""
 
@@ -114,7 +114,7 @@ echo '$ sh run "你好，请介绍一下你自己"'
 echo ""
 
 cat << 'EOF'
-Agent: 你好！我是 SuperHarness Agent，基于腾讯云混元大模型。
+Agent: 你好！我是 Continuum Agent，基于腾讯云混元大模型。
 我可以帮助你：
 - 读取和编辑文件
 - 执行命令

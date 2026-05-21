@@ -1,20 +1,24 @@
 [package]
-name = "superharness-cli"
+name = "continuum"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "SuperHarness CLI - Terminal Agent Product"
+description = "Continuum CLI - Terminal Agent Product"
 repository.workspace = true
 homepage.workspace = true
-documentation = "https://docs.rs/superharness-cli"
+documentation = "https://docs.rs/continuum"
 readme = "README.md"
 keywords.workspace = true
 categories.workspace = true
 
 [[bin]]
-name = "superharness"
+name = "continuum"
 path = "src/main.rs"
+
+[lib]
+name = "continuum_cli"
+path = "src/lib.rs"
 
 [dependencies]
 sh-core = { path = "../rust/sh-core" }
@@ -37,6 +41,8 @@ clap = { version = "4.5", features = ["derive", "color"] }
 ratatui = "0.30"  # TUI 框架
 crossterm = "0.28"  # 终端控制
 whoami = "1.5"  # 用户名获取
+regex = "1.10"  # 正则表达式
 
 [dev-dependencies]
 tempfile.workspace = true
+sh-layer2 = { path = "../rust/layer2" }

@@ -1,4 +1,4 @@
-# SuperHarness 项目交付报告
+# Continuum 项目交付报告
 
 > 时间: 2026-05-12
 > 状态: ✅ 项目交付完成
@@ -78,7 +78,7 @@
 ## 三、交付物
 
 ```
-SuperHarness/
+Continuum/
 ├── rust/                    ← Rust 核心 (Layer 0-4)
 │   ├── layer0/              ← 基础类型
 │   ├── layer1/              ← 基础设施 (LLM, Config)
@@ -88,7 +88,7 @@ SuperHarness/
 │   └── benches/             ← 性能基准
 │
 ├── python/                  ← Python SDK
-│   ├── superharness_sdk/    ← 主包
+│   ├── continuum_sdk/    ← 主包
 │   ├── tests/               ← 测试
 │   └── benchmarks/          ← 性能基准
 │

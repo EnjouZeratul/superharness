@@ -1,6 +1,6 @@
 # 配置流程演示
 
-本目录展示 SuperHarness 从零配置到运行 Agent 的完整流程。
+本目录展示 Continuum 从零配置到运行 Agent 的完整流程。
 
 ## 演示步骤
 

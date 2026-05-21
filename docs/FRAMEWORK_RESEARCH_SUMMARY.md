@@ -2,7 +2,7 @@
 
 > 版本: v2.0
 > 日期: 2026-05-09
-> 目标: 为 SuperHarness 提供设计参考
+> 目标: 为 Continuum 提供设计参考
 > 研究范围: 12 个主流 Agent 框架
 
 ---
@@ -178,7 +178,7 @@ class MCPClient:
         )
         await self._send_request("initialize", {
             "protocolVersion": "2024-11-05",
-            "clientInfo": {"name": "superharness", "version": "1.0"}
+            "clientInfo": {"name": "continuum", "version": "1.0"}
         })
 ```
 
@@ -631,7 +631,7 @@ class Runnable(ABC, Generic[Input, Output]):
 
 ---
 
-## 十四、SuperHarness 技术选型
+## 十四、Continuum 技术选型
 
 ### 14.1 核心依赖
 
@@ -680,10 +680,10 @@ memory:
 
 workflow:
   type: state_graph
-  checkpoint: .superharness/checkpoints
+  checkpoint: .continuum/checkpoints
 ```
 
 ---
 
 **研究状态**: v2.0 已完成 (12 个框架)
-**下一步**: 应用到 SuperHarness 开发
+**下一步**: 应用到 Continuum 开发

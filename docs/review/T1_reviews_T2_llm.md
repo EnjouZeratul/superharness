@@ -113,7 +113,7 @@ pub struct LlmRequestConfig {
 ### 推荐的Python API设计
 
 ```python
-from superharness_sdk import LlmClient, LlmProvider
+from continuum_sdk import LlmClient, LlmProvider
 
 # 创建客户端
 client = LlmClient(

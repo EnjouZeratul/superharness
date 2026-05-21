@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 from datetime import datetime
-from superharness_sdk.memory import Memory, MemoryTier, MemoryEntry, TierProxy
+from continuum_sdk.memory import Memory, MemoryTier, MemoryEntry, TierProxy
 
 
 class TestMemoryTier:

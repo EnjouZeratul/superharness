@@ -72,19 +72,19 @@ def format_result(result):
 
 def bench_session_creation():
     """测试 Session 创建时间"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     return Session()
 
 
 def bench_session_with_id():
     """测试带 ID 的 Session 创建"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     return Session(id="test-session-id")
 
 
 def bench_session_add_message():
     """测试添加消息"""
-    from superharness_sdk.agent import Session, MessageRole
+    from continuum_sdk.agent import Session, MessageRole
     session = Session()
     session.add_user_message("Hello")
     return session
@@ -92,7 +92,7 @@ def bench_session_add_message():
 
 def bench_session_add_100_messages():
     """测试批量添加100条消息"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session()
     for i in range(100):
         session.add_user_message(f"Message {i}")
@@ -101,7 +101,7 @@ def bench_session_add_100_messages():
 
 def bench_session_get_messages():
     """测试获取消息列表"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session()
     for i in range(50):
         session.add_user_message(f"Message {i}")
@@ -110,7 +110,7 @@ def bench_session_get_messages():
 
 def bench_session_export():
     """测试导出"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session(id="export-test")
     session.add_user_message("Test message")
     return session.export()
@@ -118,7 +118,7 @@ def bench_session_export():
 
 def bench_session_import():
     """测试导入"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session(id="import-test")
     session.add_user_message("Test")
     exported = session.export()
@@ -127,7 +127,7 @@ def bench_session_import():
 
 def bench_session_message_count():
     """测试消息计数"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session()
     for i in range(100):
         session.add_user_message(f"Message {i}")
@@ -136,7 +136,7 @@ def bench_session_message_count():
 
 def bench_session_clear():
     """测试清空消息"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session()
     for i in range(100):
         session.add_user_message(f"Message {i}")
@@ -146,7 +146,7 @@ def bench_session_clear():
 
 def bench_session_metadata():
     """测试元数据操作"""
-    from superharness_sdk.agent import Session
+    from continuum_sdk.agent import Session
     session = Session()
     for i in range(10):
         session.set_metadata(f"key_{i}", f"value_{i}")

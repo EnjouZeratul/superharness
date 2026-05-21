@@ -11,7 +11,7 @@
 4. sh-layer3 (依赖 sh-layer0, sh-layer1, sh-layer2)
 5. sh-layer4 (依赖 sh-layer0, sh-layer1, sh-layer2, sh-layer3)
 6. sh-core    (依赖所有 layer)
-7. superharness-cli (依赖 sh-core, sh-layer4)
+7. continuum-cli (依赖 sh-core, sh-layer4)
 ```
 
 ## 发布命令
@@ -108,11 +108,11 @@ cargo search sh-layer2
 cargo search sh-layer3
 cargo search sh-layer4
 cargo search sh-core
-cargo search superharness-cli
+cargo search continuum-cli
 
 # 安装测试
-cargo install superharness-cli
-superharness --version
+cargo install continuum-cli
+continuum --version
 ```
 
 ## 回滚说明

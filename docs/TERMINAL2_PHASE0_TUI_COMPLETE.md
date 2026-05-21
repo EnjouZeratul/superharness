@@ -36,8 +36,8 @@
 
 **已实现**:
 - [x] 无参数时直接进入TUI交互模式
-- [x] `superharness --version` 显示版本
-- [x] `superharness --help` 显示帮助
+- [x] `continuum --version` 显示版本
+- [x] `continuum --help` 显示帮助
 - [x] 完整的参数解析
 - [x] 测试验证通过
 
@@ -156,7 +156,7 @@
 ## 自检清单
 
 ```
-✅ superharness 直接进入TUI
+✅ continuum 直接进入TUI
 ✅ TUI能连接真实Agent
 ✅ 用户输入得到真实LLM响应（非模拟）
 ✅ 处理状态实时显示

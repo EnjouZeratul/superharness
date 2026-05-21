@@ -1,4 +1,4 @@
-# SuperHarness 如何真正好用：综合设计指南
+# Continuum 如何真正好用：综合设计指南
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -23,7 +23,7 @@
 |------|---------|--------|---------|---------|
 | **SmolAgents** | 极低(2步启动) | 高(代码即文档) | 中(功能简单) | 优秀 |
 | **LangChain** | 高(概念多) | 中(抽象层多) | 高(生态成熟) | 良好 |
-| **SuperHarness** | **需改进(当前9步)** | **待验证** | **待建立** | **起步阶段** |
+| **Continuum** | **需改进(当前9步)** | **待验证** | **待建立** | **起步阶段** |
 
 ---
 
@@ -49,7 +49,7 @@
 | Google搜索次数 | ≥3次 | 文档覆盖不足 |
 | 报错信息不可操作 | ≥1次 | 最后一根稻草 |
 
-### 2.3 SuperHarness 当前风险
+### 2.3 Continuum 当前风险
 
 **Quick Start 步骤对比**：
 ```
@@ -57,8 +57,8 @@ SmolAgents (2步):
 1. pip install smolagents
 2. from smolagents import CodeAgent; agent.run("hello")
 
-SuperHarness (当前9步):
-1. pip install superharness
+Continuum (当前9步):
+1. pip install continuum
 2. 创建配置文件
 3. 配置API密钥
 4. 定义Agent YAML
@@ -81,7 +81,7 @@ SuperHarness (当前9步):
 用户首次体验的黄金10分钟：
 
 分钟0-2：安装 + 配置
-├── pip install superharness (30秒)
+├── pip install continuum (30秒)
 ├── 设置API密钥 (30秒)
 └── 第一个示例运行 (60秒) ← 必须成功
 
@@ -253,7 +253,7 @@ class Checkpoint:
 ### 6.3 存储简化
 
 ```
-~/.superharness/
+~/.continuum/
 └── sessions/
     └── {session_id}/
         ├── latest.json         # 最新Checkpoint
@@ -268,10 +268,10 @@ class Checkpoint:
 ### 6.4 恢复流程
 
 ```
-用户执行: superharness continue
+用户执行: continuum continue
 
 系统行为:
-1. 检查 ~/.superharness/sessions/
+1. 检查 ~/.continuum/sessions/
 2. 找到最新修改的session
 3. 加载 latest.json
 4. 验证 messages 完整性
@@ -297,7 +297,7 @@ class Checkpoint:
 
 **当前（9步）**：
 ```
-1. pip install superharness
+1. pip install continuum
 2. 创建配置文件
 3. 配置API密钥
 4. 定义Agent YAML
@@ -310,9 +310,9 @@ class Checkpoint:
 
 **目标（3步）**：
 ```
-1. pip install superharness
+1. pip install continuum
 2. export OPENAI_API_KEY=xxx
-3. superharness run "帮我分析当前目录结构"
+3. continuum run "帮我分析当前目录结构"
 ```
 
 ### 7.2 零配置设计
@@ -334,7 +334,7 @@ DEFAULT_CONFIG = {
 
 ```
 Level 0: 零配置
-         superharness run "task"
+         continuum run "task"
          └── 使用所有默认值
 
 Level 1: 环境变量
@@ -343,11 +343,11 @@ Level 1: 环境变量
          └── 覆盖默认值
 
 Level 2: 配置文件
-         superharness.yaml
+         continuum.yaml
          └── 完整自定义
 
 Level 3: Python API
-         from superharness import Agent
+         from continuum import Agent
          └── 完全控制
 ```
 
@@ -355,21 +355,21 @@ Level 3: Python API
 
 ```bash
 # 安装后立即体验
-pip install superharness
+pip install continuum
 export OPENAI_API_KEY=your_key
 
 # 方式1: 命令行直接运行
-superharness run "读取README.md并总结"
+continuum run "读取README.md并总结"
 
 # 方式2: 交互模式
-superharness chat
-> 你好，我是SuperHarness Agent，请输入任务:
+continuum chat
+> 你好，我是Continuum Agent，请输入任务:
 > 帮我分析当前项目的代码结构
 [执行中...可以看到每一步]
 [自动保存Checkpoint]
 
 # 方式3: 恢复上次会话
-superharness continue
+continuum continue
 ```
 
 ---
@@ -379,7 +379,7 @@ superharness continue
 ### 8.1 5分钟验证模板
 
 ```markdown
-## 5分钟验证 SuperHarness
+## 5分钟验证 Continuum
 
 ### 前提
 - Python 3.10+
@@ -389,7 +389,7 @@ superharness continue
 
 1. 安装 (30秒)
    ```bash
-   pip install superharness
+   pip install continuum
    ```
 
 2. 配置 (30秒)
@@ -399,13 +399,13 @@ superharness continue
 
 3. 运行第一个任务 (2分钟)
    ```bash
-   superharness run "列出当前目录的所有Python文件"
+   continuum run "列出当前目录的所有Python文件"
    ```
 
 4. 体验会话延续 (1分钟)
    ```bash
    # 中断后恢复
-   superharness continue
+   continuum continue
    ```
 
 ### 预期结果
@@ -418,9 +418,9 @@ superharness continue
 
 | 场景 | 命令 | 预期时间 |
 |------|------|----------|
-| 代码审查 | `superharness run "审查src/目录的代码质量"` | 2-5分钟 |
-| 文档生成 | `superharness run "为api.py生成API文档"` | 1-3分钟 |
-| 项目分析 | `superharness run "分析项目依赖关系"` | 2-4分钟 |
+| 代码审查 | `continuum run "审查src/目录的代码质量"` | 2-5分钟 |
+| 文档生成 | `continuum run "为api.py生成API文档"` | 1-3分钟 |
+| 项目分析 | `continuum run "分析项目依赖关系"` | 2-4分钟 |
 
 ---
 

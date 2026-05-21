@@ -18,7 +18,7 @@ def sample_toml_config(temp_working_dir):
     config_file = temp_working_dir / ".sh" / "config.toml"
     config_file.parent.mkdir(parents=True, exist_ok=True)
     config_file.write_text("""
-# SuperHarness 配置示例
+# Continuum 配置示例
 
 model = "claude-3-haiku"
 max_tokens = 4096

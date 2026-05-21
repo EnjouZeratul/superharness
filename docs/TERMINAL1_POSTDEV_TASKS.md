@@ -51,12 +51,12 @@ Terminal 1 擅长: Python SDK、集成工作
 ### T1.1: SDK Quick Start 精简 ⭐ 最高优先级
 - [ ] 审查当前 `examples/basic/` 示例
 - [ ] 参考目标: SmolAgents (2步启动)
-- [ ] 重新设计 `superharness_sdk/__init__.py` 导出
+- [ ] 重新设计 `continuum_sdk/__init__.py` 导出
 - [ ] 创建一键启动示例 `hello_world.py`
 - [ ] 目标达成:
   ```python
   # 目标: 3步以内
-  from superharness import Agent
+  from continuum import Agent
   agent = Agent()
   agent.run("hello")
   ```
@@ -84,7 +84,7 @@ Terminal 1 擅长: Python SDK、集成工作
 ## 工作目录
 
 ```
-python/superharness_sdk/
+python/continuum_sdk/
 ├── __init__.py          ← T1.1 导出优化
 ├── agent.py             ← T1.2 文档
 ├── session.py           ← T1.2 文档

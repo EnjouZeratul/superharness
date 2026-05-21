@@ -1,4 +1,4 @@
-# SuperHarness 完整架构设计 V4.0
+# Continuum 完整架构设计 V4.0
 
 > 版本: v4.0
 > 日期: 2026-05-10
@@ -11,7 +11,7 @@
 
 ### 1.1 双产品战略
 
-SuperHarness 是两个同等重要的产品：
+Continuum 是两个同等重要的产品：
 
 | 产品 | 定位 | 类比 | 目标用户 |
 |------|------|------|----------|
@@ -301,7 +301,7 @@ Python 层 (~30%):
 
 ### 7.1 Claude Code 能力覆盖
 
-| Claude Code 功能 | SuperHarness 模块 | 覆盖状态 |
+| Claude Code 功能 | Continuum 模块 | 覆盖状态 |
 |------------------|-------------------|----------|
 | 40+ 内置工具 | builtin-tools | ✅ |
 | Query Engine | query-engine | ✅ |
@@ -314,7 +314,7 @@ Python 层 (~30%):
 
 ### 7.2 OpenClaw 能力覆盖
 
-| OpenClaw 功能 | SuperHarness 模块 | 覆盖状态 |
+| OpenClaw 功能 | Continuum 模块 | 覆盖状态 |
 |----------------|-------------------|----------|
 | Plugin SDK | plugin-loader | ✅ |
 | Channel Gateway | channel-gateway | ✅ |
@@ -325,7 +325,7 @@ Python 层 (~30%):
 
 ### 7.3 LangChain/LangGraph 能力覆盖
 
-| LangChain/LangGraph 功能 | SuperHarness 模块 | 覆盖状态 |
+| LangChain/LangGraph 功能 | Continuum 模块 | 覆盖状态 |
 |--------------------------|-------------------|----------|
 | Chains | workflow-engine | ✅ |
 | Agents | agent-runtime | ✅ |
@@ -470,7 +470,7 @@ Python 层 (~30%):
 
 ### 一句话总结
 
-> **SuperHarness = Rust核心性能 + Python友好接口 + 完整Agent能力**
+> **Continuum = Rust核心性能 + Python友好接口 + 完整Agent能力**
 
 ---
 

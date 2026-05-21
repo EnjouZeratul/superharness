@@ -1,0 +1,81 @@
+{
+  "scenario": "scenario_5_multi_turn_context",
+  "timestamp": "2026-05-21T23:42:45.137776",
+  "status": "completed",
+  "steps": [
+    {
+      "name": "create_session",
+      "status": "passed",
+      "details": {
+        "session_id": "multi-turn-test",
+        "message_count": 0
+      }
+    },
+    {
+      "name": "first_turn",
+      "status": "passed",
+      "details": {
+        "user_message": "My name is Alice...",
+        "message_count": 2
+      }
+    },
+    {
+      "name": "second_turn",
+      "status": "passed",
+      "details": {
+        "has_context": true,
+        "message_count": 4
+      }
+    },
+    {
+      "name": "deep_conversation",
+      "status": "passed",
+      "details": {
+        "turns_added": 5,
+        "total_messages": 14
+      }
+    },
+    {
+      "name": "context_verification",
+      "status": "passed",
+      "details": {
+        "context_checks": {
+          "name_context": true,
+          "framework_context": true,
+          "auth_context": true,
+          "db_context": true
+        },
+        "message": "All context preserved across turns"
+      }
+    },
+    {
+      "name": "session_export_import",
+      "status": "passed",
+      "details": {
+        "export_success": true,
+        "exported_length": 2530,
+        "import_success": true,
+        "imported_message_count": 14,
+        "counts_match": true
+      }
+    },
+    {
+      "name": "context_after_restore",
+      "status": "passed",
+      "details": {
+        "context_preserved": {
+          "name": true,
+          "framework": true,
+          "auth_method": true
+        },
+        "message": "Context fully preserved after restore"
+      }
+    }
+  ],
+  "metrics": {
+    "total_steps": 7,
+    "passed_steps": 7,
+    "success_rate": 1.0
+  },
+  "errors": []
+}

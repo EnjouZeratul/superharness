@@ -1,4 +1,4 @@
-//! # SuperHarness Layer 4: Integration
+//! # Continuum Layer 4: Integration
 //!
 //! 外部系统和协议集成。
 //!
@@ -39,9 +39,10 @@ pub use worktree_manager::{Worktree, WorktreeConfig, WorktreeManager, WorktreeSt
 
 // 导出 MCP 桥接 (Terminal 1)
 pub use mcp_bridge::{
-    ContentBlock, DefaultHandler, McpBridge, McpBridgeConfig, McpError, McpHandler, McpMessage,
-    McpTransport, McpTransportType, MemoryTransport, SimpleToolExecutor, StdioTransport,
-    TcpTransport, ToolDefinition, ToolExecutor, ToolResult, MCP_VERSION,
+    ContentBlock, DefaultHandler, McpBridge, McpBridgeConfig, McpClientManager, McpError,
+    McpHandler, McpMessage, McpServerConfig, McpTransport, McpTransportType, MemoryTransport,
+    SimpleToolExecutor, StdioTransport, TcpTransport, ToolDefinition, ToolExecutor, ToolResult,
+    MCP_VERSION,
 };
 
 // 导出审计日志 (Terminal 1)

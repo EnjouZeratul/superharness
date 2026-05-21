@@ -210,7 +210,7 @@ impl PluginLoader {
 
     /// 使用默认目录创建
     pub fn with_default_dir() -> Self {
-        Self::new("~/.superharness/plugins")
+        Self::new("~/.continuum/plugins")
     }
 
     /// 加载单个插件（占位实现）

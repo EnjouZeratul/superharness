@@ -1,4 +1,4 @@
-# SuperHarness 开发进度
+# Continuum 开发进度
 
 > 最后更新: 2026-05-11 05:00 (Terminal 2)
 > 开发理念: 完整规划，逐步开发，无MVP，无中间产品

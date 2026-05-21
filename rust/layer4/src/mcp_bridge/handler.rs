@@ -71,7 +71,7 @@ impl DefaultHandler {
                 ..Default::default()
             },
             server_info: self.server_info.clone(),
-            instructions: Some("SuperHarness MCP Server".to_string()),
+            instructions: Some("Continuum MCP Server".to_string()),
         };
 
         Ok(McpResponse {

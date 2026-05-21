@@ -5,72 +5,81 @@
 
 import pytest
 import os
+import sys
+import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+
+# Add python directory to path for continuum_sdk
+_python_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'python')
+sys.path.insert(0, _python_dir)
+
+from continuum_sdk.config.loader import Config
 
 
 class TestConfigPriority:
     """配置优先级测试"""
 
-    def test_env_overrides_file_overrides_default(self, temp_working_dir):
+    def test_env_overrides_file_overrides_default(self, tmp_path):
         """测试完整优先级链"""
-        config_file = temp_working_dir / "config.toml"
-        config_file.write_text("""
-model = "claude-3-haiku"
-max_tokens = 4096
-""")
-        with patch.dict(os.environ, {"SH_MODEL": "claude-3-opus"}):
-            # Expected:
-            # model: env (claude-3-opus)
-            # max_tokens: file (4096)
-            pass
+        config_file = tmp_path / "config.json"
+        config_file.write_text(json.dumps({
+            "model": "file-model",
+            "max_tokens": 2048,
+        }))
+
+        # 加载文件配置
+        config = Config.from_file(str(config_file))
+        assert config.model == "file-model"
+        assert config.max_tokens == 2048
+
+        # 环境变量覆盖
+        with patch.dict(os.environ, {"CONTINUUM_MODEL": "env-model"}, clear=False):
+            env_config = Config.from_env()
+            assert env_config.model == "env-model"
 
     def test_env_only(self):
         """测试只有环境变量"""
         with patch.dict(os.environ, {
-            "SH_API_KEY": "env-key",
-            "SH_MODEL": "env-model"
-        }):
-            # Expected: 所有值来自环境变量
-            pass
+            "CONTINUUM_API_KEY": "env-key",
+            "CONTINUUM_MODEL": "env-model"
+        }, clear=False):
+            config = Config.from_env()
+            assert config.api_key == "env-key"
+            assert config.model == "env-model"
 
-    def test_file_only(self, temp_working_dir):
+    def test_file_only(self, tmp_path):
         """测试只有文件配置"""
-        config_file = temp_working_dir / "config.toml"
-        config_file.write_text("""
-api_key = "file-key"
-model = "file-model"
-""")
-        # Expected: 所有值来自文件
-        pass
+        config_file = tmp_path / "config.json"
+        config_file.write_text(json.dumps({
+            "api_key": "file-key",
+            "model": "file-model"
+        }))
+        config = Config.from_file(str(config_file))
+        assert config.api_key == "file-key"
+        assert config.model == "file-model"
 
     def test_default_only(self):
         """测试只有默认值"""
-        # 无环境变量，无配置文件
-        # Expected: 所有值使用内置默认
-        pass
+        # 清除所有环境变量
+        env_keys = [k for k in os.environ if k.startswith(("CONTINUUM_", "CONTINUUM_", "ANTHROPIC_"))]
+        with patch.dict(os.environ, {}, clear=False):
+            for k in env_keys:
+                os.environ.pop(k, None)
+            config = Config()
+            assert config.provider == "anthropic"
+            assert config.max_tokens == 4096
+            assert config.temperature == 0.7
 
-    def test_env_explicit_overrides_env_general(self):
-        """测试特定环境变量覆盖通用"""
+    def test_specific_env_overrides_general(self):
+        """测试 CONTINUUM 覆盖 CONTINUUM"""
         with patch.dict(os.environ, {
-            "SH_API_KEY": "general-key",
-            "SH_ANTHROPIC_API_KEY": "anthropic-key"
-        }):
-            # 当使用 anthropic 提供商时
-            # Expected: 使用 SH_ANTHROPIC_API_KEY
-            pass
-
-    def test_project_config_overrides_global(self, temp_working_dir):
-        """测试项目配置覆盖全局"""
-        global_config = temp_working_dir / "global.toml"
-        project_config = temp_working_dir / "project.toml"
-
-        global_config.write_text("model = 'global-model'")
-        project_config.write_text("model = 'project-model'")
-
-        # Expected: project-model
-        pass
+            "CONTINUUM_API_KEY": "general-key",
+            "CONTINUUM_API_KEY": "continuum-key"
+        }, clear=False):
+            config = Config.from_env()
+            assert config.api_key == "continuum-key"
 
 
 class TestPrioritySpecificKeys:
@@ -78,64 +87,58 @@ class TestPrioritySpecificKeys:
 
     def test_api_key_priority(self):
         """测试 API key 优先级"""
-        # 优先级: SH_ANTHROPIC_API_KEY > SH_API_KEY > config > default
         with patch.dict(os.environ, {
-            "SH_API_KEY": "general",
-            "SH_ANTHROPIC_API_KEY": "specific"
-        }):
-            # Expected: specific
-            pass
+            "ANTHROPIC_API_KEY": "anthropic-key",
+            "CONTINUUM_API_KEY": "sh-key",
+            "CONTINUUM_API_KEY": "continuum-key"
+        }, clear=False):
+            config = Config.from_env()
+            assert config.api_key == "continuum-key"
 
     def test_base_url_priority(self):
         """测试 base URL 优先级"""
-        # 优先级: SH_BASE_URL > SH_ANTHROPIC_BASE_URL > config > default
         with patch.dict(os.environ, {
-            "SH_BASE_URL": "general-url",
-            "SH_ANTHROPIC_BASE_URL": "specific-url"
-        }):
-            # Expected: specific-url
-            pass
+            "ANTHROPIC_BASE_URL": "https://anthropic.api",
+            "CONTINUUM_BASE_URL": "https://sh.api",
+            "CONTINUUM_BASE_URL": "https://cc.api"
+        }, clear=False):
+            config = Config.from_env()
+            assert config.base_url == "https://cc.api"
 
     def test_model_priority(self):
-        """测试模型优先级"""
-        # SH_MODEL > SH_ANTHROPIC_MODEL > config > default
-        pass
+        """测试 model 优先级"""
+        with patch.dict(os.environ, {
+            "ANTHROPIC_MODEL": "anthropic-model",
+            "CONTINUUM_MODEL": "sh-model",
+            "CONTINUUM_MODEL": "continuum-model"
+        }, clear=False):
+            config = Config.from_env()
+            assert config.model == "continuum-model"
 
-    def test_max_tokens_priority(self):
-        """测试 max_tokens 优先级"""
-        # SH_MAX_TOKENS > config > default (4096)
-        with patch.dict(os.environ, {"SH_MAX_TOKENS": "8192"}):
-            # Expected: 8192
-            pass
+    def test_max_tokens_from_env(self):
+        """测试 max_tokens 从环境变量"""
+        with patch.dict(os.environ, {"CONTINUUM_MAX_TOKENS": "8192"}, clear=False):
+            config = Config.from_env()
+            assert config.max_tokens == 8192
 
 
 class TestPriorityWithProviders:
     """提供商切换时的优先级测试"""
 
-    def test_priority_with_provider_switch(self, temp_working_dir):
-        """测试切换提供商后的优先级"""
-        config_file = temp_working_dir / "config.toml"
-        config_file.write_text("""
-[providers.anthropic]
-api_key = "anthropic-config-key"
+    def test_provider_switch_changes_defaults(self):
+        """测试切换提供商后默认模型改变"""
+        config = Config(provider="anthropic")
+        assert config.model == "claude-sonnet-4-6"
 
-[providers.openai]
-api_key = "openai-config-key"
-""")
-        with patch.dict(os.environ, {
-            "SH_ANTHROPIC_API_KEY": "anthropic-env-key",
-            "SH_OPENAI_API_KEY": "openai-env-key"
-        }):
-            # 切换到 anthropic: 使用 anthropic-env-key
-            # 切换到 openai: 使用 openai-env-key
-            pass
+        config.use("openai")
+        assert config.provider == "openai"
 
-    def test_cross_provider_env_fallback(self):
-        """测试跨提供商环境变量回退"""
-        with patch.dict(os.environ, {"SH_API_KEY": "general-key"}):
-            # 没有 SH_OPENAI_API_KEY 时
-            # Expected: 使用 SH_API_KEY
-            pass
+    def test_provider_with_preset_config(self):
+        """测试预配置提供商的信息加载"""
+        config = Config(provider="anthropic")
+        config.add_provider("openai", api_key="openai-key", model="gpt-4.1")
+        config.use("openai")
+        assert config.api_key == "openai-key"
 
 
 pytestmark = pytest.mark.config

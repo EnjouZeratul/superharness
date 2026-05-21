@@ -1,4 +1,4 @@
-# SuperHarness 项目愿景：如何做出真正"Super"的项目
+# Continuum 项目愿景：如何做出真正"Super"的项目
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -8,7 +8,7 @@
 
 ## 执行摘要
 
-**核心问题**：如何让 SuperHarness 不是"小打小闹"，而是真正有吸引力、有实用性的项目？
+**核心问题**：如何让 Continuum 不是"小打小闹"，而是真正有吸引力、有实用性的项目？
 
 **核心答案**：不是做更多功能，而是做一件事做到 95 分——让 Agent 系统可调试、可预测、可恢复。
 
@@ -111,8 +111,8 @@
 # 其他框架
 response = await agent.run("任务")  # 不知道花了多少钱
 
-# SuperHarness - 简单易用
-from superharness import UsageTracker
+# Continuum - 简单易用
+from continuum import UsageTracker
 
 tracker = UsageTracker()
 response = await agent.run("任务")
@@ -140,7 +140,7 @@ try:
 except Exception:
     pass  # 失败了就失败了
 
-# SuperHarness
+# Continuum
 try:
     response = await agent.run("爬取100个网站")
 except AgentError:
@@ -150,7 +150,7 @@ except AgentError:
 
 **价值三："零配置就能调试"**
 ```bash
-$ superharness dashboard
+$ continuum dashboard
 # 打开 localhost:8080，零配置看到所有执行细节
 ```
 
@@ -276,7 +276,7 @@ agent = Agent(testing=True)  # 冻结随机性
 
 ### 6.3 一句话定位
 
-**SuperHarness 是简洁可靠的 Agent 运行时。**
+**Continuum 是简洁可靠的 Agent 运行时。**
 
 ---
 

@@ -1,4 +1,4 @@
-# SuperHarness 产品框架修正文档
+# Continuum 产品框架修正文档
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -199,7 +199,7 @@ UX质量 = 基础UX完成度
 
 **技术实现**：
 ```python
-from superharness import SmartRouter
+from continuum import SmartRouter
 
 router = SmartRouter(
     models={
@@ -233,7 +233,7 @@ agent.set_router(router)
 
 **技术实现**：
 ```python
-from superharness import SmartCompressor
+from continuum import SmartCompressor
 
 compressor = SmartCompressor(
     strategy="importance_ranking",  # 按重要性排序

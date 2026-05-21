@@ -4,7 +4,7 @@
 
 use thiserror::Error;
 
-/// SuperHarness 统一错误类型
+/// Continuum 统一错误类型
 #[derive(Debug, Error)]
 pub enum ShError {
     #[error("Layer 0 error: {0}")]
@@ -45,7 +45,7 @@ impl From<anyhow::Error> for ShError {
     }
 }
 
-/// SuperHarness 统一结果类型
+/// Continuum 统一结果类型
 pub type ShResult<T> = std::result::Result<T, ShError>;
 
 /// 错误处理器（用于集中处理错误）

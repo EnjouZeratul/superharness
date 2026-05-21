@@ -1,6 +1,6 @@
 # 进度存档索引
 
-此文件夹存放 SuperHarness 开发进度的历史记录文件。
+此文件夹存放 Continuum 开发进度的历史记录文件。
 
 ---
 
@@ -36,7 +36,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      SuperHarness 开发历程                       │
+│                      Continuum 开发历程                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  2026-05-10  初始化 (35%)                                       │
@@ -96,7 +96,7 @@ PROGRESS_YYYYMMDD_HHMMSS.md
 
 ```bash
 # 创建新存档（Terminal 0 执行）
-cd d:/TA/create_together_with_ali/superharness/docs/progress_archive
+cd d:/TA/create_together_with_ali/continuum/docs/progress_archive
 # 文件名自动带时间戳
 ```
 

@@ -14,11 +14,11 @@ members = [
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-authors = ["SuperHarness Team"]
+authors = ["Continuum Team"]
 license = "MIT"
-repository = "https://github.com/superharness/superharness"
-homepage = "https://github.com/superharness/superharness"
-documentation = "https://docs.rs/superharness"
+repository = "https://github.com/continuum-ai/continuum"
+homepage = "https://github.com/continuum-ai/continuum"
+documentation = "https://docs.rs/continuum"
 keywords = ["agent", "llm", "ai", "runtime", "terminal"]
 categories = ["development-tools", "api-bindings", "command-line-utilities"]
 

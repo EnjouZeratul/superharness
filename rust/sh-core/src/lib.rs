@@ -1,4 +1,4 @@
-//! # SuperHarness Core
+//! # Continuum Core
 //!
 //! 统一重导出所有 layer 模块。
 

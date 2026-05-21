@@ -1,6 +1,6 @@
 # sh-layer1
 
-SuperHarness Layer 1: Foundation
+Continuum Layer 1: Foundation
 
 This layer provides core infrastructure components including:
 - LLM client (multi-provider support: Anthropic, OpenAI, Gemini)

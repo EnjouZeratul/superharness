@@ -1,4 +1,4 @@
-# SuperHarness 生产级可靠性设计
+# Continuum 生产级可靠性设计
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -678,7 +678,7 @@ class CheckpointRollbackManager:
     def __init__(
         self,
         max_checkpoints: int = 50,
-        storage_path: str = "~/.superharness/sessions"
+        storage_path: str = "~/.continuum/sessions"
     ):
         self.max_checkpoints = max_checkpoints
         self.storage_path = Path(storage_path).expanduser()
@@ -1340,7 +1340,7 @@ class CostTracker:
 class CostPredictor:
     """成本预测器"""
 
-    def __init__(self, history_file: str = "~/.superharness/cost_history.json"):
+    def __init__(self, history_file: str = "~/.continuum/cost_history.json"):
         self.history_file = Path(history_file).expanduser()
         self.history = self._load_history()
 
@@ -1445,7 +1445,7 @@ from pathlib import Path
 class APIKeyManager:
     """API密钥管理器"""
 
-    SERVICE_NAME = "superharness"
+    SERVICE_NAME = "continuum"
 
     @classmethod
     def get_key(cls, provider: str) -> Optional[str]:
@@ -1481,7 +1481,7 @@ class APIKeyManager:
     @classmethod
     def _read_from_config(cls, provider: str) -> Optional[str]:
         """从配置文件读取"""
-        config_path = Path("~/.superharness/keys.json").expanduser()
+        config_path = Path("~/.continuum/keys.json").expanduser()
         if not config_path.exists():
             return None
 
@@ -1495,7 +1495,7 @@ class APIKeyManager:
     @classmethod
     def _save_to_config(cls, provider: str, key: str):
         """保存到配置文件"""
-        config_path = Path("~/.superharness/keys.json").expanduser()
+        config_path = Path("~/.continuum/keys.json").expanduser()
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
         # 限制文件权限
@@ -1619,7 +1619,7 @@ class ToolSandbox:
 
     def create_temp_workspace(self) -> str:
         """创建临时工作空间"""
-        temp_dir = tempfile.mkdtemp(prefix="superharness_sandbox_")
+        temp_dir = tempfile.mkdtemp(prefix="continuum_sandbox_")
         self.allowed_paths.add(temp_dir)
         return temp_dir
 
@@ -1870,7 +1870,7 @@ class SessionPersistence:
 
     def __init__(
         self,
-        storage_path: str = "~/.superharness/sessions",
+        storage_path: str = "~/.continuum/sessions",
         auto_save_interval: int = 5,  # 每5轮保存一次
         max_checkpoints: int = 50
     ):

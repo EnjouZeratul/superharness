@@ -1,6 +1,6 @@
 # sh-layer2
 
-SuperHarness Layer 2: Core Engine
+Continuum Layer 2: Core Engine
 
 This layer provides the core agent engine including:
 - Agent runtime

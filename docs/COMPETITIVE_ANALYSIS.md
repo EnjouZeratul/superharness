@@ -1,4 +1,4 @@
-# SuperHarness 竞争优势分析
+# Continuum 竞争优势分析
 
 > 版本: v2.0
 > 日期: 2026-05-09
@@ -16,10 +16,10 @@
 | **研究项目** | AutoGen, MetaGPT, SWE-agent | 研究人员 | 不适合生产环境 |
 | **轻量框架** | Aider, Cline | 个人开发者 | 功能单一、无SDK |
 
-**SuperHarness 定位**: **简洁可靠的 Agent 运行时**
+**Continuum 定位**: **简洁可靠的 Agent 运行时**
 
 目标用户:
-| 用户类型 | 需求 | SuperHarness 价值 |
+| 用户类型 | 需求 | Continuum 价值 |
 |----------|------|-------------------|
 | **SaaS 产品开发者** | 将 Agent 能力集成到自己产品 | SDK 形态 + 可嵌入 |
 | **原型开发者** | 快速实验 Agent 概念 | YAML 配置 + 模板库 |
@@ -36,7 +36,7 @@
 
 ### 优势 1: 精简依赖 vs LangChain 依赖地狱
 
-| 对比项 | LangChain | SuperHarness |
+| 对比项 | LangChain | Continuum |
 |--------|-----------|--------------|
 | **核心依赖** | langchain + langchain-core + langchain-protocol + partners | httpx + pydantic |
 | **安装大小** | ~50MB+ | ~2MB |
@@ -58,8 +58,8 @@ tools = [Tool(name="search", func=search)]
 agent = OpenAIFunctionsAgent.from_llm_and_tools(llm, tools)
 agent_executor = AgentExecutor(agent=agent, memory=memory)
 
-# SuperHarness 方式 (简洁)
-from superharness import Harness
+# Continuum 方式 (简洁)
+from continuum import Harness
 
 harness = Harness(config="super.yaml")
 
@@ -138,7 +138,7 @@ memory:
 | **自行管理** | LangChain | 需要配置复杂的 Key 管理 |
 | **环境变量** | Aider, Cline | 简单但无说明 |
 
-SuperHarness 采用最简单的模式:
+Continuum 采用最简单的模式:
 
 ```bash
 # 设置环境变量，立即使用
@@ -155,7 +155,7 @@ python app.py
 
 ### 优势 5: 开源友好 vs 商业绑定
 
-| 对比项 | Cursor/Windsurf | SuperHarness |
+| 对比项 | Cursor/Windsurf | Continuum |
 |--------|-----------------|--------------|
 | **开源** | 否 | MIT 许可证 |
 | **可定制** | 有限 | 完全可定制 |
@@ -173,9 +173,9 @@ python app.py
 |------|----------|----------|
 | **应用** | Cursor, Aider CLI | IDE/终端集成 |
 | **平台** | LangChain Studio | 可视化编排 |
-| **SDK** | SuperHarness | Python 库嵌入 |
+| **SDK** | Continuum | Python 库嵌入 |
 
-SuperHarness 可以:
+Continuum 可以:
 1. 作为独立 CLI 使用
 2. 嵌入到现有 Python 项目
 3. 集成到其他应用/服务
@@ -183,7 +183,7 @@ SuperHarness 可以:
 ```python
 # 嵌入到 FastAPI
 from fastapi import FastAPI
-from superharness import Harness
+from continuum import Harness
 
 app = FastAPI()
 harness = Harness()
@@ -202,7 +202,7 @@ async def chat(message: str):
 
 ### 3.1 主流框架对比
 
-| 特性 | SuperHarness | LangChain | AutoGen | CrewAI | Aider |
+| 特性 | Continuum | LangChain | AutoGen | CrewAI | Aider |
 |------|--------------|-----------|---------|--------|-------|
 | **依赖精简** | ✓ (2个) | ✗ (核心~20) | ✗ (50+) | ✗ (30+) | ✓ (少) |
 | **无 LangChain** | ✓ | ✗ | ✓ | ✓ | ✓ |
@@ -220,13 +220,13 @@ async def chat(message: str):
 | **学习曲线** | 低 | 高 | 中 | 中 | 低 |
 | **生产可用** | 待验证 | ✓ | △ | △ | ✓ CLI |
 
-> **诚实说明**: LangChain 的 Callbacks 系统比我们的 Hooks 更成熟，覆盖更多生命周期；LangGraph 支持任意规划逻辑；AutoGen 有完善的沙箱和确认机制；CrewAI 有 delegation 和 Manager 模式。SuperHarness 的独特价值在于**简洁一致的 API**和**双层 Memory 系统**。
+> **诚实说明**: LangChain 的 Callbacks 系统比我们的 Hooks 更成熟，覆盖更多生命周期；LangGraph 支持任意规划逻辑；AutoGen 有完善的沙箱和确认机制；CrewAI 有 delegation 和 Manager 模式。Continuum 的独特价值在于**简洁一致的 API**和**双层 Memory 系统**。
 
 ### 3.2 ⚠️ 直接竞争对手（第三轮评审新增）
 
-> **严重发现**: 以下两个项目是 SuperHarness 的**直接竞争对手**，定位高度相似，此前被严重遗漏！
+> **严重发现**: 以下两个项目是 Continuum 的**直接竞争对手**，定位高度相似，此前被严重遗漏！
 
-| 特性 | SuperHarness | PydanticAI | SmolAgents |
+| 特性 | Continuum | PydanticAI | SmolAgents |
 |------|--------------|------------|------------|
 | **定位** | 轻量级 Agent SDK | 轻量级 Agent 框架 | 极简 Agent 框架 |
 | **维护方** | 开源社区 | Pydantic 团队 | HuggingFace |
@@ -259,13 +259,13 @@ agent = CodeAgent(tools=[], model=HfApiModel())
 agent.run("What is the capital of France?")
 ```
 
-**SuperHarness 相对优势**:
+**Continuum 相对优势**:
 1. **YAML 配置驱动** - PydanticAI/SmolAgents 都是纯 Python
 2. **双层 Memory 系统** - 两者都没有内置 Memory
 3. **规划策略** - 两者都没有内置规划策略
 4. **可观测性** - 两者都没有内置 Tracer
 
-**SuperHarness 相对劣势**:
+**Continuum 相对劣势**:
 1. **品牌背书** - PydanticAI 有 Pydantic 团队背书，SmolAgents 有 HuggingFace 背书
 2. **代码简洁** - SmolAgents 代码更简洁，"smol" 就是卖点
 3. **生态成熟** - PydanticAI 可直接使用 pydantic 生态
@@ -277,9 +277,9 @@ SmolAgents 是 HuggingFace 开发的极简 Agent 框架，官方定位：
 - 设计哲学：简洁、透明、最小化抽象
 - 官方声明适用于研究和生产环境
 
-**SuperHarness 定位**：
+**Continuum 定位**：
 
-SuperHarness 是我们正在开发的 Agent 框架，设计目标：
+Continuum 是我们正在开发的 Agent 框架，设计目标：
 - 提供完整的企业级基础设施
 - 内置可观测性、成本控制、错误恢复
 - 专注于生产环境的可靠性需求
@@ -289,7 +289,7 @@ SuperHarness 是我们正在开发的 Agent 框架，设计目标：
 - **Supersonic**：效率超越（并行执行、智能调度）
 - **Superstructure**：架构超越（分层设计、可扩展）
 
-**SuperHarness 核心卖点**:
+**Continuum 核心卖点**:
 | 卖点 | 价值主张 |
 |------|----------|
 | **可观测性** | 执行过程完全透明 |
@@ -297,7 +297,7 @@ SuperHarness 是我们正在开发的 Agent 框架，设计目标：
 | **生产稳定性** | 错误可恢复、状态可追溯 |
 
 **一句话定位**:
-> **"SuperHarness 是简洁可靠的 Agent 运行时"**
+> **"Continuum 是简洁可靠的 Agent 运行时"**
 
 ---
 
@@ -307,7 +307,7 @@ SuperHarness 是我们正在开发的 Agent 框架，设计目标：
 
 > "我想把 Agent 能力集成到自己的产品中，需要一个轻量、可定制的 SDK。"
 
-SuperHarness 提供:
+Continuum 提供:
 - SDK 形态，可嵌入任何 Python 项目
 - YAML 配置驱动，快速原型
 - 完全开源，深度定制
@@ -317,7 +317,7 @@ SuperHarness 提供:
 
 > "我们需要一个可定制、可扩展的 Agent 框架，但不想要企业级的复杂功能。"
 
-SuperHarness 提供:
+Continuum 提供:
 - Hooks 系统扩展生命周期
 - MCP 集成添加工具
 - Guardrail 控制输出质量
@@ -327,7 +327,7 @@ SuperHarness 提供:
 
 > "LangChain 太复杂了，API 不稳定，我想找一个轻量替代。"
 
-SuperHarness 提供:
+Continuum 提供:
 - 直接 API 调用，无抽象层
 - 稳定的 httpx + pydantic
 - 无 breaking changes
@@ -337,7 +337,7 @@ SuperHarness 提供:
 
 > "我想要一个真正开源、社区驱动的 Agent 框架。"
 
-SuperHarness 提供:
+Continuum 提供:
 - MIT 许可证
 - 活跃的 GitHub 仓库
 - 欢迎 Contributions
@@ -427,13 +427,13 @@ harness = Harness(model_provider="anthropic", model_name="claude-3")
 1. **5 分钟快速开始**: 简单对话 Agent
 2. **RAG 集成示例**: 文档问答
 3. **多 Agent 协作**: Handoff 演示
-4. **生产部署**: FastAPI + SuperHarness
+4. **生产部署**: FastAPI + Continuum
 
 ---
 
 ## 七、总结
 
-| 优势维度 | SuperHarness 差异化 |
+| 优势维度 | Continuum 差异化 |
 |----------|---------------------|
 | **技术** | httpx + pydantic vs LangChain 依赖地狱 |
 | **设计** | 集众家之长 vs 单一框架局限 |
@@ -443,7 +443,7 @@ harness = Harness(model_provider="anthropic", model_name="claude-3")
 | **创新** | 三合一规划 + 双层 Memory |
 
 **核心卖点**:
-> "如果你厌倦了 LangChain 的复杂性，想要一个轻量、可扩展、配置简单的 Agent SDK，SuperHarness 是最佳选择。"
+> "如果你厌倦了 LangChain 的复杂性，想要一个轻量、可扩展、配置简单的 Agent SDK，Continuum 是最佳选择。"
 
 ---
 

@@ -73,13 +73,13 @@ Layer 0-3 (全部完成 ✅)
 ## 完成后交付物
 
 ### CLI 产品
-- 可执行文件 `superharness`
+- 可执行文件 `continuum`
 - 命令: run, session, config, tools, tui
 - TUI 交互界面
 - 流式输出支持
 
 ### Python SDK
-- pip 可安装包 `superharness-sdk`
+- pip 可安装包 `continuum-sdk`
 - 完整类型提示
 - API 文档
 - 示例代码

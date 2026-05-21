@@ -1,4 +1,4 @@
-# SuperHarness 成本控制功能设计规范
+# Continuum 成本控制功能设计规范
 
 > 版本: v3.0 (简化版)
 > 日期: 2026-05-09
@@ -101,7 +101,7 @@ MVP成本控制 = {
 ### 3.1 用量追踪（核心API）
 
 ```python
-from superharness import UsageTracker
+from continuum import UsageTracker
 
 # 自动追踪用量，无需配置
 tracker = UsageTracker()
@@ -133,7 +133,7 @@ estimate = tracker.estimate_next_step()
 
 ```python
 # 简单的预算提醒，只有1个阈值
-from superharness import BudgetAlert
+from continuum import BudgetAlert
 
 budget = BudgetAlert(
     monthly_limit=100.0,      # 月度预算
@@ -153,7 +153,7 @@ agent.set_budget_alert(budget)
 
 ```python
 # 可选：防止失控循环（仅开发/测试环境）
-from superharness import SafetyLimit
+from continuum import SafetyLimit
 
 safety = SafetyLimit(
     max_tokens_per_task=100000,  # 单任务上限
@@ -174,7 +174,7 @@ agent.set_safety_limit(safety)
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ SuperHarness Agent 执行中                        │
+│ Continuum Agent 执行中                        │
 │                                                  │
 │ 📊 用量追踪                                      │
 │    Tokens: 2,340 / 预计 3,000-5,000            │
@@ -191,7 +191,7 @@ agent.set_safety_limit(safety)
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ SuperHarness Agent 执行中                        │
+│ Continuum Agent 执行中                        │
 │                                                  │
 │ ⚠️ 预算提醒: 本月已用 $85.00 / $100.00 (85%)    │
 │                                                  │

@@ -1,4 +1,4 @@
-//! superharness config 子命令
+//! continuum config 子命令
 
 use anyhow::Result;
 use std::path::PathBuf;
@@ -270,7 +270,7 @@ fn init_config(force: bool) -> Result<()> {
     println!("  gemini - model: gemini-pro");
     println!();
     println!("Set your API key:");
-    println!("  superharness config set provider.anthropic.api_key YOUR_KEY");
+    println!("  continuum config set provider.anthropic.api_key YOUR_KEY");
 
     Ok(())
 }
@@ -317,7 +317,7 @@ fn list_providers() -> Result<()> {
         println!("  (no providers configured)");
         println!();
         println!("Add a provider:");
-        println!("  superharness config add-provider anthropic --key YOUR_API_KEY");
+        println!("  continuum config add-provider anthropic --key YOUR_API_KEY");
     }
 
     Ok(())
@@ -371,7 +371,7 @@ fn add_provider(
     println!("  model: {}", provider_model);
     println!();
     println!("Switch to this provider:");
-    println!("  superharness config use {}", name);
+    println!("  continuum config use {}", name);
 
     Ok(())
 }

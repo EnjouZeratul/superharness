@@ -1,4 +1,4 @@
-# SuperHarness 用户手册
+# Continuum 用户手册
 
 > 版本: v1.0.0
 > 更新时间: 2026-05-12
@@ -24,13 +24,13 @@
 
 ```bash
 # 1. 安装
-pip install superharness
+pip install continuum
 
 # 2. 配置
 export ANTHROPIC_API_KEY=your-key
 
 # 3. 运行
-superharness
+continuum
 ```
 
 ---
@@ -40,22 +40,22 @@ superharness
 ### 从 PyPI 安装（推荐）
 
 ```bash
-pip install superharness
+pip install continuum
 ```
 
 ### 从源码安装
 
 ```bash
-git clone https://github.com/xxx/superharness
-cd superharness
+git clone https://github.com/xxx/continuum
+cd continuum
 pip install -e .
 ```
 
 ### 验证安装
 
 ```bash
-superharness --version
-python -c "from superharness_sdk import Agent; print('OK')"
+continuum --version
+python -c "from continuum_sdk import Agent; print('OK')"
 ```
 
 ---
@@ -92,7 +92,7 @@ export SH_BASE_URL=https://custom.api.com
 
 ```bash
 # 初始化配置
-superharness config init
+continuum config init
 ```
 
 配置文件位置: `~/.sh/config.toml`
@@ -116,22 +116,22 @@ model = "gpt-4"
 
 ```bash
 # 查看配置
-superharness config show
+continuum config show
 
 # 添加提供商
-superharness config add-provider custom \
+continuum config add-provider custom \
   --api-key $KEY \
   --url https://custom.api.com \
   --model custom-model
 
 # 切换提供商
-superharness config use custom
+continuum config use custom
 
 # 列出提供商
-superharness config list
+continuum config list
 
 # 验证配置
-superharness config validate
+continuum config validate
 ```
 
 ---
@@ -141,68 +141,68 @@ superharness config validate
 ### 命令概览
 
 ```
-superharness              # 进入 TUI（默认）
-superharness run <task>   # 执行任务
-superharness session      # 会话管理
-superharness config       # 配置管理
-superharness help         # 帮助
+continuum              # 进入 TUI（默认）
+continuum run <task>   # 执行任务
+continuum session      # 会话管理
+continuum config       # 配置管理
+continuum help         # 帮助
 ```
 
 ### run 命令
 
 ```bash
 # 交互模式
-superharness run
+continuum run
 
 # 单次执行
-superharness run "分析项目结构"
+continuum run "分析项目结构"
 
 # 指定模型
-superharness run --model claude-3-opus "复杂任务"
+continuum run --model claude-3-opus "复杂任务"
 
 # 禁用工具
-superharness run --no-tools "纯对话"
+continuum run --no-tools "纯对话"
 
 # 详细输出
-superharness run --verbose "调试任务"
+continuum run --verbose "调试任务"
 ```
 
 ### session 命令
 
 ```bash
 # 列出会话
-superharness session list
+continuum session list
 
 # 恢复会话
-superharness session resume <id>
+continuum session resume <id>
 
 # 删除会话
-superharness session delete <id>
+continuum session delete <id>
 
 # 按名称恢复
-superharness session resume my-session
+continuum session resume my-session
 ```
 
 ### config 命令
 
 ```bash
 # 初始化
-superharness config init
+continuum config init
 
 # 添加提供商
-superharness config add-provider <name> --api-key <key> --url <url>
+continuum config add-provider <name> --api-key <key> --url <url>
 
 # 切换提供商
-superharness config use <name>
+continuum config use <name>
 
 # 显示当前配置
-superharness config show
+continuum config show
 
 # 列出所有提供商
-superharness config list
+continuum config list
 
 # 验证配置
-superharness config validate
+continuum config validate
 ```
 
 ---
@@ -289,7 +289,7 @@ superharness config validate
 ### 基础使用
 
 ```python
-from superharness_sdk import Agent
+from continuum_sdk import Agent
 
 # 创建 Agent
 agent = Agent()
@@ -302,7 +302,7 @@ print(result)
 ### 会话管理
 
 ```python
-from superharness_sdk import Agent, Session
+from continuum_sdk import Agent, Session
 
 # 创建会话
 session = Session(name="my-session")
@@ -322,7 +322,7 @@ session.rollback(checkpoint_id)
 ### 工具注册
 
 ```python
-from superharness_sdk.tools import tool, get_registry
+from continuum_sdk.tools import tool, get_registry
 
 @tool(name="calculate", description="执行数学运算")
 async def calculate(expression: str) -> float:
@@ -340,7 +340,7 @@ result = agent.run("计算 1+1")
 ### 自定义工具
 
 ```python
-from superharness_sdk.tools import CustomTool
+from continuum_sdk.tools import CustomTool
 
 class MyTool(CustomTool):
     @property
@@ -367,7 +367,7 @@ class MyTool(CustomTool):
 ### 记忆系统
 
 ```python
-from superharness_sdk.memory import Memory, MemoryTier
+from continuum_sdk.memory import Memory, MemoryTier
 
 memory = Memory()
 
@@ -393,7 +393,7 @@ memory.forget("temp_data")
 ### 工作流
 
 ```python
-from superharness_sdk.workflow import DAG, Node
+from continuum_sdk.workflow import DAG, Node
 
 # 创建 DAG
 dag = DAG("my-workflow")
@@ -420,7 +420,7 @@ result = await dag.execute()
 export SH_MODEL=gpt-4
 
 # 永久切换（配置文件）
-superharness config use openai
+continuum config use openai
 ```
 
 ### Q: 如何查看 Token 使用情况？
@@ -428,7 +428,7 @@ superharness config use openai
 在 TUI 中查看状态栏，或使用 SDK：
 
 ```python
-from superharness_sdk import Agent
+from continuum_sdk import Agent
 
 agent = Agent()
 # ... 使用后
@@ -467,21 +467,21 @@ python --version
 
 # 使用 pip 更新
 pip install --upgrade pip
-pip install superharness --no-cache-dir
+pip install continuum --no-cache-dir
 ```
 
 ### API 错误
 
 ```bash
 # 验证 API Key
-superharness config validate
+continuum config validate
 
 # 检查网络
 curl https://api.anthropic.com/health
 
 # 查看日志
 export RUST_LOG=debug
-superharness run "test"
+continuum run "test"
 ```
 
 ### TUI 显示异常
@@ -494,27 +494,27 @@ echo $TERM
 reset
 
 # 使用兼容模式
-TERM=xterm-256color superharness
+TERM=xterm-256color continuum
 ```
 
 ### 配置问题
 
 ```bash
 # 查看配置路径
-superharness config show --source
+continuum config show --source
 
 # 重置配置
 rm ~/.sh/config.toml
-superharness config init
+continuum config init
 ```
 
 ---
 
 ## 获取帮助
 
-- GitHub Issues: https://github.com/xxx/superharness/issues
-- 文档: https://superharness.readthedocs.io
+- GitHub Issues: https://github.com/xxx/continuum/issues
+- 文档: https://continuum.readthedocs.io
 
 ---
 
-*SuperHarness - Making AI Agents Easy*
+*Continuum - Making AI Agents Easy*

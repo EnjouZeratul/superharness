@@ -101,13 +101,13 @@ jobs:
           rust-toolchain: stable
 
       - name: Build CLI
-        run: cargo build --release -p superharness-cli --verbose
+        run: cargo build --release -p continuum-cli --verbose
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.os }}
-          path: target/release/superharness*
+          path: target/release/continuum*
           retention-days: 7
         if: runner.os != 'Windows'
 
@@ -115,7 +115,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.os }}
-          path: target/release/superharness.exe
+          path: target/release/continuum.exe
           retention-days: 7
         if: runner.os == 'Windows'
 

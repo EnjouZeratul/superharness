@@ -4,9 +4,9 @@
 
 use clap::{Parser, Subcommand};
 
-/// SuperHarness CLI - 终端 Agent 产品
+/// Continuum CLI - 终端 Agent 产品
 #[derive(Parser, Debug)]
-#[command(name = "superharness")]
+#[command(name = "continuum")]
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
     /// 启用调试日志
@@ -73,6 +73,261 @@ pub enum Commands {
     Checkpoint {
         #[command(subcommand)]
         cmd: CheckpointCmd,
+    },
+
+    // ===== 工具链命令 =====
+
+    /// 执行 shell 命令
+    Bash {
+        /// 要执行的命令
+        command: String,
+        /// 工作目录
+        #[arg(short = 'w', long)]
+        cwd: Option<String>,
+        /// 超时时间（秒）
+        #[arg(short, long, default_value = "120")]
+        timeout: u64,
+        /// 捕获标准错误
+        #[arg(short = 'e', long)]
+        capture_stderr: bool,
+    },
+
+    /// 读取文件内容
+    Read {
+        /// 文件路径
+        file: String,
+        /// 起始行号
+        #[arg(short, long)]
+        offset: Option<usize>,
+        /// 读取行数
+        #[arg(short, long)]
+        limit: Option<usize>,
+        /// 显示行号
+        #[arg(short = 'n', long)]
+        line_numbers: bool,
+    },
+
+    /// 写入文件
+    Write {
+        /// 文件路径
+        file: String,
+        /// 要写入的内容（或从 stdin 读取）
+        content: Option<String>,
+        /// 追加模式
+        #[arg(short, long)]
+        append: bool,
+        /// 创建备份
+        #[arg(short, long)]
+        backup: bool,
+    },
+
+    /// 编辑文件（精确替换）
+    Edit {
+        /// 文件路径
+        file: String,
+        /// 旧内容
+        #[arg(short, long)]
+        old: String,
+        /// 新内容
+        #[arg(short, long)]
+        new: String,
+        /// 替换所有匹配
+        #[arg(short, long)]
+        replace_all: bool,
+    },
+
+    /// 搜索文件内容
+    Grep {
+        /// 搜索模式（正则表达式）
+        pattern: String,
+        /// 搜索路径
+        #[arg(short, long, default_value = ".")]
+        path: String,
+        /// 文件模式过滤
+        #[arg(short, long)]
+        glob: Option<String>,
+        /// 忽略大小写
+        #[arg(short, long)]
+        ignore_case: bool,
+        /// 显示行数
+        #[arg(short = 'n', long)]
+        line_numbers: bool,
+        /// 显示上下文行数
+        #[arg(short = 'C', long)]
+        context: Option<usize>,
+    },
+
+    /// 查找文件
+    Glob {
+        /// 文件模式
+        pattern: String,
+        /// 搜索路径
+        #[arg(short, long, default_value = ".")]
+        path: String,
+    },
+
+    /// LSP 代码智能
+    Lsp {
+        #[command(subcommand)]
+        cmd: LspCmd,
+    },
+
+    // ===== Git 命令 =====
+
+    /// Git 工作流集成
+    Git {
+        #[command(subcommand)]
+        cmd: GitCmd,
+    },
+}
+
+/// LSP 子命令
+#[derive(Subcommand, Debug, Clone)]
+pub enum LspCmd {
+    /// 跳转到定义
+    Definition {
+        /// 文件路径
+        file: String,
+        /// 行号（1-based）
+        line: usize,
+        /// 列号（1-based）
+        column: usize,
+    },
+    /// 查找引用
+    References {
+        /// 文件路径
+        file: String,
+        /// 行号（1-based）
+        line: usize,
+        /// 列号（1-based）
+        column: usize,
+    },
+    /// 悬停信息
+    Hover {
+        /// 文件路径
+        file: String,
+        /// 行号（1-based）
+        line: usize,
+        /// 列号（1-based）
+        column: usize,
+    },
+    /// 文档符号
+    Symbols {
+        /// 文件路径
+        file: String,
+    },
+}
+
+/// Git 子命令
+#[derive(Subcommand, Debug, Clone)]
+pub enum GitCmd {
+    /// 显示工作区状态
+    Status {
+        /// 简洁格式
+        #[arg(short, long)]
+        short: bool,
+    },
+
+    /// 显示变更差异
+    Diff {
+        /// 显示暂存区差异
+        #[arg(short, long)]
+        staged: bool,
+        /// 文件路径（可选）
+        paths: Vec<String>,
+    },
+
+    /// 提交变更
+    Commit {
+        /// commit 消息（自动生成如果未指定）
+        #[arg(short, long)]
+        message: Option<String>,
+        /// 修改上次提交
+        #[arg(short, long)]
+        amend: bool,
+        /// 自动暂存所有变更
+        #[arg(short = 'A', long)]
+        add_all: bool,
+    },
+
+    /// 暂存文件
+    Add {
+        /// 要暂存的文件路径
+        paths: Vec<String>,
+    },
+
+    /// 分支管理
+    Branch {
+        #[command(subcommand)]
+        cmd: GitBranchCmd,
+    },
+
+    /// 创建 Pull Request
+    Pr {
+        #[command(subcommand)]
+        cmd: GitPrCmd,
+    },
+}
+
+/// Git Branch 子命令
+#[derive(Subcommand, Debug, Clone)]
+pub enum GitBranchCmd {
+    /// 列出分支
+    List {
+        /// 包含远程分支
+        #[arg(short = 'a', long)]
+        all: bool,
+    },
+
+    /// 创建分支
+    Create {
+        /// 分支名称
+        name: String,
+        /// 创建后切换
+        #[arg(short, long)]
+        switch: bool,
+    },
+
+    /// 切换分支
+    Switch {
+        /// 分支名称
+        name: String,
+    },
+
+    /// 删除分支
+    Delete {
+        /// 分支名称
+        name: String,
+        /// 强制删除
+        #[arg(short, long)]
+        force: bool,
+    },
+}
+
+/// Git PR 子命令
+#[derive(Subcommand, Debug, Clone)]
+pub enum GitPrCmd {
+    /// 创建 PR
+    Create {
+        /// PR 标题
+        #[arg(short, long)]
+        title: Option<String>,
+        /// PR 描述
+        #[arg(short, long)]
+        body: Option<String>,
+        /// 目标分支
+        #[arg(short, long, default_value = "main")]
+        base: String,
+        /// 创建为草稿
+        #[arg(short, long)]
+        draft: bool,
+    },
+
+    /// 列出 PR
+    List {
+        /// PR 状态
+        #[arg(short, long, default_value = "open")]
+        state: String,
     },
 }
 
@@ -189,14 +444,14 @@ mod tests {
 
     #[test]
     fn test_cli_args_version() {
-        let args = CliArgs::try_parse_from(["superharness", "--version"]);
+        let args = CliArgs::try_parse_from(["continuum", "--version"]);
         // 应该成功解析并显示版本
         assert!(args.is_ok() || args.is_err()); // 版本命令会退出程序
     }
 
     #[test]
     fn test_cli_args_help() {
-        let args = CliArgs::try_parse_from(["superharness", "--help"]);
+        let args = CliArgs::try_parse_from(["continuum", "--help"]);
         // 帮助命令会退出程序
         assert!(args.is_ok() || args.is_err());
     }
@@ -204,7 +459,7 @@ mod tests {
     #[test]
     fn test_default_tui_behavior() {
         // 测试无参数时默认进入TUI
-        let args = CliArgs::try_parse_from(["superharness"]);
+        let args = CliArgs::try_parse_from(["continuum"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         // command 应该是 None
@@ -214,7 +469,7 @@ mod tests {
     #[test]
     fn test_explicit_tui_command() {
         // 测试显式tui命令
-        let args = CliArgs::try_parse_from(["superharness", "tui"]);
+        let args = CliArgs::try_parse_from(["continuum", "tui"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         assert!(matches!(args.command, Some(Commands::Tui { .. })));
@@ -223,7 +478,7 @@ mod tests {
     #[test]
     fn test_run_command() {
         // 测试run子命令
-        let args = CliArgs::try_parse_from(["superharness", "run", "test task"]);
+        let args = CliArgs::try_parse_from(["continuum", "run", "test task"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         if let Some(Commands::Run { task, .. }) = args.command {
@@ -236,7 +491,7 @@ mod tests {
     #[test]
     fn test_session_list_command() {
         // 测试session list子命令
-        let args = CliArgs::try_parse_from(["superharness", "session", "list"]);
+        let args = CliArgs::try_parse_from(["continuum", "session", "list"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         assert!(matches!(args.command, Some(Commands::Session { .. })));
@@ -245,7 +500,7 @@ mod tests {
     #[test]
     fn test_config_show_command() {
         // 测试config show子命令
-        let args = CliArgs::try_parse_from(["superharness", "config", "show"]);
+        let args = CliArgs::try_parse_from(["continuum", "config", "show"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         assert!(matches!(args.command, Some(Commands::Config { .. })));
@@ -254,7 +509,7 @@ mod tests {
     #[test]
     fn test_tools_command() {
         // 测试tools子命令
-        let args = CliArgs::try_parse_from(["superharness", "tools", "--verbose"]);
+        let args = CliArgs::try_parse_from(["continuum", "tools", "--verbose"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         if let Some(Commands::Tools { verbose, .. }) = args.command {
@@ -267,9 +522,117 @@ mod tests {
     #[test]
     fn test_checkpoint_list_command() {
         // 测试checkpoint list子命令
-        let args = CliArgs::try_parse_from(["superharness", "checkpoint", "list"]);
+        let args = CliArgs::try_parse_from(["continuum", "checkpoint", "list"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         assert!(matches!(args.command, Some(Commands::Checkpoint { .. })));
+    }
+
+    #[test]
+    fn test_bash_command() {
+        let args = CliArgs::try_parse_from(["continuum", "bash", "ls -la"]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Bash { command, .. }) = args.command {
+            assert_eq!(command, "ls -la");
+        } else {
+            panic!("Expected Bash command");
+        }
+    }
+
+    #[test]
+    fn test_read_command() {
+        let args = CliArgs::try_parse_from(["continuum", "read", "test.txt", "--offset", "10", "--limit", "20"]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Read { file, offset, limit, .. }) = args.command {
+            assert_eq!(file, "test.txt");
+            assert_eq!(offset, Some(10));
+            assert_eq!(limit, Some(20));
+        } else {
+            panic!("Expected Read command");
+        }
+    }
+
+    #[test]
+    fn test_write_command() {
+        let args = CliArgs::try_parse_from(["continuum", "write", "test.txt", "hello world", "--backup"]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Write { file, content, backup, .. }) = args.command {
+            assert_eq!(file, "test.txt");
+            assert_eq!(content, Some("hello world".to_string()));
+            assert!(backup);
+        } else {
+            panic!("Expected Write command");
+        }
+    }
+
+    #[test]
+    fn test_edit_command() {
+        let args = CliArgs::try_parse_from([
+            "continuum", "edit", "test.txt",
+            "--old", "foo", "--new", "bar", "--replace-all"
+        ]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Edit { file, old, new, replace_all }) = args.command {
+            assert_eq!(file, "test.txt");
+            assert_eq!(old, "foo");
+            assert_eq!(new, "bar");
+            assert!(replace_all);
+        } else {
+            panic!("Expected Edit command");
+        }
+    }
+
+    #[test]
+    fn test_grep_command() {
+        let args = CliArgs::try_parse_from([
+            "continuum", "grep", "pattern", "--path", "src/", "--ignore-case", "--context", "2"
+        ]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Grep { pattern, path, ignore_case, context, .. }) = args.command {
+            assert_eq!(pattern, "pattern");
+            assert_eq!(path, "src/");
+            assert!(ignore_case);
+            assert_eq!(context, Some(2));
+        } else {
+            panic!("Expected Grep command");
+        }
+    }
+
+    #[test]
+    fn test_glob_command() {
+        let args = CliArgs::try_parse_from(["continuum", "glob", "**/*.rs", "--path", "src/"]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Glob { pattern, path }) = args.command {
+            assert_eq!(pattern, "**/*.rs");
+            assert_eq!(path, "src/");
+        } else {
+            panic!("Expected Glob command");
+        }
+    }
+
+    #[test]
+    fn test_lsp_definition_command() {
+        let args = CliArgs::try_parse_from([
+            "continuum", "lsp", "definition", "test.rs", "10", "5"
+        ]);
+        assert!(args.is_ok());
+        let args = args.unwrap();
+        if let Some(Commands::Lsp { cmd }) = args.command {
+            if let LspCmd::Definition { file, line, column } = cmd {
+                assert_eq!(file, "test.rs");
+                assert_eq!(line, 10);
+                assert_eq!(column, 5);
+            } else {
+                panic!("Expected Definition subcommand");
+            }
+        } else {
+            panic!("Expected Lsp command");
+        }
     }
 }

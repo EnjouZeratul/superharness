@@ -12,8 +12,8 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 import asyncio
 
-from superharness_sdk.agent import Agent, AgentConfig, AgentState
-from superharness_sdk.llm import ChatResponse, TokenUsage
+from continuum_sdk.agent import Agent, AgentConfig, AgentState
+from continuum_sdk.llm import ChatResponse, TokenUsage
 
 
 class TestAgentConfig:
@@ -214,11 +214,27 @@ class TestAgentExecute:
 
     def test_execute_no_api_key(self):
         """Test execute without API key raises error"""
-        agent = Agent()  # No API key
-        agent.start()
+        import os
 
-        with pytest.raises(ValueError, match="API key"):
-            agent.execute("task")
+        # Save and clear all API key environment variables
+        saved_keys = {}
+        for key in ["CONTINUUM_API_KEY", "CONTINUUM_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY"]:
+            saved_keys[key] = os.environ.get(key)
+            if key in os.environ:
+                del os.environ[key]
+
+        try:
+            # Create agent without API key (no env vars)
+            agent = Agent()
+            agent.start()
+
+            with pytest.raises(ValueError, match="API key"):
+                agent.execute("task")
+        finally:
+            # Restore environment variables
+            for key, value in saved_keys.items():
+                if value is not None:
+                    os.environ[key] = value
 
 
 class TestAgentQuickStart:
@@ -275,7 +291,7 @@ class TestAgentStreaming:
     @pytest.mark.asyncio
     async def test_run_stream_with_mock(self):
         """Test streaming with mocked LLM"""
-        from superharness_sdk.llm import StreamChunk
+        from continuum_sdk.llm import StreamChunk
 
         async def mock_stream(*args, **kwargs):
             chunks = [

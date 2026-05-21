@@ -1,6 +1,6 @@
 # sh-python
 
-Python bindings for SuperHarness.
+Python bindings for Continuum.
 
 ## Installation
 

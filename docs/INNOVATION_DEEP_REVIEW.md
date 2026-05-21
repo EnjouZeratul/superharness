@@ -1,4 +1,4 @@
-# SuperHarness 创新点深度评审报告
+# Continuum 创新点深度评审报告
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -20,7 +20,7 @@
 
 ### 一句话总结
 
-> SuperHarness 需要从"整合型创新"转向"解决真实痛点"，聚焦成本透明、错误自愈、可观测性三大方向。
+> Continuum 需要从"整合型创新"转向"解决真实痛点"，聚焦成本透明、错误自愈、可观测性三大方向。
 
 ---
 
@@ -140,7 +140,7 @@
 **技术前沿性**: 无
 - PydanticAI 同样只依赖 pydantic
 - SmolAgents 定位为"极简框架"（HuggingFace 官方定位）
-- 注意：SuperHarness 的"Super"应代表"强大/超越"，而非"更小"
+- 注意：Continuum 的"Super"应代表"强大/超越"，而非"更小"
 - 不是差异化，是定位混淆
 
 **用户真实需求**: 伪需求
@@ -215,7 +215,7 @@
 
 **严重发现**：文档完全遗漏以下两个直接竞争对手：
 
-| 竞品 | 定位 | 相似度 | SuperHarness 差异点 |
+| 竞品 | 定位 | 相似度 | Continuum 差异点 |
 |------|------|--------|---------------------|
 | **PydanticAI** | 轻量 Agent 框架，pydantic 生态 | 90% | YAML 配置支持 |
 | **SmolAgents** | 极简 Agent 框架，HuggingFace 出品 | 85% | 强大架构（Super=更强） |
@@ -297,7 +297,7 @@
 
 **解决方案**:
 ```python
-from superharness import Harness, BudgetConfig, ExceedAction
+from continuum import Harness, BudgetConfig, ExceedAction
 
 harness = Harness(config="agent.yaml")
 budget = BudgetConfig(
@@ -355,11 +355,11 @@ if result.status == TaskStatus.PAUSED:
 
 **解决方案**:
 ```python
-from superharness import Harness, Replay
+from continuum import Harness, Replay
 
 # 录制模式
 harness = Harness(config="agent.yaml", replay_mode=True)
-await agent.run("任务")  # 自动保存到 .superharness/traces/
+await agent.run("任务")  # 自动保存到 .continuum/traces/
 
 # 回放
 replay = Replay("./traces/2026-05-09_001.json")
@@ -397,7 +397,7 @@ await replay.export_video()   # 导出可视化视频
 
 **解决方案**:
 ```python
-from superharness import Harness, SelfHealing
+from continuum import Harness, SelfHealing
 
 harness = Harness(
     config="agent.yaml",
@@ -444,16 +444,16 @@ except Exception:
 
 **解决方案**:
 ```python
-from superharness import Harness
+from continuum import Harness
 
 # 零配置启动
 harness = Harness(config="agent.yaml")
 
-# 自动输出到 .superharness/traces/
+# 自动输出到 .continuum/traces/
 await agent.run("任务")
 
 # 启动本地 Dashboard
-$ superharness dashboard
+$ continuum dashboard
 # 打开 http://localhost:8080 查看
 ```
 
@@ -482,7 +482,7 @@ $ superharness dashboard
 
 **解决方案**:
 ```python
-from superharness import Harness, ModelRouter
+from continuum import Harness, ModelRouter
 
 router = ModelRouter(
     strategy="auto",

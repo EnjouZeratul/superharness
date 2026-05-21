@@ -12,17 +12,17 @@
 
 **当前行为**:
 ```bash
-superharness              # 显示帮助信息
-superharness tui          # 进入TUI
-superharness run "task"   # 执行任务
+continuum              # 显示帮助信息
+continuum tui          # 进入TUI
+continuum run "task"   # 执行任务
 ```
 
 **目标行为**:
 ```bash
-superharness              # 直接进入TUI交互模式
-superharness help         # 显示帮助信息
-superharness run "task"   # 执行任务（保持不变）
-superharness config ...   # 配置命令（保持不变）
+continuum              # 直接进入TUI交互模式
+continuum help         # 显示帮助信息
+continuum run "task"   # 执行任务（保持不变）
+continuum config ...   # 配置命令（保持不变）
 ```
 
 ### 1.2 实现方案
@@ -149,7 +149,7 @@ Help {
 
 ### 3.2 技术栈对比
 
-| 组件 | Claude Code | SuperHarness |
+| 组件 | Claude Code | Continuum |
 |------|-------------|--------------|
 | 核心 | TypeScript | Rust |
 | 终端 | 自研 | ratatui |
@@ -211,7 +211,7 @@ Help {
 ```markdown
 # 致谢 / Acknowledgments
 
-SuperHarness 的开发受到以下项目的启发：
+Continuum 的开发受到以下项目的启发：
 
 - **Claude Code** (Anthropic) - 终端Agent交互模式、用户体验设计
 - **Aider** - AI辅助编程工具、代码编辑交互
@@ -219,12 +219,12 @@ SuperHarness 的开发受到以下项目的启发：
 
 感谢这些项目为 AI Agent 领域做出的贡献。
 
-SuperHarness 是使用 Rust + Python 技术栈独立开发的开源项目，
+Continuum 是使用 Rust + Python 技术栈独立开发的开源项目，
 旨在提供高性能、可定制、透明的 Agent 运行时。
 
 ## 差异化定位
 
-| 特性 | SuperHarness |
+| 特性 | Continuum |
 |------|---------------|
 | 开源 | ✅ 完全开源，代码透明 |
 | 性能 | ✅ Rust核心，内存安全 |

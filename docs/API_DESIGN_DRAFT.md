@@ -1,4 +1,4 @@
-# SuperHarness Python SDK API 设计草稿
+# Continuum Python SDK API 设计草稿
 
 > 版本: v0.1 Draft
 > 作者: Terminal 3
@@ -14,7 +14,7 @@
 ```python
 """内置工具 API
 
-提供对 SuperHarness 内置工具的 Python 访问。
+提供对 Continuum 内置工具的 Python 访问。
 """
 
 from typing import Any, Dict, List, Optional
@@ -56,7 +56,7 @@ class BuiltinTools:
     """内置工具集合
 
     Usage:
-        from superharness_sdk.tools.builtin import BuiltinTools
+        from continuum_sdk.tools.builtin import BuiltinTools
 
         tools = BuiltinTools()
 
@@ -256,7 +256,7 @@ class CustomTool(ABC):
     """自定义工具基类
 
     Usage:
-        from superharness_sdk.tools.custom import CustomTool, tool
+        from continuum_sdk.tools.custom import CustomTool, tool
 
         # 方式1: 继承类
         class MyTool(CustomTool):
@@ -352,7 +352,7 @@ class ToolRegistry:
     """工具注册表
 
     Usage:
-        from superharness_sdk.tools.custom import ToolRegistry, CustomTool
+        from continuum_sdk.tools.custom import ToolRegistry, CustomTool
 
         registry = ToolRegistry()
 
@@ -444,7 +444,7 @@ class Memory:
     """分层记忆系统
 
     Usage:
-        from superharness_sdk.memory import Memory, MemoryTier
+        from continuum_sdk.memory import Memory, MemoryTier
 
         memory = Memory(session_id="session-123")
 
@@ -653,7 +653,7 @@ class Node:
     """工作流节点
 
     Usage:
-        from superharness_sdk.workflow import Node
+        from continuum_sdk.workflow import Node
 
         # 创建节点
         node = Node("process", func=process_data)
@@ -699,7 +699,7 @@ class DAG:
     """工作流 DAG
 
     Usage:
-        from superharness_sdk.workflow import DAG, Node
+        from continuum_sdk.workflow import DAG, Node
 
         # 创建 DAG
         dag = DAG("my_workflow")
@@ -841,7 +841,7 @@ def workflow(id: str) -> DAG:
     """创建工作流的便捷函数
 
     Usage:
-        from superharness_sdk.workflow import workflow, node
+        from continuum_sdk.workflow import workflow, node
 
         @workflow("example")
         def my_workflow():
@@ -883,14 +883,14 @@ def node(
 最简单的 Agent 使用示例。
 """
 
-from superharness_sdk import Agent
+from continuum_sdk import Agent
 
 async def main():
     # 创建 Agent
     agent = Agent()
 
     # 发送消息
-    response = await agent.chat("Hello, SuperHarness!")
+    response = await agent.chat("Hello, Continuum!")
     print(response)
 
     # 使用工具
@@ -910,7 +910,7 @@ if __name__ == "__main__":
 展示会话创建、保存、恢复。
 """
 
-from superharness_sdk import Agent, SessionManager
+from continuum_sdk import Agent, SessionManager
 
 async def main():
     # 创建会话管理器
@@ -946,7 +946,7 @@ if __name__ == "__main__":
 展示如何创建和注册自定义工具。
 """
 
-from superharness_sdk.tools import CustomTool, ToolRegistry, tool
+from continuum_sdk.tools import CustomTool, ToolRegistry, tool
 
 # 方式1: 继承 CustomTool
 class CalculatorTool(CustomTool):
@@ -1012,7 +1012,7 @@ if __name__ == "__main__":
 展示 DAG 工作流的创建和执行。
 """
 
-from superharness_sdk.workflow import DAG, Node
+from continuum_sdk.workflow import DAG, Node
 
 async def fetch_data():
     """步骤1: 获取数据"""
@@ -1070,9 +1070,9 @@ if __name__ == "__main__":
 
 | 模块 | 导入路径 | 主要类/函数 |
 |------|----------|-------------|
-| Tool | `superharness_sdk.tools` | `BuiltinTools`, `CustomTool`, `ToolRegistry`, `@tool` |
-| Memory | `superharness_sdk.memory` | `Memory`, `MemoryTier`, `MemoryEntry` |
-| Workflow | `superharness_sdk.workflow` | `DAG`, `Node`, `DAGResult` |
+| Tool | `continuum_sdk.tools` | `BuiltinTools`, `CustomTool`, `ToolRegistry`, `@tool` |
+| Memory | `continuum_sdk.memory` | `Memory`, `MemoryTier`, `MemoryEntry` |
+| Workflow | `continuum_sdk.workflow` | `DAG`, `Node`, `DAGResult` |
 
 ---
 

@@ -1,6 +1,6 @@
 # sh-layer3
 
-SuperHarness Layer 3: Capabilities
+Continuum Layer 3: Capabilities
 
 This layer provides high-level capabilities including:
 - MCP (Model Context Protocol) integration

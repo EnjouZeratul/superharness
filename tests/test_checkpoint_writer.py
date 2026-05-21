@@ -20,7 +20,7 @@ import pytest
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from superharness.checkpoint_writer import (
+from continuum.checkpoint_writer import (
     CheckpointWriter,
     CheckpointData,
     ChecksumUtils,
@@ -231,15 +231,17 @@ class TestAtomicFileWriter:
             temp_files = list(readonly_dir.glob(f"{TEMP_FILE_PREFIX}*"))
             assert len(temp_files) == 0
 
-        except Exception:
-            # Skip on platforms where this doesn't work
-            pass
+        except Exception as e:
+            # Skip on platforms where this doesn't work (Windows, restricted envs)
+            import logging
+            logging.getLogger(__name__).debug(f"Permission test skipped: {e}")
         finally:
             # Restore permissions for cleanup
             try:
                 os.chmod(readonly_dir, 0o755)
-            except:
-                pass
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).debug(f"Could not restore permissions: {e}")
 
     def test_write_atomic_unicode_content(self, temp_storage):
         """write_atomic should handle unicode content."""

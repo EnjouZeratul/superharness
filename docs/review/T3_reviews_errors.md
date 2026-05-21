@@ -120,7 +120,7 @@ CLI:
 **建议**: 创建统一异常层次：
 ```python
 class ShError(Exception):
-    """SuperHarness 基础异常"""
+    """Continuum 基础异常"""
     pass
 
 class ConfigError(ShError):

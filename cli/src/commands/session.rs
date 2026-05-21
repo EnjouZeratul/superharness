@@ -1,4 +1,4 @@
-//! superharness session 子命令
+//! continuum session 子命令
 
 use anyhow::Result;
 

@@ -18,9 +18,9 @@ Terminal 1 擅长: Python SDK、用户友好接口
 ## 任务清单
 
 ### T1.1: Python 配置 API
-- [ ] 创建 `python/superharness_sdk/config/` 模块
+- [ ] 创建 `python/continuum_sdk/config/` 模块
 - [ ] 实现 `Config` 类
-  - [ ] 支持环境变量读取 (`SUPERHARNESS_*`)
+  - [ ] 支持环境变量读取 (`CONTINUUM_*`)
   - [ ] 支持 TOML 配置文件加载
   - [ ] 支持环境变量引用 `${VAR_NAME}`
   - [ ] 支持多提供商管理
@@ -28,17 +28,17 @@ Terminal 1 擅长: Python SDK、用户友好接口
 - [ ] 预计时间: 2小时
 
 ### T1.2: SDK 配置便捷接口
-- [ ] 更新 `superharness_sdk/__init__.py`
+- [ ] 更新 `continuum_sdk/__init__.py`
   ```python
   # 目标API
-  from superharness import Agent, Config
+  from continuum import Agent, Config
 
   # 方式1: 环境变量自动读取
   agent = Agent()  # 自动从环境变量配置
 
   # 方式2: 显式配置
   config = Config.from_env()  # 从环境变量
-  config = Config.from_file("~/.superharness/config.toml")
+  config = Config.from_file("~/.continuum/config.toml")
   config = Config(
       provider="anthropic",
       api_key="xxx",
@@ -62,7 +62,7 @@ Terminal 1 擅长: Python SDK、用户友好接口
 ## 工作目录
 
 ```
-python/superharness_sdk/
+python/continuum_sdk/
 ├── config/
 │   ├── __init__.py       ← T1.1
 │   ├── loader.py         ← T1.1 环境变量+文件加载
@@ -81,13 +81,13 @@ templates/
 ## 环境变量设计
 
 ```
-SUPERHARNESS_PROVIDER        = anthropic|openai|gemini|custom
-SUPERHARNESS_API_KEY         = xxx
-SUPERHARNESS_BASE_URL        = xxx
-SUPERHARNESS_MODEL           = xxx
-SUPERHARNESS_SMALL_MODEL     = xxx (用于简单任务)
-SUPERHARNESS_EFFORT_LEVEL    = low|medium|high|max
-SUPERHARNESS_DISABLE_TRAFFIC = 0|1
+CONTINUUM_PROVIDER        = anthropic|openai|gemini|custom
+CONTINUUM_API_KEY         = xxx
+CONTINUUM_BASE_URL        = xxx
+CONTINUUM_MODEL           = xxx
+CONTINUUM_SMALL_MODEL     = xxx (用于简单任务)
+CONTINUUM_EFFORT_LEVEL    = low|medium|high|max
+CONTINUUM_DISABLE_TRAFFIC = 0|1
 ```
 
 ---

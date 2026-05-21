@@ -24,25 +24,25 @@
 
 #### T3.1: Python SDK Tool API
 - [x] 等待 Terminal 1 完成 T1.3-T1.5
-- [x] 创建 `python/superharness_sdk/tools/__init__.py`
-- [x] 创建 `python/superharness_sdk/tools/builtin.py`
-- [x] 创建 `python/superharness_sdk/tools/custom.py`
+- [x] 创建 `python/continuum_sdk/tools/__init__.py`
+- [x] 创建 `python/continuum_sdk/tools/builtin.py`
+- [x] 创建 `python/continuum_sdk/tools/custom.py`
 - [x] 实现 Tool 注册和执行 API
 - [x] **触发条件**: Terminal 1 通知 "SDK 基础 API 可用"
 - [x] 预计时间: 1.5小时
 
 #### T3.2: Python SDK Memory API
 - [x] 等待 Terminal 1 完成 T1.3-T1.5
-- [x] 创建 `python/superharness_sdk/memory/__init__.py`
-- [x] 创建 `python/superharness_sdk/memory/layers.py`
+- [x] 创建 `python/continuum_sdk/memory/__init__.py`
+- [x] 创建 `python/continuum_sdk/memory/layers.py`
 - [x] 实现分层记忆 API
 - [x] **触发条件**: Terminal 1 通知 "SDK 基础 API 可用"
 - [x] 预计时间: 1小时
 
 #### T3.3: Python SDK Workflow API
 - [x] 等待 Terminal 1 完成 T1.3-T1.5
-- [x] 创建 `python/superharness_sdk/workflow/__init__.py`
-- [x] 创建 `python/superharness_sdk/workflow/dag.py`
+- [x] 创建 `python/continuum_sdk/workflow/__init__.py`
+- [x] 创建 `python/continuum_sdk/workflow/dag.py`
 - [x] 实现 Workflow API
 - [x] **触发条件**: Terminal 1 通知 "SDK 基础 API 可用"
 - [x] 预计时间: 1小时
@@ -97,7 +97,7 @@ Terminal 1 通知:
 ## 工作目录
 
 ```
-python/superharness_sdk/
+python/continuum_sdk/
 ├── tools/
 │   ├── __init__.py
 │   ├── builtin.py

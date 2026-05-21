@@ -135,39 +135,39 @@ impl ConfigManager {
         let mut config = Self::default();
 
         // 读取环境变量
-        if let Ok(provider) = std::env::var("SUPERHARNESS_PROVIDER") {
+        if let Ok(provider) = std::env::var("CONTINUUM_PROVIDER") {
             config.active_provider = provider;
         }
 
         // 读取 API 密钥并添加到当前提供商
-        if let Ok(api_key) = std::env::var("SUPERHARNESS_API_KEY") {
+        if let Ok(api_key) = std::env::var("CONTINUUM_API_KEY") {
             let provider_name = config.active_provider.clone();
             let provider_config = config.providers.entry(provider_name).or_default();
             provider_config.api_key = api_key;
         }
 
         // 读取基础 URL
-        if let Ok(base_url) = std::env::var("SUPERHARNESS_BASE_URL") {
+        if let Ok(base_url) = std::env::var("CONTINUUM_BASE_URL") {
             let provider_name = config.active_provider.clone();
             let provider_config = config.providers.entry(provider_name).or_default();
             provider_config.base_url = base_url;
         }
 
         // 读取模型
-        if let Ok(model) = std::env::var("SUPERHARNESS_MODEL") {
+        if let Ok(model) = std::env::var("CONTINUUM_MODEL") {
             let provider_name = config.active_provider.clone();
             let provider_config = config.providers.entry(provider_name).or_default();
             provider_config.model = model;
         }
 
         // 读取检查点配置
-        if let Ok(val) = std::env::var("SUPERHARNESS_CHECKPOINT_ENABLED") {
+        if let Ok(val) = std::env::var("CONTINUUM_CHECKPOINT_ENABLED") {
             if let Ok(enabled) = val.parse::<bool>() {
                 config.settings.checkpoint_enabled = enabled;
             }
         }
 
-        if let Ok(val) = std::env::var("SUPERHARNESS_AUDIT_ENABLED") {
+        if let Ok(val) = std::env::var("CONTINUUM_AUDIT_ENABLED") {
             if let Ok(enabled) = val.parse::<bool>() {
                 config.settings.audit_enabled = enabled;
             }
@@ -232,14 +232,14 @@ impl ConfigManager {
 
     /// 获取默认配置路径
     pub fn default_config_path() -> PathBuf {
-        // 用户级配置: ~/.superharness/config.toml
+        // 用户级配置: ~/.continuum/config.toml
         let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-        home.join(".superharness").join("config.toml")
+        home.join(".continuum").join("config.toml")
     }
 
     /// 获取项目级配置路径
     pub fn project_config_path() -> PathBuf {
-        PathBuf::from(".superharness").join("config.toml")
+        PathBuf::from(".continuum").join("config.toml")
     }
 
     /// 加载完整配置（环境变量 + 项目级 + 用户级）

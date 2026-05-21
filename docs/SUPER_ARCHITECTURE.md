@@ -1,4 +1,4 @@
-# SuperHarness：Super 架构设计理念
+# Continuum：Super 架构设计理念
 
 > 版本: v3.0
 > 日期: 2026-05-09
@@ -17,15 +17,15 @@ Super = Superior（超越）
        + Superstructure（超级架构）
 ```
 
-| 含义 | 说明 | SuperHarness 体现 |
+| 含义 | 说明 | Continuum 体现 |
 |------|------|-------------------|
 | **Superior** | 能力超越 | 生产级功能完整性 |
 | **Supersonic** | 执行极速 | 并行执行、流式处理、自适应调度 |
 | **Superstructure** | 架构优越 | 分层设计、可插拔组件、企业级扩展 |
 
-### 1.2 SuperHarness 是什么
+### 1.2 Continuum 是什么
 
-**SuperHarness 是简洁可靠的 Agent 运行时。**
+**Continuum 是简洁可靠的 Agent 运行时。**
 
 核心设计理念：
 - 可观测的执行过程
@@ -53,7 +53,7 @@ Super = Superior（超越）
 ├────────────────────────────────────────────────────────────────┤
 │                     Framework Layer                             │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │                    SuperHarness Core                      │  │
+│  │                    Continuum Core                      │  │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │  │
 │  │  │ Orchestrator│  │ State Engine│  │ Memory Hub │        │  │
 │  │  │ (编排引擎)   │  │ (状态引擎)   │  │ (记忆中心)  │        │  │
@@ -260,7 +260,7 @@ class Observer:
 
 ### 4.1 核心能力对比
 
-| 能力类别 | SmolAgents | SuperHarness | 提升 |
+| 能力类别 | SmolAgents | Continuum | 提升 |
 |----------|------------|---------------|------|
 | **Agent 类型** | 2种 | 5种+（可扩展） | 2.5x |
 | **执行模式** | 顺序 | 顺序/并行/条件/循环 | 4x |
@@ -274,7 +274,7 @@ class Observer:
 ### 4.2 Super 独有能力
 
 ```
-SuperHarness 独有:
+Continuum 独有:
 ├── 多策略规划引擎（One-Shot / Plan-Execute / ReWOO）
 ├── 分层记忆架构（Working / Session / Project / Long-term）
 ├── 状态快照与恢复（Checkpoint）
@@ -292,7 +292,7 @@ SuperHarness 独有:
 
 ### 5.1 生产级设计
 
-| 维度 | SuperHarness 设计 |
+| 维度 | Continuum 设计 |
 |------|-------------------|
 | **设计理念** | 生产优先，稳定性第一 |
 | **目标用户** | 产品开发者、企业团队 |
@@ -302,7 +302,7 @@ SuperHarness 独有:
 
 ### 5.2 核心能力
 
-SuperHarness 提供：
+Continuum 提供：
 - 多策略规划引擎
 - 分层记忆架构
 - 状态快照与恢复
@@ -314,11 +314,11 @@ SuperHarness 提供：
 - Token 预算控制
 | **生产就绪** | 需自建基础设施 | 开箱即用 |
 
-**结论**: SmolAgents 选择极简设计，SuperHarness 选择企业级基础设施。两者服务不同的设计目标。
+**结论**: SmolAgents 选择极简设计，Continuum 选择企业级基础设施。两者服务不同的设计目标。
 
 ### 5.2 vs LangChain（企业级）
 
-| 维度 | LangChain | SuperHarness |
+| 维度 | LangChain | Continuum |
 |------|-----------|--------------|
 | **复杂度** | 高（100+ 抽象层） | 中（清晰分层） |
 | **学习曲线** | 陡峭 | 平缓 |
@@ -326,11 +326,11 @@ SuperHarness 提供：
 | **API 稳定性** | 频繁 breaking | 稳定承诺 |
 | **依赖数量** | 核心~20+ | 核心2 |
 
-**结论**: LangChain 适合大企业，SuperHarness 适合中小团队
+**结论**: LangChain 适合大企业，Continuum 适合中小团队
 
 ### 5.3 vs PydanticAI（类型安全）
 
-| 维度 | PydanticAI | SuperHarness |
+| 维度 | PydanticAI | Continuum |
 |------|------------|---------------|
 | **核心价值** | 类型安全 | 架构强大 |
 | **执行模式** | 单一 | 多种 |
@@ -338,7 +338,7 @@ SuperHarness 提供：
 | **可观测性** | 需 Logfire | 内置 |
 | **规划能力** | 无 | 多策略 |
 
-**结论**: PydanticAI 是"类型系统优先"，SuperHarness 是"能力优先"
+**结论**: PydanticAI 是"类型系统优先"，Continuum 是"能力优先"
 
 ---
 
@@ -378,9 +378,9 @@ SuperHarness 提供：
 
 副口号:
 ├── "不是更小，而是更强"
-├── "SmolAgents 是演示，SuperHarness 是框架"
+├── "SmolAgents 是演示，Continuum 是框架"
 ├── "从原型到生产，一条链路"
-└── "SmolAgents 让你理解 Agent，SuperHarness 让你生产 Agent"
+└── "SmolAgents 让你理解 Agent，Continuum 让你生产 Agent"
 
 品牌语义澄清:
 ├── Super ≠ Smaller（更小）
@@ -404,7 +404,7 @@ SuperHarness 提供：
                       ↑
         LangChain ●  │
                       │
-                      │    SuperHarness ● ← 定位在此
+                      │    Continuum ● ← 定位在此
                       │    （生产级 + 架构强）
                       │
         PydanticAI ●  │
@@ -428,7 +428,7 @@ SuperHarness 提供：
 
 ### 一句话总结
 
-> **"SuperHarness 是简洁可靠的 Agent 运行时"**
+> **"Continuum 是简洁可靠的 Agent 运行时"**
 
 ---
 

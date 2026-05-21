@@ -1,4 +1,4 @@
-# SuperHarness (计划改名为 Continuum) 后续开发路线图
+# Continuum (计划改名为 Continuum) 后续开发路线图
 
 > 创建时间: 2026-05-12
 > 更新时间: 2026-05-14
@@ -8,7 +8,7 @@
 
 ## 🔄 品牌演进计划
 
-**计划改名**: SuperHarness → **Continuum**
+**计划改名**: Continuum → **Continuum**
 
 **命名理念**:
 - **Continuum** = 连续体、持续不断

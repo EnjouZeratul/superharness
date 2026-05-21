@@ -1,11 +1,11 @@
-# SuperHarness
+# Continuum
 
-[![CI](https://github.com/EnjouZeratul/superharness/actions/workflows/ci.yml/badge.svg)](https://github.com/EnjouZeratul/superharness/actions/workflows/ci.yml)
+[![CI](https://github.com/continuum-ai/continuum/actions/workflows/ci.yml/badge.svg)](https://github.com/continuum-ai/continuum/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://www.rust-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 
-**SuperHarness 是简洁可靠的 Agent 运行时。**
+**Continuum 是简洁可靠的 Agent 运行时。**
 
 Rust 核心性能 + Python 友好接口 + 完整 Agent 能力
 
@@ -13,7 +13,7 @@ Rust 核心性能 + Python 友好接口 + 完整 Agent 能力
 
 ## 产品定位
 
-SuperHarness 是两个同等重要的产品：
+Continuum 是两个同等重要的产品：
 
 | 产品 | 描述 | 类比 |
 |------|------|------|
@@ -51,23 +51,23 @@ SuperHarness 是两个同等重要的产品：
 
 ```bash
 # 安装
-cargo install superharness
+cargo install continuum
 
 # 运行任务
-superharness run "分析这个项目结构"
+continuum run "分析这个项目结构"
 
 # 启动 TUI 模式
-superharness tui
+continuum tui
 
 # 管理会话
-superharness session list
-superharness session resume <session_id>
+continuum session list
+continuum session resume <session_id>
 ```
 
 ### Python SDK 使用
 
 ```python
-from superharness import Agent, SessionManager
+from continuum import Agent, SessionManager
 
 # 创建 Agent
 agent = Agent(
@@ -112,7 +112,7 @@ Layer 0: Security      → Input Validator, PII Scrubber, Access Control
 ## 项目结构
 
 ```
-superharness/
+continuum/
 ├── rust/              # Rust 核心代码
 │   ├── layer0/       # Security Gateway
 │   ├── layer1/       # Foundation

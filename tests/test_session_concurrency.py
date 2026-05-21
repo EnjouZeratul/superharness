@@ -27,7 +27,7 @@ from pathlib import Path
 # 添加源代码路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from superharness.session_concurrency import (
+from continuum.session_concurrency import (
     ReadWriteLock,
     SimpleStateLock,
     ConcurrentSessionManager,

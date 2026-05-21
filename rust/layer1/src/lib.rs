@@ -1,4 +1,4 @@
-//! # SuperHarness Layer 1: Foundation
+//! # Continuum Layer 1: Foundation
 //!
 //! 基础设施层，为上层提供核心能力。
 

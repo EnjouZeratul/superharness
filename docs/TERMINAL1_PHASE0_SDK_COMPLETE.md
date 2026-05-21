@@ -131,7 +131,7 @@
 
 ```python
 # 1. 真实调用验证
-from superharness import Agent
+from continuum import Agent
 agent = Agent(api_key="真实key", provider="anthropic")
 result = agent.run("hello")
 assert len(result) > 0  # 必须有真实内容
@@ -172,10 +172,10 @@ except Exception as e:
 
 | 模块 | 文件 | 说明 |
 |------|------|------|
-| LLM Client | `python/superharness_sdk/llm/` | 真实 LLM API 调用 |
-| Types | `python/superharness_sdk/llm/types.py` | Message, ChatResponse, StreamChunk 等 |
-| Errors | `python/superharness_sdk/llm/errors.py` | 完整错误类型定义 |
-| Client | `python/superharness_sdk/llm/client.py` | Anthropic, OpenAI, Gemini, Custom 客户端 |
+| LLM Client | `python/continuum_sdk/llm/` | 真实 LLM API 调用 |
+| Types | `python/continuum_sdk/llm/types.py` | Message, ChatResponse, StreamChunk 等 |
+| Errors | `python/continuum_sdk/llm/errors.py` | 完整错误类型定义 |
+| Client | `python/continuum_sdk/llm/client.py` | Anthropic, OpenAI, Gemini, Custom 客户端 |
 
 ## API 变化
 

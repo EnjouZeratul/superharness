@@ -1,4 +1,4 @@
-# SuperHarness 配置系统测试报告
+# Continuum 配置系统测试报告
 
 > 生成时间: 2026-05-11
 > 测试环境: Python 3.14.3, pytest 9.0.2

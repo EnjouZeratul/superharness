@@ -28,7 +28,7 @@ from typing import Tuple, Optional
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from superharness.checkpoint_writer import (
+from continuum.checkpoint_writer import (
     CheckpointWriter,
     CheckpointData,
     ChecksumUtils,
@@ -457,7 +457,7 @@ import time
 import sys
 sys.path.insert(0, r'{src_path}')
 
-from superharness.checkpoint_writer import CheckpointWriter
+from continuum.checkpoint_writer import CheckpointWriter
 
 writer = CheckpointWriter(storage_path=r'{storage_path}')
 

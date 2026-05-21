@@ -1,4 +1,4 @@
-# SuperHarness 设计规范与实施计划
+# Continuum 设计规范与实施计划
 
 > 版本: v2.0
 > 日期: 2026-05-09
@@ -21,8 +21,8 @@
 ### 1.1 目录结构创建
 
 ```
-superharness/
-├── src/superharness/
+continuum/
+├── src/continuum/
 │   ├── __init__.py
 │   ├── types.py              # 基础类型定义
 │   ├── protocols.py          # 协议定义
@@ -97,7 +97,7 @@ superharness/
 
 ```toml
 [project]
-name = "superharness"
+name = "continuum"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
@@ -245,7 +245,7 @@ class FakeLLMProvider:
 #### 改进实现
 
 ```python
-# src/superharness/tools/shell.py
+# src/continuum/tools/shell.py
 import shlex
 import asyncio
 import subprocess
@@ -416,7 +416,7 @@ class ShellTool:
 #### 改进实现
 
 ```python
-# src/superharness/security/key_manager.py
+# src/continuum/security/key_manager.py
 import os
 import json
 import keyring
@@ -436,7 +436,7 @@ class StorageMethod(Enum):
 class SecureKeyManager:
     """分层 API Key 安全管理"""
 
-    SERVICE_NAME = "superharness"
+    SERVICE_NAME = "continuum"
 
     def __init__(
         self,
@@ -584,7 +584,7 @@ class SecureKeyManager:
 #### 改进实现
 
 ```python
-# src/superharness/sandbox/local.py
+# src/continuum/sandbox/local.py
 import os
 import asyncio
 import resource
@@ -744,7 +744,7 @@ class ExecutionResult:
 ```
 
 ```python
-# src/superharness/sandbox/docker.py
+# src/continuum/sandbox/docker.py
 """Docker 沙箱 - 完整隔离"""
 
 class DockerSandbox:
@@ -850,7 +850,7 @@ class DockerSandbox:
 **评分**: 原方案 5/10 → 改进后 8/10
 
 ```python
-# src/superharness/mcp/client.py
+# src/continuum/mcp/client.py
 import asyncio
 import shutil
 import hashlib
@@ -989,7 +989,7 @@ class MCPClient:
             "params": {
                 "protocolVersion": "2024-11-05",
                 "clientInfo": {
-                    "name": "superharness",
+                    "name": "continuum",
                     "version": "1.0.0"
                 }
             }
@@ -1013,7 +1013,7 @@ class MCPClient:
 ### 2.5 其他安全风险 (新增)
 
 ```python
-# src/superharness/security/validator.py
+# src/continuum/security/validator.py
 """输入验证和输出过滤"""
 
 class InputValidator:
@@ -1076,7 +1076,7 @@ class OutputFilter:
 **评分**: 原方案 6/10 → 改进后 8/10
 
 ```python
-# src/superharness/core/context.py
+# src/continuum/core/context.py
 import asyncio
 import tiktoken
 from abc import ABC, abstractmethod
@@ -1254,7 +1254,7 @@ class ContextManager:
 **评分**: 原方案 5/10 → 改进后 8/10
 
 ```python
-# src/superharness/storage/base.py
+# src/continuum/storage/base.py
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import AsyncIterator, Any
@@ -1372,7 +1372,7 @@ class StorageBackend(ABC):
 **评分**: 原方案 4/10 → 改进后 7/10
 
 ```python
-# src/superharness/agents/handoff.py
+# src/continuum/agents/handoff.py
 from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Callable, Awaitable
@@ -1571,7 +1571,7 @@ class HandoffCycleError(Exception):
 **评分**: 原方案 7/10 → 改进后 9/10
 
 ```python
-# src/superharness/core/guardrail.py
+# src/continuum/core/guardrail.py
 from dataclasses import dataclass
 from typing import Callable, Awaitable, Any
 
@@ -1744,7 +1744,7 @@ def schema_guardrail(schema: dict) -> Guardrail:
 **评分**: 原方案 7/10 → 改进后 9/10
 
 ```python
-# src/superharness/__init__.py
+# src/continuum/__init__.py
 from typing import Literal
 
 def quickstart(
@@ -1839,7 +1839,7 @@ def quickstart(
 **评分**: 原方案 6/10 → 改进后 8/10
 
 ```python
-# src/superharness/diagnostics/health.py
+# src/continuum/diagnostics/health.py
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -1986,7 +1986,7 @@ def check_environment_health() -> ComponentHealth:
 ### 4.3 缺失的关键 API (新增)
 
 ```python
-# src/superharness/events.py
+# src/continuum/events.py
 """事件系统"""
 
 from typing import Callable, Any
@@ -2036,7 +2036,7 @@ EVENT_TYPES = [
 ```
 
 ```python
-# src/superharness/session.py
+# src/continuum/session.py
 """会话管理"""
 
 from datetime import datetime
@@ -2089,7 +2089,7 @@ class SessionManager:
 ```
 
 ```python
-# src/superharness/streaming.py
+# src/continuum/streaming.py
 """流式输出"""
 
 from typing import AsyncIterator
@@ -2136,7 +2136,7 @@ class StreamingAgent:
 **评分**: 原方案 6/10 → 改进后 8/10
 
 ```python
-# src/superharness/core/parallel.py
+# src/continuum/core/parallel.py
 import asyncio
 import re
 from dataclasses import dataclass
@@ -2274,7 +2274,7 @@ class CycleDependencyError(Exception):
 **评分**: 原方案 7/10 → 改进后 8/10
 
 ```python
-# src/superharness/tools/file_ops.py
+# src/continuum/tools/file_ops.py
 import anyio
 from pathlib import Path
 
@@ -2301,7 +2301,7 @@ async def read_large_file(
 ### 5.3 Repository Map 优化 (新增)
 
 ```python
-# src/superharness/context/repository_map.py
+# src/continuum/context/repository_map.py
 import os
 import ast
 import json
@@ -2332,7 +2332,7 @@ class RepositoryMap:
     ):
         self.repo_root = repo_root
         self.max_tokens = max_tokens
-        self.cache_dir = cache_dir or repo_root / ".superharness"
+        self.cache_dir = cache_dir or repo_root / ".continuum"
         self.cache_file = self.cache_dir / "repo_map_cache.json"
 
         self.graph = nx.DiGraph()
@@ -2559,7 +2559,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest tests/ -v --cov=src/superharness --cov-report=xml
+        pytest tests/ -v --cov=src/continuum --cov-report=xml
 
     - name: Upload coverage
       uses: codecov/codecov-action@v4

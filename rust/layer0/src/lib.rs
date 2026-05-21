@@ -1,4 +1,4 @@
-//! # SuperHarness Layer 0: Security Gateway
+//! # Continuum Layer 0: Security Gateway
 //!
 //! 所有外部输入的安全网关层。
 //!

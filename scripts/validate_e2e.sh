@@ -1,11 +1,11 @@
 #!/bin/bash
-# SuperHarness 端到端验证脚本
+# Continuum 端到端验证脚本
 #
 # 用户使用真实 API key 运行完整流程验证。
 
 set -e
 
-echo "SuperHarness 端到端验证"
+echo "Continuum 端到端验证"
 echo "========================"
 echo ""
 
@@ -86,18 +86,18 @@ test_python_sdk() {
     echo "=== Python SDK 测试 ==="
     echo ""
 
-    if python3 -c "from superharness_sdk import Agent" 2>/dev/null; then
+    if python3 -c "from continuum_sdk import Agent" 2>/dev/null; then
         echo "✓ SDK 导入成功"
         echo ""
 
         if [ -n "$ANTHROPIC_API_KEY" ]; then
             echo "测试脚本:"
-            echo "  from superharness_sdk import Agent"
+            echo "  from continuum_sdk import Agent"
             echo "  agent = Agent()"
             echo "  result = agent.run('hello')"
             echo ""
             python3 -c "
-from superharness_sdk import Agent
+from continuum_sdk import Agent
 print('SDK 测试...')
 " || echo "⚠ SDK 运行失败"
         else
@@ -105,7 +105,7 @@ print('SDK 测试...')
         fi
     else
         echo "✗ SDK 导入失败"
-        echo "  请运行: pip install superharness"
+        echo "  请运行: pip install continuum"
     fi
 }
 

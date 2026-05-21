@@ -1,26 +1,26 @@
-# superharness-cli
+# continuum-cli
 
-SuperHarness CLI - Terminal Agent Product
+Continuum CLI - Terminal Agent Product
 
-A command-line interface for the SuperHarness agent runtime.
+A command-line interface for the Continuum agent runtime.
 
 ## Installation
 
 ```bash
-cargo install superharness-cli
+cargo install continuum-cli
 ```
 
 ## Usage
 
 ```bash
 # Initialize configuration
-superharness config init
+continuum config init
 
 # Add API provider
-superharness config add-provider anthropic --key YOUR_API_KEY
+continuum config add-provider anthropic --key YOUR_API_KEY
 
 # Run agent
-superharness run "your task"
+continuum run "your task"
 ```
 
 ## Features

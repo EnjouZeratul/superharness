@@ -1,7 +1,7 @@
 # 多终端并行开发分工指南
 
 > 版本: v1.0
-> 适用场景: SuperHarness 多终端并行开发
+> 适用场景: Continuum 多终端并行开发
 > 核心原则: 独立任务、无共享状态、最终合并
 
 ---
@@ -194,7 +194,7 @@ Layer 3 依赖 Layer 2
 rust/layer4/
 rust/sh-core/src/lib.rs (Python绑定)
 cli/
-python/superharness_sdk/
+python/continuum_sdk/
 tests/e2e/
 ```
 
@@ -207,9 +207,9 @@ Priority 1 - CLI产品:
 └── cli/tests/ (集成测试)
 
 Priority 2 - Python SDK:
-├── python/superharness_sdk/agent/
-├── python/superharness_sdk/tools/
-├── python/superharness_sdk/workflow/
+├── python/continuum_sdk/agent/
+├── python/continuum_sdk/tools/
+├── python/continuum_sdk/workflow/
 └── python/tests/
 
 Priority 3 - 集成层:
@@ -510,7 +510,7 @@ Rust 核心模块: ~300-500 行高质量代码/天
 文档编写: ~1000-2000 行/天
 代码审查: ~1000-2000 行/天
 
-SuperHarness 总工作量估算:
+Continuum 总工作量估算:
 ├── Rust 代码: ~15000 行
 ├── 测试代码: ~5000 行
 ├── 文档: ~5000 行
@@ -581,4 +581,4 @@ Phase 3 完成:
 ---
 
 **文档状态**: v1.0 完成
-**适用项目**: SuperHarness 多终端并行开发
+**适用项目**: Continuum 多终端并行开发

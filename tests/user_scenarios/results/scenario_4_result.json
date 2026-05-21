@@ -1,0 +1,66 @@
+{
+  "scenario": "scenario_4_session_recovery",
+  "timestamp": "2026-05-21T23:32:40.756652",
+  "status": "completed",
+  "steps": [
+    {
+      "name": "create_active_session",
+      "status": "passed",
+      "details": {
+        "session_id": "interrupt-test-session",
+        "message_count": 4
+      }
+    },
+    {
+      "name": "save_checkpoint",
+      "status": "passed",
+      "details": {
+        "save_success": true,
+        "checkpoint_path": "C:\\Users\\Enjou\\AppData\\Local\\Temp\\sh_scenario4_nbalx3gh\\interrupt-test-session\\checkpoints"
+      }
+    },
+    {
+      "name": "simulate_interrupt",
+      "status": "passed",
+      "details": {
+        "unsaved_messages": 1,
+        "unsaved_iteration": 5
+      }
+    },
+    {
+      "name": "detect_interrupt",
+      "status": "passed",
+      "details": {
+        "crash_detected": false
+      }
+    },
+    {
+      "name": "restore_session",
+      "status": "passed",
+      "details": {
+        "restore_success": true,
+        "restored_iteration": 4,
+        "restored_message_count": 4
+      }
+    },
+    {
+      "name": "verify_integrity",
+      "status": "passed",
+      "details": {
+        "checks": {
+          "session_id_match": true,
+          "iteration_saved": true,
+          "messages_preserved": true,
+          "tool_calls_preserved": true
+        },
+        "message": "All integrity checks passed"
+      }
+    }
+  ],
+  "metrics": {
+    "total_steps": 6,
+    "passed_steps": 6,
+    "success_rate": 1.0
+  },
+  "errors": []
+}

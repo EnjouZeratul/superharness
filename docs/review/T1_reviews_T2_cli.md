@@ -136,7 +136,7 @@ pub fn show_tool(name: &str) -> Result<()> {
         println!("  {} ({:?})", param, schema);
     }
     println!("\nExample:");
-    println!("  superharness run \"read file config.toml\"");
+    println!("  continuum run \"read file config.toml\"");
 }
 ```
 
@@ -153,7 +153,7 @@ Available tools:
 
 ### 建议添加JSON输出
 ```bash
-$ superharness tools --json
+$ continuum tools --json
 {
   "tools": [
     {"name": "file_read", "description": "Read file contents", "category": "file_ops"},

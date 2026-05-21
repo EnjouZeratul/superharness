@@ -1,4 +1,4 @@
-//! # SuperHarness Layer 3: Capabilities
+//! # Continuum Layer 3: Capabilities
 //!
 //! 特定领域的能力扩展。
 

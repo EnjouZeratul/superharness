@@ -85,7 +85,7 @@ impl McpService {
     /// 获取服务信息
     pub fn info(&self) -> ServiceInfo {
         ServiceInfo {
-            server_name: "SuperHarness MCP".to_string(),
+            server_name: "Continuum MCP".to_string(),
             version: "0.1.0".to_string(),
             is_running: self.bridge.is_running(),
         }

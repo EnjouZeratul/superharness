@@ -1,6 +1,6 @@
-//! # SuperHarness Python Bindings
+//! # Continuum Python Bindings
 //!
-//! Python bindings for SuperHarness.
+//! Python bindings for Continuum.
 
 use pyo3::prelude::*;
 

@@ -34,7 +34,7 @@ pub struct McpBridgeConfig {
 impl Default for McpBridgeConfig {
     fn default() -> Self {
         Self {
-            server_name: "SuperHarness".to_string(),
+            server_name: "Continuum".to_string(),
             server_version: "0.1.0".to_string(),
             request_timeout_ms: 30000,
             max_concurrent_requests: 100,
@@ -280,7 +280,7 @@ mod tests {
     #[test]
     fn test_config_default() {
         let config = McpBridgeConfig::default();
-        assert_eq!(config.server_name, "SuperHarness");
+        assert_eq!(config.server_name, "Continuum");
         assert_eq!(config.request_timeout_ms, 30000);
     }
 }

@@ -25,12 +25,14 @@
 //! ```
 
 pub mod bridge;
+pub mod client;
 pub mod handler;
 pub mod protocol;
 pub mod transport;
 
 // 主要导出
 pub use bridge::{McpBridge, McpBridgeConfig};
+pub use client::{McpClientManager, McpServerConfig};
 pub use handler::{DefaultHandler, McpHandler, SimpleToolExecutor, ToolExecutor};
 pub use protocol::{
     error_codes, ClientCapabilities, ContentBlock, Implementation, InitializeParams,

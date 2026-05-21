@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "SuperHarness Layer 4: Integration"
+description = "Continuum Layer 4: Integration"
 repository.workspace = true
 homepage.workspace = true
 documentation = "https://docs.rs/sh-layer4"
@@ -31,3 +31,8 @@ parking_lot.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+continuum = { path = "../../cli" }
+
+[[test]]
+name = "integration_llm"
+path = "../tests/integration_llm.rs"

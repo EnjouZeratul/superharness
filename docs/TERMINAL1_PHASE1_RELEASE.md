@@ -19,7 +19,7 @@ Terminal 1 擅长: Python SDK、用户接口
 
 ### P1.1: pyproject.toml 完善发布配置 ✅
 - [x] 检查 `python/pyproject.toml` 发布配置
-  - [x] name: `superharness`
+  - [x] name: `continuum`
   - [x] version: `1.0.0`
   - [x] description、readme、license
   - [x] authors、classifiers
@@ -28,16 +28,16 @@ Terminal 1 擅长: Python SDK、用户接口
 - [x] 实际时间: ~0.3小时
 
 ### P1.2: Python 包结构整理 ✅
-- [x] 确保 `python/superharness_sdk/` 结构正确
+- [x] 确保 `python/continuum_sdk/` 结构正确
 - [x] 检查 `__init__.py` 导出
 - [x] 添加 README.md
-- [x] 检查类型提示文件 (`py.typed`) - 已添加到 superharness/ 和 superharness_sdk/
+- [x] 检查类型提示文件 (`py.typed`) - 已添加到 continuum/ 和 continuum_sdk/
 - [x] 实际时间: ~0.3小时
 
 ### P1.3: 本地安装测试 ✅
 - [x] 构建 wheel: `hatchling build`
-- [x] 本地安装测试: `pip install ./dist/superharness-1.0.0-py3-none-any.whl`
-- [x] 验证导入: `python -c "from superharness import Agent"`
+- [x] 本地安装测试: `pip install ./dist/continuum-1.0.0-py3-none-any.whl`
+- [x] 验证导入: `python -c "from continuum import Agent"`
 - [x] 验证功能: 79 测试全部通过
 - [x] 实际时间: ~0.5小时
 
@@ -62,7 +62,7 @@ Terminal 1 擅长: Python SDK、用户接口
 python/
 ├── pyproject.toml      ← P1.1
 ├── MANIFEST.in         ← P1.2 (如需)
-├── superharness_sdk/
+├── continuum_sdk/
 │   ├── __init__.py     ← P1.2 导出
 │   └── py.typed        ← P1.2 类型标记
 └── tests/              ← P1.3 验证
@@ -78,14 +78,14 @@ requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "superharness"
+name = "continuum"
 version = "1.0.0"
 description = "简洁可靠的 Agent 运行时"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 authors = [
-    {name = "SuperHarness Team"}
+    {name = "Continuum Team"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -111,9 +111,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/superharness/superharness"
-Documentation = "https://superharness.readthedocs.io"
-Repository = "https://github.com/superharness/superharness"
+Homepage = "https://github.com/continuum/continuum"
+Documentation = "https://continuum.readthedocs.io"
+Repository = "https://github.com/continuum/continuum"
 
 [tool.maturin]
 features = ["python-extension"]
@@ -127,7 +127,7 @@ features = ["python-extension"]
 [x] pyproject.toml 配置正确
 [x] hatchling build 成功
 [x] pip install 本地 wheel 成功
-[x] from superharness import Agent 成功
+[x] from continuum import Agent 成功
 [x] 核心模块 docstring 完整
 [ ] TestPyPI 上传成功 (等待 Token)
 [ ] TestPyPI 安装验证通过 (等待 Token)

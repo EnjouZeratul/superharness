@@ -1,5 +1,5 @@
 #!/bin/bash
-# SuperHarness Setup Script
+# Continuum Setup Script
 # Run: ./setup.sh
 
 set -e
@@ -33,10 +33,10 @@ info() {
 }
 
 # Main
-header "SuperHarness Configuration Setup"
+header "Continuum Configuration Setup"
 
 # 1. Create config directory
-CONFIG_DIR="$HOME/.superharness"
+CONFIG_DIR="$HOME/.continuum"
 if [ ! -d "$CONFIG_DIR" ]; then
     mkdir -p "$CONFIG_DIR"
     success "Created config directory: $CONFIG_DIR"
@@ -65,8 +65,8 @@ fi
 header "Environment Variables"
 
 if [ -n "$API_KEY" ]; then
-    export SUPERHARNESS_API_KEY="$API_KEY"
-    export SUPERHARNESS_PROVIDER="$PROVIDER"
+    export CONTINUUM_API_KEY="$API_KEY"
+    export CONTINUUM_PROVIDER="$PROVIDER"
     
     # Add to shell config
     SHELL_RC=""
@@ -78,16 +78,16 @@ if [ -n "$API_KEY" ]; then
     
     if [ -n "$SHELL_RC" ]; then
         echo "" >> "$SHELL_RC"
-        echo "# SuperHarness configuration" >> "$SHELL_RC"
-        echo "export SUPERHARNESS_API_KEY='$API_KEY'" >> "$SHELL_RC"
-        echo "export SUPERHARNESS_PROVIDER='$PROVIDER'" >> "$SHELL_RC"
+        echo "# Continuum configuration" >> "$SHELL_RC"
+        echo "export CONTINUUM_API_KEY='$API_KEY'" >> "$SHELL_RC"
+        echo "export CONTINUUM_PROVIDER='$PROVIDER'" >> "$SHELL_RC"
         success "Added environment variables to $SHELL_RC"
     fi
 else
     info "No API key provided. Set it manually:"
     echo ""
-    echo "  export SUPERHARNESS_API_KEY='your-api-key'"
-    echo "  export SUPERHARNESS_PROVIDER='anthropic'"
+    echo "  export CONTINUUM_API_KEY='your-api-key'"
+    echo "  export CONTINUUM_PROVIDER='anthropic'"
     echo ""
 fi
 
@@ -100,12 +100,12 @@ echo "Provider: $PROVIDER"
 # 5. Test
 header "Quick Test"
 echo "Testing Python SDK..."
-python3 -c "from superharness_sdk import Agent, Config; c = Config.from_default(); print(f'Config: {c}')"
+python3 -c "from continuum_sdk import Agent, Config; c = Config.from_default(); print(f'Config: {c}')"
 
 header "Setup Complete!"
 echo "Next steps:"
 echo "  1. Set your API key:"
-echo "     export SUPERHARNESS_API_KEY='your-key'"
+echo "     export CONTINUUM_API_KEY='your-key'"
 echo ""
-echo "  2. Run SuperHarness:"
-echo "     superharness run 'your task'"
+echo "  2. Run Continuum:"
+echo "     continuum run 'your task'"

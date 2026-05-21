@@ -1,4 +1,4 @@
-# SuperHarness 最佳用户体验设计方案
+# Continuum 最佳用户体验设计方案
 
 > 版本: v1.0
 > 日期: 2026-05-09
@@ -23,7 +23,7 @@
 
 ### 1.2 与Aider/Cursor的学习对标
 
-| 设计维度 | Aider最佳实践 | Cursor最佳实践 | SuperHarness超越目标 |
+| 设计维度 | Aider最佳实践 | Cursor最佳实践 | Continuum超越目标 |
 |---------|--------------|----------------|---------------------|
 | **命令简洁性** | `aider` 单命令入口 | Cmd+K 自然交互 | 3个核心命令，覆盖所有场景 |
 | **状态可视化** | 实时Token消耗 | 内联建议 + diff预览 | 三级进度条 + 成本仪表盘 |
@@ -40,9 +40,9 @@
 ```bash
 # 命令设计原则：动词优先，参数后置，零配置启动
 
-superharness run "task"           # 执行任务
-superharness chat                 # 交互模式
-superharness continue             # 恢复会话
+continuum run "task"           # 执行任务
+continuum chat                 # 交互模式
+continuum continue             # 恢复会话
 ```
 
 #### 命令详解
@@ -51,23 +51,23 @@ superharness continue             # 恢复会话
 # === run：单次任务执行 ===
 
 # 最简形式（零配置）
-superharness run "分析当前目录结构"
+continuum run "分析当前目录结构"
 
 # 带约束（成本控制）
-superharness run "任务" --max-cost 0.5 --max-time 300
+continuum run "任务" --max-cost 0.5 --max-time 300
 
 # 带模型选择
-superharness run "任务" --model gpt-4o-mini
+continuum run "任务" --model gpt-4o-mini
 
 # 带交互模式（关键决策确认）
-superharness run "任务" --interactive
+continuum run "任务" --interactive
 
 # 输出到文件
-superharness run "任务" --output report.md
+continuum run "任务" --output report.md
 
 # === chat：交互对话模式 ===
 
-superharness chat
+continuum chat
 > 任务1: 分析代码结构
 [执行中...]
 [完成]
@@ -85,39 +85,39 @@ superharness chat
 # === continue：会话延续 ===
 
 # 自动恢复最近会话
-superharness continue
+continuum continue
 
 # 恢复指定会话
-superharness continue --session abc123
+continuum continue --session abc123
 
 # 恢复到指定检查点
-superharness continue --checkpoint step5
+continuum continue --checkpoint step5
 
 # 查看可用会话列表
-superharness continue --list
+continuum continue --list
 ```
 
 ### 2.2 辅助命令
 
 ```bash
 # 配置管理
-superharness config show              # 显示当前配置
-superharness config set model gpt-4o  # 设置默认模型
-superharness config init              # 初始化配置文件
+continuum config show              # 显示当前配置
+continuum config set model gpt-4o  # 设置默认模型
+continuum config init              # 初始化配置文件
 
 # 状态查看
-superharness status                   # 当前会话状态
-superharness sessions                 # 会话列表
-superharness cost --today             # 今日成本统计
+continuum status                   # 当前会话状态
+continuum sessions                 # 会话列表
+continuum cost --today             # 今日成本统计
 
 # 工具管理
-superharness tools list               # 列出可用工具
-superharness tools enable <tool>      # 启用工具
-superharness tools disable <tool>     # 禁用工具
+continuum tools list               # 列出可用工具
+continuum tools enable <tool>      # 启用工具
+continuum tools disable <tool>     # 禁用工具
 
 # 调试支持
-superharness trace <session_id>       # 查看执行轨迹
-superharness replay <session_id>       # 重放执行过程
+continuum trace <session_id>       # 查看执行轨迹
+continuum replay <session_id>       # 重放执行过程
 ```
 
 ---
@@ -128,7 +128,7 @@ superharness replay <session_id>       # 重放执行过程
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ SuperHarness v0.1.0 | gpt-4o-mini | 会话: abc123             │
+│ Continuum v0.1.0 | gpt-4o-mini | 会话: abc123             │
 └──────────────────────────────────────────────────────────────┘
 
 任务: 分析当前目录结构
@@ -231,7 +231,7 @@ Token预算: ██████████████░░░░ 7,200/10,000
 
 预览 (前10行):
   1 | """
-  2 | SuperHarness 主入口
+  2 | Continuum 主入口
   3 | """
   4 | import asyncio
   5 | from typing import Optional
@@ -296,9 +296,9 @@ Token预算: ██████████████░░░░ 7,200/10,000
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 诊断信息
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-当前工作目录: /path/to/superharness
+当前工作目录: /path/to/continuum
 请求路径: /project/src/main.py (相对路径)
-实际路径: /path/to/superharness/project/src/main.py
+实际路径: /path/to/continuum/project/src/main.py
 状态: 路径不存在
 
 💡 可能原因:
@@ -311,10 +311,10 @@ Token预算: ██████████████░░░░ 7,200/10,000
 ✅ 建议解决方案
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 方案1: 使用绝对路径
-  read_file("/path/to/superharness/src/main.py")
+  read_file("/path/to/continuum/src/main.py")
 
 方案2: 确认工作目录
-  当前在: /path/to/superharness
+  当前在: /path/to/continuum
   可用文件:
     - src/harness.py
     - docs/SPEC.md
@@ -391,7 +391,7 @@ Token预算: ██████████████░░░░ 7,200/10,000
 
 ```bash
 # 任务执行前预检查
-superharness run "复杂任务" --pre-check
+continuum run "复杂任务" --pre-check
 
 预检查结果:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -419,7 +419,7 @@ superharness run "复杂任务" --pre-check
 💾 自动检查点 (每5轮)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 已保存: checkpoint_5.json
-位置: ~/.superharness/sessions/abc123/
+位置: ~/.continuum/sessions/abc123/
 包含:
   - 消息历史: 12条消息
   - 当前轮次: 5
@@ -437,7 +437,7 @@ superharness run "复杂任务" --pre-check
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 名称: manual_20260509_143215
 标签: 完成代码分析阶段
-恢复命令: superharness continue --checkpoint manual_20260509_143215
+恢复命令: continuum continue --checkpoint manual_20260509_143215
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -622,10 +622,10 @@ superharness run "复杂任务" --pre-check
 ### 7.1 输入提示设计
 
 ```
-superharness chat
+continuum chat
 
 ┌─────────────────────────────────────────────────────────────────┐
-│ SuperHarness v0.1.0 | 交互模式                                   │
+│ Continuum v0.1.0 | 交互模式                                   │
 │ 模型: gpt-4o-mini | 预算: $0.20                                 │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -694,7 +694,7 @@ superharness chat
 
 ### 8.1 学习Aider的优点
 
-| Aider设计 | 借鉴应用到SuperHarness |
+| Aider设计 | 借鉴应用到Continuum |
 |-----------|------------------------|
 | 单命令入口 `aider` | 三核心命令 `run/chat/continue` |
 | 实时显示Token消耗 | 三级进度条 + 成本仪表盘 |
@@ -704,7 +704,7 @@ superharness chat
 
 ### 8.2 学习Cursor的优点
 
-| Cursor设计 | 借鉴应用到SuperHarness |
+| Cursor设计 | 借鉴应用到Continuum |
 |------------|------------------------|
 | Cmd+K 自然语言 | 自然语言任务输入 |
 | 内联diff预览 | 变更预览 + 确认机制 |
@@ -712,30 +712,30 @@ superharness chat
 | 渐进式复杂度 | 零配置 → 环境变量 → 配置文件 |
 | 思考过程可视化 | 决策树可视化 |
 
-### 8.3 SuperHarness的超越设计
+### 8.3 Continuum的超越设计
 
 ```
-Aider/Cursor无法做到 → SuperHarness可以做到
+Aider/Cursor无法做到 → Continuum可以做到
 
 1. 会话延续价值感知
    - Aider: 只是保存历史
-   - SuperHarness: 可视化时间线 + 恢复点选择 + 成本归因
+   - Continuum: 可视化时间线 + 恢复点选择 + 成本归因
 
 2. 错误恢复三层机制
    - Aider: 只有 /undo
-   - SuperHarness: 自动重试 → 降级 → 用户介入
+   - Continuum: 自动重试 → 降级 → 用户介入
 
 3. 成本实时追踪
    - Aider: 只有Token数
-   - SuperHarness: 三级进度条 + 成本归因 + 预算预警
+   - Continuum: 三级进度条 + 成本归因 + 预算预警
 
 4. 决策透明性
    - Aider: 黑盒执行
-   - SuperHarness: 工具选择解释 + 循环终止解释 + 用户介入请求
+   - Continuum: 工具选择解释 + 循环终止解释 + 用户介入请求
 
 5. 配置灵活性
    - Aider: 命令行参数
-   - SuperHarness: 零配置 → 环境变量 → YAML → Python API
+   - Continuum: 零配置 → 环境变量 → YAML → Python API
 ```
 
 ---
@@ -745,12 +745,12 @@ Aider/Cursor无法做到 → SuperHarness可以做到
 ### 9.1 新用户首次体验（5分钟）
 
 ```
-$ pip install superharness
+$ pip install continuum
 $ export OPENAI_API_KEY=sk-xxx
-$ superharness run "分析当前项目的代码结构"
+$ continuum run "分析当前项目的代码结构"
 
 ┌─────────────────────────────────────────────────────────────────┐
-│ SuperHarness v0.1.0                                             │
+│ Continuum v0.1.0                                             │
 │ 首次运行提示: 使用默认配置，开始分析...                          │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -791,14 +791,14 @@ $ superharness run "分析当前项目的代码结构"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💾 已自动保存会话: session_abc123
-恢复命令: superharness continue
+恢复命令: continuum continue
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ### 9.2 会话恢复体验
 
 ```
-$ superharness continue
+$ continuum continue
 
 📂 恢复会话: session_abc123
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

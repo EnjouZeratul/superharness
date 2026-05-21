@@ -1,4 +1,4 @@
-# SuperHarness 开发路线图
+# Continuum 开发路线图
 
 > 版本: v3.0
 > 日期: 2026-05-09
@@ -60,7 +60,7 @@ SmolAgents：极简框架
 - 设计哲学：简洁、透明、最小化抽象
 - HuggingFace 官方定位：适用于研究和生产环境
 
-SuperHarness：企业级框架
+Continuum：企业级框架
 - 设计目标：完整的企业级基础设施
 - 核心能力：可观测性、成本控制、错误恢复
 
@@ -68,7 +68,7 @@ SuperHarness：企业级框架
 ```
 
 **一句话定位**:
-> **"SuperHarness 是简洁可靠的 Agent 运行时"**
+> **"Continuum 是简洁可靠的 Agent 运行时"**
 
 ---
 
@@ -93,11 +93,11 @@ SuperHarness：企业级框架
 
 ### 2.2 核心设计决策
 
-基于研究，SuperHarness 采用以下核心设计：
+基于研究，Continuum 采用以下核心设计：
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      SuperHarness 架构                          │
+│                      Continuum 架构                          │
 ├─────────────────────────────────────────────────────────────────┤
 │  1. 轻量依赖: httpx + pydantic (参考 Aider/SWE-agent)          │
 │  2. ACI 工具设计: 为 Agent 优化的工具接口 (参考 SWE-agent)       │
@@ -131,7 +131,7 @@ SuperHarness：企业级框架
 
 ```python
 # Phase 1 完成后的能力
-from superharness import Harness
+from continuum import Harness
 
 harness = Harness(config="super.yaml")
 response = await harness.llm.chat("Hello")
@@ -524,7 +524,7 @@ class MCPClient:
         # 初始化握手
         await self._send_request("initialize", {
             "protocolVersion": "2024-11-05",
-            "clientInfo": {"name": "superharness", "version": "1.0"}
+            "clientInfo": {"name": "continuum", "version": "1.0"}
         })
 
     async def list_tools(self) -> list[MCPTool]:
@@ -663,7 +663,7 @@ memory:
 
 workflow:
   type: state_graph
-  checkpoint_dir: .superharness/checkpoints
+  checkpoint_dir: .continuum/checkpoints
 ```
 
 ### 9.1 组件注册 (参考 AutoGen)
@@ -671,7 +671,7 @@ workflow:
 ```python
 # 声明式组件加载
 class ComponentModel(BaseModel):
-    provider: str              # "superharness.agents.AssistantAgent"
+    provider: str              # "continuum.agents.AssistantAgent"
     component_type: str        # "agent", "tool", "hook"
     component_version: int    # 版本号，支持向后兼容
     config: dict[str, Any]

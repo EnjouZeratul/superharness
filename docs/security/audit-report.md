@@ -1,4 +1,4 @@
-# SuperHarness 安全审查报告
+# Continuum 安全审查报告
 
 > 审查时间: 2026-05-11
 > 审查范围: Rust 核心 (Layer 0-5)

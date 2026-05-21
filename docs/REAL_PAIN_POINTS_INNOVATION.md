@@ -1,4 +1,4 @@
-# SuperHarness 真实痛点驱动的设计
+# Continuum 真实痛点驱动的设计
 
 > 版本: v4.0
 > 日期: 2026-05-09
@@ -33,8 +33,8 @@
 错误思维：竞品不做我们做 → 差异化竞争
 正确思维：用户真实需要我们做 → 做到最好
 
-SuperHarness 不是要"不同"，是要"最好"
-SuperHarness 不是要"更多功能"，是要"解决真实痛点"
+Continuum 不是要"不同"，是要"最好"
+Continuum 不是要"更多功能"，是要"解决真实痛点"
 ```
 
 ---
@@ -162,7 +162,7 @@ this.write(
 **技术实现**：
 
 ```python
-from superharness import ScrollController
+from continuum import ScrollController
 
 scroll = ScrollController(
     auto_scroll=True,           # 默认自动滚动
@@ -245,7 +245,7 @@ class IncrementalRenderer:
 ### 4.3 创新点设计
 
 ```python
-from superharness import IMEController
+from continuum import IMEController
 
 ime = IMEController(
     preedit_display=True,       # 显示预编辑文本
@@ -305,7 +305,7 @@ agent.set_ime_controller(ime)
 
 ```python
 # 会话管理器
-from superharness import SessionManager
+from continuum import SessionManager
 
 # 自动保存（每轮完成后）
 manager = SessionManager(auto_save=True)
@@ -315,9 +315,9 @@ manager = SessionManager(auto_save=True)
 await manager.continue_last_session()
 
 # 或使用CLI指令
-# $ superharness continue
-# $ superharness continue --last
-# $ superharness continue <session_id>
+# $ continuum continue
+# $ continuum continue --last
+# $ continuum continue <session_id>
 ```
 
 **状态保存内容**：
@@ -344,7 +344,7 @@ await manager.continue_last_session()
 
 ### 2.3 与竞品对比
 
-| 功能 | Claude Code | Aider | SuperHarness |
+| 功能 | Claude Code | Aider | Continuum |
 |------|-------------|-------|--------------|
 | 会话恢复命令 | ✓ (需发送新prompt) | ✓ | ✓ (无需新消息) |
 | 无需新消息继续 | ✗ | ✗ | **✓** |
@@ -391,7 +391,7 @@ Agent在执行任务时陷入无限循环，反复执行相同操作，消耗大
 **创新点设计**：
 
 ```python
-from superharness import StagnationDetector
+from continuum import StagnationDetector
 
 detector = StagnationDetector(
     max_same_tool_calls=3,      # 同一工具最多连续调用3次
@@ -424,7 +424,7 @@ agent.set_detector(detector)
 **创新点设计**：
 
 ```python
-from superharness import RiskAwarePermissions
+from continuum import RiskAwarePermissions
 
 permissions = RiskAwarePermissions(
     # 低风险操作：自动执行
@@ -457,7 +457,7 @@ Agent虚构不存在的工具参数、文件路径，或错误理解工具用法
 **创新点设计**：
 
 ```python
-from superharness import ToolCallValidator
+from continuum import ToolCallValidator
 
 validator = ToolCallValidator(
     validate_file_exists=True,      # 验证文件是否存在
@@ -482,7 +482,7 @@ Agent执行失败时，用户难以理解失败原因，错误信息过于技术
 
 ```python
 # Agent失败时自动生成诊断报告
-from superharness import FailureDiagnostics
+from continuum import FailureDiagnostics
 
 diagnostics = FailureDiagnostics()
 
@@ -586,7 +586,7 @@ Enterprise = {
 
 **创新点设计**：
 ```python
-from superharness import StreamingMarkdownRenderer
+from continuum import StreamingMarkdownRenderer
 
 renderer = StreamingMarkdownRenderer(
     syntax_highlight=True,      # 语法高亮
@@ -606,7 +606,7 @@ agent.set_renderer(renderer)
 
 **创新点设计**：
 ```python
-from superharness import VirtualScrollBuffer
+from continuum import VirtualScrollBuffer
 
 buffer = VirtualScrollBuffer(
     max_lines=10000,            # 最大行数
@@ -679,8 +679,8 @@ agent.set_buffer(buffer)
 ### 开源精神定位
 
 ```
-SuperHarness 不是"创新Agent框架"
-SuperHarness 是"简洁可靠的Agent运行时"
+Continuum 不是"创新Agent框架"
+Continuum 是"简洁可靠的Agent运行时"
 
 目标：做到最好，而非做到不同
 策略：聚焦一个痛点做到95分

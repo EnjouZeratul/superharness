@@ -123,6 +123,12 @@ impl LlmClient {
             base_url,
         }
     }
+
+    /// 创建客户端并指定自定义 base_url（覆盖 provider 默认值）
+    pub fn with_base_url(mut self, base_url: String) -> Self {
+        self.base_url = base_url;
+        self
+    }
 }
 
 #[async_trait]
@@ -155,7 +161,11 @@ impl LlmClient {
         messages: Vec<Message>,
         config: &LlmRequestConfig,
     ) -> Result<LlmResponse> {
-        let url = format!("{}/messages", self.base_url);
+        let url = if self.base_url.ends_with("/v1") || self.base_url.ends_with("/v1/") {
+            format!("{}/messages", self.base_url.trim_end_matches('/'))
+        } else {
+            format!("{}/v1/messages", self.base_url.trim_end_matches('/'))
+        };
 
         let request_body = AnthropicRequest {
             model: config.model.clone(),
@@ -168,7 +178,7 @@ impl LlmClient {
                         MessageRole::Assistant => "assistant",
                         MessageRole::System => "system",
                     },
-                    content: AnthropicContent::Text { text: m.content },
+                    content: AnthropicContent::Text(m.content),
                 })
                 .collect(),
             system: config.system_prompt.clone(),
@@ -184,7 +194,10 @@ impl LlmClient {
             .send()
             .await?;
 
-        let response_body: AnthropicResponse = response.json().await?;
+        let response_text = response.text().await?;
+        tracing::debug!("Anthropic API response: {}", response_text);
+
+        let response_body: AnthropicResponse = serde_json::from_str(&response_text)?;
 
         Ok(LlmResponse {
             content: response_body
@@ -360,30 +373,53 @@ struct AnthropicMessage {
     content: AnthropicContent,
 }
 
+// Anthropic content - 可以是字符串或数组
 #[derive(Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(untagged)]
 enum AnthropicContent {
-    Text { text: String },
+    Text(String),
+    Blocks(Vec<AnthropicContentBlock>),
 }
 
-#[derive(Deserialize)]
-struct AnthropicResponse {
-    id: String,
-    model: String,
-    content: Vec<AnthropicContentResponse>,
-    usage: AnthropicUsage,
-}
-
-#[derive(Deserialize)]
-struct AnthropicContentResponse {
+#[derive(Serialize)]
+struct AnthropicContentBlock {
     #[serde(rename = "type")]
-    content_type: String,
+    content_type: String,  // "text"
     text: String,
 }
 
 #[derive(Deserialize)]
+struct AnthropicResponse {
+    #[serde(default)]
+    id: String,
+    #[serde(default)]
+    model: String,
+    #[serde(default)]
+    content: Vec<AnthropicContentResponse>,
+    #[serde(default)]
+    usage: AnthropicUsage,
+    #[serde(default)]
+    #[serde(rename = "type")]
+    response_type: Option<String>,
+    #[serde(default)]
+    role: Option<String>,
+    #[serde(default)]
+    stop_reason: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct AnthropicContentResponse {
+    #[serde(rename = "type", default)]
+    content_type: String,
+    #[serde(default)]
+    text: String,
+}
+
+#[derive(Deserialize, Default)]
 struct AnthropicUsage {
+    #[serde(default)]
     input_tokens: u32,
+    #[serde(default)]
     output_tokens: u32,
 }
 

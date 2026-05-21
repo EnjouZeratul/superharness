@@ -44,7 +44,7 @@
 ### 任务 2.2: 迁移 session_manager ✅
 
 **完成时间**: 2026-05-11 04:13
-**源文件**: `src/superharness/session_concurrency.py` (645行)
+**源文件**: `src/continuum/session_concurrency.py` (645行)
 
 迁移内容：
 - `ReadWriteLock` - 读写分离锁（使用 parking_lot）
@@ -65,7 +65,7 @@ session_manager/
 ### 任务 2.3: 迁移 checkpoint_system ✅
 
 **完成时间**: 2026-05-11 04:15
-**源文件**: `src/superharness/checkpoint_writer.py` (754行)
+**源文件**: `src/continuum/checkpoint_writer.py` (754行)
 
 迁移内容：
 - `AtomicFileWriter` - 原子文件写入

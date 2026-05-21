@@ -1,4 +1,4 @@
-# SuperHarness 差异化竞争策略
+# Continuum 差异化竞争策略
 
 > 版本: v2.0
 > 日期: 2026-05-09
@@ -8,9 +8,9 @@
 
 ## 核心定位
 
-### SuperHarness 是什么
+### Continuum 是什么
 
-**SuperHarness 是简洁可靠的 Agent 运行时。**
+**Continuum 是简洁可靠的 Agent 运行时。**
 
 我们提供：
 - 可观测的执行过程
@@ -26,7 +26,7 @@
 - 设计哲学：简洁、透明、最小化抽象
 - 官方定位：适用于研究和生产环境
 
-**SuperHarness**：
+**Continuum**：
 - 我们正在开发的 Agent 运行时
 - 设计目标：提供可靠的基础设施
 - 核心能力：可观测性、成本控制、错误恢复
@@ -37,7 +37,7 @@
 
 > 参考：SmolAgents 和 Claude Code 并非同一种东西
 
-| 维度 | SmolAgents | Claude Code | SuperHarness |
+| 维度 | SmolAgents | Claude Code | Continuum |
 |------|------------|-------------|--------------|
 | **类型** | 开源框架（SDK） | 闭源产品 | 开源框架（SDK） |
 | **定位** | 极简演示 | 生产级产品 | 生产级框架 |
@@ -46,13 +46,13 @@
 | **目标用户** | 学习者、研究者 | 终端用户 | 产品开发者 |
 | **品牌背书** | HuggingFace | Anthropic | 无（需建立） |
 
-**关键洞察**：SuperHarness 应该与 SmolAgents 比拼"框架能力"，而非"产品能力"。
+**关键洞察**：Continuum 应该与 SmolAgents 比拼"框架能力"，而非"产品能力"。
 
 ---
 
-## 一、SuperHarness 独立价值主张
+## 一、Continuum 独立价值主张
 
-### 1.1 为什么选择 SuperHarness
+### 1.1 为什么选择 Continuum
 
 如果你需要：
 - Agent 在生产环境稳定运行
@@ -60,7 +60,7 @@
 - 成本预算可控可预测
 - 失败状态可恢复可追溯
 
-那么 SuperHarness 是你的选择。
+那么 Continuum 是你的选择。
 
 ### 1.2 什么时候选择其他框架
 
@@ -99,7 +99,7 @@ SmolAgents 是 HuggingFace 开发的极简 Agent 框架：
 - 代码优先（Python code thinking）
 - 适合需要完全控制 Agent 行为的场景
 
-**SuperHarness 的选择**：
+**Continuum 的选择**：
 - 完整的企业级基础设施
 - 内置可观测性、成本控制、错误恢复
 - 适合需要开箱即用生产能力的场景
@@ -108,7 +108,7 @@ SmolAgents 是 HuggingFace 开发的极简 Agent 框架：
 
 ---
 
-## 三、SuperHarness 核心创新点
+## 三、Continuum 核心创新点
 
 ### 3.1 创新 1：Token 预算可视化与分级预警系统
 
@@ -122,7 +122,7 @@ SmolAgents 是 HuggingFace 开发的极简 Agent 框架：
 
 **技术实现**：
 ```python
-from superharness import BudgetConfig, ExceedAction
+from continuum import BudgetConfig, ExceedAction
 
 budget = BudgetConfig(
     max_cost=5.0,                      # 软上限（触发暂停）
@@ -157,7 +157,7 @@ if result.status == TaskStatus.PAUSED:
 
 **技术实现**：
 ```python
-from superharness import SelfHealing
+from continuum import SelfHealing
 
 harness = Harness(
     self_healing=SelfHealing(
@@ -183,7 +183,7 @@ except AgentError:
 
 **技术实现**：
 ```python
-from superharness import Replay
+from continuum import Replay
 
 # 录制模式
 harness = Harness(replay_mode=True)
@@ -205,7 +205,7 @@ await replay.jump_to(step=15) # 跳转定位
 
 **技术实现**：
 ```python
-from superharness import AuditLog
+from continuum import AuditLog
 
 audit = AuditLog(
     standards=["SOC2", "HIPAA"],
@@ -225,7 +225,7 @@ report = audit.generate_compliance_report(period="2026-Q1")
 
 **技术实现**：
 ```bash
-$ superharness dashboard
+$ continuum dashboard
 # 打开 http://localhost:8080 查看
 ```
 
@@ -246,9 +246,9 @@ $ superharness dashboard
 
 ## 五、一句话定位
 
-**SuperHarness 是简洁可靠的 Agent 运行时。**
+**Continuum 是简洁可靠的 Agent 运行时。**
 
-如果你需要 Agent 在生产环境稳定运行，选择 SuperHarness。
+如果你需要 Agent 在生产环境稳定运行，选择 Continuum。
 
 ---
 

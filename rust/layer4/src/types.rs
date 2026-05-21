@@ -55,7 +55,7 @@ pub struct IntegrationConfig {
 impl Default for IntegrationConfig {
     fn default() -> Self {
         Self {
-            plugin_dir: "~/.superharness/plugins".to_string(),
+            plugin_dir: "~/.continuum/plugins".to_string(),
             worktrees_dir: ".claude/worktrees".to_string(),
             channel_timeout_ms: 30000,
             max_plugins: 50,

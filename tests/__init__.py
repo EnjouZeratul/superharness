@@ -1,1 +1,1 @@
-"""Tests package for SuperHarness."""
+"""Tests package for Continuum."""

@@ -14,14 +14,14 @@
 
 ### 安装命令
 ```bash
-pip install superharness
+pip install continuum
 ```
 
 ### 验证命令
 ```bash
-python -c "from superharness_sdk import Agent; print('✓ SDK 导入成功')"
-python -c "from superharness_sdk import Session; print('✓ Session 导入成功')"
-python -c "from superharness_sdk.tools import ToolRegistry; print('✓ ToolRegistry 导入成功')"
+python -c "from continuum_sdk import Agent; print('✓ SDK 导入成功')"
+python -c "from continuum_sdk import Session; print('✓ Session 导入成功')"
+python -c "from continuum_sdk.tools import ToolRegistry; print('✓ ToolRegistry 导入成功')"
 ```
 
 ### 结果
@@ -40,7 +40,7 @@ python -c "from superharness_sdk.tools import ToolRegistry; print('✓ ToolRegis
 
 ### 安装命令
 ```bash
-cargo install superharness
+cargo install continuum
 ```
 
 ### 验证命令
@@ -103,7 +103,7 @@ Agent: [AI 响应]
 
 ### Python SDK 运行
 ```python
-from superharness_sdk import Agent
+from continuum_sdk import Agent
 
 agent = Agent()
 result = agent.run("hello")
@@ -139,4 +139,4 @@ print(result)
 
 ---
 
-*验证报告模板 - SuperHarness v1.0.0*
+*验证报告模板 - Continuum v1.0.0*

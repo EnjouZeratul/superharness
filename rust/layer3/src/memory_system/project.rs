@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 /// Project Memory 实现
 ///
-/// 持久化到项目目录下的 `.superharness/memory/`。
+/// 持久化到项目目录下的 `.continuum/memory/`。
 pub struct ProjectMemory {
     /// 项目根目录
     project_root: PathBuf,
@@ -25,7 +25,7 @@ pub struct ProjectMemory {
 
 impl ProjectMemory {
     pub fn new(project_root: PathBuf) -> Self {
-        let memory_path = project_root.join(".superharness").join("memory");
+        let memory_path = project_root.join(".continuum").join("memory");
         Self {
             project_root,
             memory_path,

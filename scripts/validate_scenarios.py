@@ -30,7 +30,7 @@ async def test_scenario_1_simple_qa():
     scenario = "场景1: 简单问答"
 
     try:
-        from superharness_sdk import Agent
+        from continuum_sdk import Agent
 
         if not HAS_API_KEY:
             log_result(scenario, True, "跳过 - 无 API key（SDK 已验证可导入）")
@@ -55,7 +55,7 @@ async def test_scenario_2_conversation():
     scenario = "场景2: 多轮对话"
 
     try:
-        from superharness_sdk import Agent, Session
+        from continuum_sdk import Agent, Session
 
         if not HAS_API_KEY:
             log_result(scenario, True, "跳过 - 无 API key")
@@ -86,8 +86,8 @@ async def test_scenario_3_tool_calling():
     scenario = "场景3: 工具调用"
 
     try:
-        from superharness_sdk import Agent
-        from superharness_sdk.tools import tool, get_registry
+        from continuum_sdk import Agent
+        from continuum_sdk.tools import tool, get_registry
 
         if not HAS_API_KEY:
             log_result(scenario, True, "跳过 - 无 API key")
@@ -116,7 +116,7 @@ async def test_scenario_4_code_operation():
     scenario = "场景4: 代码操作"
 
     try:
-        from superharness_sdk.tools import BuiltinTools
+        from continuum_sdk.tools import BuiltinTools
 
         with tempfile.TemporaryDirectory() as tmpdir:
             test_file = Path(tmpdir) / "test.py"
@@ -141,7 +141,7 @@ async def test_scenario_5_session_management():
     scenario = "场景5: 会话管理"
 
     try:
-        from superharness_sdk import Session
+        from continuum_sdk import Session
 
         # 创建会话
         s1 = Session(id="test-1")
@@ -164,7 +164,7 @@ async def test_scenario_6_error_handling():
     scenario = "场景6: 错误处理"
 
     try:
-        from superharness_sdk.tools import BuiltinTools
+        from continuum_sdk.tools import BuiltinTools
 
         # 测试读取不存在的文件
         try:
@@ -185,7 +185,7 @@ async def test_scenario_7_boundary_conditions():
     scenario = "场景7: 边界条件"
 
     try:
-        from superharness_sdk.workflow import DAG, Node, NodeStatus
+        from continuum_sdk.workflow import DAG, Node, NodeStatus
 
         # 测试空 DAG - 空 DAG 返回 PENDING 状态
         dag = DAG("empty-dag")
@@ -206,7 +206,7 @@ async def test_scenario_8_performance():
     scenario = "场景8: 性能测试"
 
     try:
-        from superharness_sdk.workflow import DAG, Node
+        from continuum_sdk.workflow import DAG, Node
         import time
 
         # 创建 10 个节点的 DAG

@@ -7,15 +7,21 @@
 //! - `atomic`: AtomicFileWriter 原子写入
 //! - `recovery`: CrashRecovery 崩溃恢复
 //! - `checksum`: ChecksumUtils 校验和
+//! - `retry`: ErrorRecovery 错误恢复
 
 mod atomic;
 mod checksum;
 mod recovery;
+mod retry;
 mod writer;
 
 pub use atomic::AtomicFileWriter;
 pub use checksum::ChecksumUtils;
 pub use recovery::CrashRecovery;
+pub use retry::{
+    ErrorCategory, ErrorRecovery, FallbackStrategy, InterruptedSession, RecoveryAction,
+    RecoveryLayer, RecoveryResult, RetryPolicy, SessionRecovery,
+};
 pub use writer::CheckpointWriter;
 
 use async_trait::async_trait;

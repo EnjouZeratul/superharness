@@ -1,4 +1,4 @@
-# SuperHarness 项目目录结构
+# Continuum 项目目录结构
 
 > 版本: v1.0
 > 日期: 2026-05-10
@@ -8,7 +8,7 @@
 ## 一、顶层目录结构
 
 ```
-superharness/
+continuum/
 ├── rust/                      # Rust 核心代码
 │   ├── Cargo.toml            # Workspace 配置
 │   ├── Cargo.lock            # 依赖锁定
@@ -21,7 +21,7 @@ superharness/
 │
 ├── python/                    # Python SDK 代码
 │   ├── pyproject.toml        # Python 包配置
-│   ├── superharness_sdk/     # SDK 源码
+│   ├── continuum_sdk/     # SDK 源码
 │   └── tests/                # Python 测试
 │
 ├── cli/                       # CLI 产品
@@ -160,7 +160,7 @@ rust/
 ```
 python/
 ├── pyproject.toml                     # Python 包配置
-├── superharness_sdk/
+├── continuum_sdk/
 │   ├── __init__.py                   # SDK入口
 │   ├── agent/                       # Agent API
 │   │   ├── __init__.py
@@ -208,10 +208,10 @@ cli/
 │   │   └── event.rs                 # 事件处理
 │   ├── commands/                     # 子命令
 │   │   ├── mod.rs
-│   │   ├── run.rs                   # superharness run
-│   │   ├── config.rs                # superharness config
-│   │   ├── session.rs              # superharness session
-│   │   └── tools.rs                # superharness tools
+│   │   ├── run.rs                   # continuum run
+│   │   ├── config.rs                # continuum config
+│   │   ├── session.rs              # continuum session
+│   │   └── tools.rs                # continuum tools
 │   ├── output/                       # 输出处理
 │   │   ├── mod.rs
 │   │   ├── streaming.rs            # 流式输出

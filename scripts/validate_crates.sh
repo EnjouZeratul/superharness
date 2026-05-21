@@ -1,11 +1,11 @@
 #!/bin/bash
-# SuperHarness crates.io 安装验证脚本
+# Continuum crates.io 安装验证脚本
 #
 # 用户在发布后运行此脚本验证 CLI 安装是否成功。
 
 set -e
 
-echo "SuperHarness crates.io 安装验证"
+echo "Continuum crates.io 安装验证"
 echo "=================================="
 echo ""
 
@@ -15,7 +15,7 @@ check_command() {
         echo "✓ 'sh' 命令已安装"
     else
         echo "✗ 'sh' 命令未找到"
-        echo "  请运行: cargo install superharness"
+        echo "  请运行: cargo install continuum"
         return 1
     fi
 }

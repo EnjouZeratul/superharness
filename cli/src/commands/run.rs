@@ -1,4 +1,4 @@
-//! superharness run 子命令
+//! continuum run 子命令
 
 use anyhow::Result;
 
