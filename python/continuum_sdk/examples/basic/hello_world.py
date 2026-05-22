@@ -3,7 +3,6 @@
 目标：3步启动 Agent
 """
 
-import asyncio
 from continuum_sdk import Agent
 
 # Step 1: 导入 (已在上方)
