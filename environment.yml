@@ -1,0 +1,13 @@
+name: continuum
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+    - -e ./python[dev]
+    - pytest
+    - pytest-cov
+    - pytest-asyncio
+    - ruff
+    - maturin
