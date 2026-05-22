@@ -12,13 +12,12 @@ Features:
 """
 
 import asyncio
-import subprocess
 import time
 import uuid
 import shlex
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict
 
 from .types import ToolResult, ToolError
 

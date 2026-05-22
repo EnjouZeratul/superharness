@@ -4,7 +4,6 @@ LLM Client
 Real LLM API client implementations.
 """
 
-import asyncio
 import json
 from abc import ABC, abstractmethod
 from typing import (
@@ -13,25 +12,17 @@ from typing import (
     Dict,
     Any,
     AsyncIterator,
-    Union,
-    Callable,
 )
 
 import httpx
 
 from .types import (
     Message,
-    MessageRole,
     ChatResponse,
     StreamChunk,
-    TokenUsage,
     ToolDefinition,
 )
 from .errors import (
-    LlmError,
-    AuthenticationError,
-    NetworkError,
-    TimeoutError,
     InvalidResponseError,
     classify_http_error,
 )

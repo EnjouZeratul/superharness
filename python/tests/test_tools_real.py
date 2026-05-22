@@ -15,7 +15,7 @@ from pathlib import Path
 
 from continuum_sdk.tools import (
     BashTool, ReadTool, WriteTool, EditTool, GrepTool, GlobTool,
-    ToolResult, ToolError, ToolCategory,
+    ToolResult, ToolError,
 )
 
 

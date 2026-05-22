@@ -12,9 +12,8 @@ Features:
 import time
 import uuid
 import re
-import fnmatch
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Union, Pattern
+from typing import Optional, Dict, Any, List, Pattern
 
 from .types import ToolResult, ToolError
 from .file_ops import detect_encoding

@@ -9,7 +9,6 @@
 """
 
 import os
-import sys
 from pathlib import Path
 
 # 配置文件路径

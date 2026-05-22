@@ -5,7 +5,7 @@ Shared type definitions for all tools.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any
 from enum import Enum
 
 

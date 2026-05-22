@@ -5,7 +5,6 @@ Type definitions for LLM client interactions.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Dict, Any
 

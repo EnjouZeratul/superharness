@@ -4,7 +4,7 @@
 """
 
 import asyncio
-from continuum_sdk.workflow import DAG, Node, NodeStatus
+from continuum_sdk.workflow import DAG, Node
 
 
 # ==================== 定义节点函数 ====================

@@ -8,9 +8,9 @@ Configuration loading and management for Continuum SDK with:
 - Multi-provider management
 """
 
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional, Dict, Any, List
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 import os
 import re

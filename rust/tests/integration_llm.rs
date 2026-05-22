@@ -7,18 +7,6 @@ mod common;
 
 use common::test_config::{get_api_key, get_base_url, get_model, is_api_available, load_env};
 
-macro_rules! require_api {
-    () => {
-        if !is_api_available() {
-            panic!(
-                "SKIP: API key not available. \
-                Run with: cargo test -- --ignored \
-                (or set CONTINUUM_API_KEY in .env.test)"
-            );
-        }
-    };
-}
-
 use continuum_cli as cli;
 use std::fs;
 use std::process::Command;
@@ -46,8 +34,8 @@ mod llm_tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires CONTINUUM_API_KEY in .env.test"]
     async fn test_real_chat_request() {
-        require_api!();
         load_env();
 
         use sh_layer1::llm_client::{
@@ -116,8 +104,8 @@ mod llm_tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires CONTINUUM_API_KEY in .env.test"]
     async fn test_real_tool_call() {
-        require_api!();
         load_env();
 
         use sh_layer1::llm_client::{
@@ -191,8 +179,8 @@ mod llm_tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires CONTINUUM_API_KEY in .env.test"]
     async fn test_real_long_response() {
-        require_api!();
         load_env();
 
         use sh_layer1::llm_client::{
@@ -262,8 +250,8 @@ mod llm_tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires CONTINUUM_API_KEY in .env.test"]
     async fn test_real_multi_turn() {
-        require_api!();
         load_env();
 
         use sh_layer1::llm_client::{

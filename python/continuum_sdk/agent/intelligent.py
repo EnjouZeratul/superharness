@@ -17,16 +17,15 @@ Example:
 """
 
 import asyncio
-import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Callable, Union, AsyncIterator
+from typing import Optional, List, Dict, Any, Callable
 from enum import Enum
 
 from .planner import Planner, Plan, Step, StepType, StepStatus
-from .self_correction import SelfCorrection, ErrorContext, Correction, RecoveryStrategy
+from .self_correction import SelfCorrection, ErrorContext, RecoveryStrategy
 from .progress import ProgressTracker, ProgressEvent, StepLogger
-from ..llm import BaseLlmClient, LlmClient, ChatResponse, Message as LlmMessage
+from ..llm import BaseLlmClient, LlmClient
 
 
 class AgentMode(Enum):
@@ -355,10 +354,9 @@ class IntelligentAgent:
         Returns:
             Execution result
         """
-        action = step.action.lower()
 
         # Import tools
-        from ..tools import BashTool, ReadTool, WriteTool, EditTool, GrepTool, GlobTool
+        from ..tools import BashTool, ReadTool, GrepTool
 
         # Execute based on step type
         if step.type == StepType.SEARCH:
@@ -375,7 +373,6 @@ class IntelligentAgent:
                 result = await self._llm_analyze(step)
 
         elif step.type == StepType.EDIT:
-            editor = EditTool()
             # Would need specific old/new strings
             result = await self._llm_edit(step)
 

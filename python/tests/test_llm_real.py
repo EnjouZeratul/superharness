@@ -14,7 +14,6 @@ LLM 真实 API 调用测试
 import sys
 import os
 import pytest
-import asyncio
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -261,7 +260,6 @@ class TestRealAgentPlanning:
     async def test_execute_simple_plan(self, agent):
         """测试简单计划执行 - 直接测试工具执行功能"""
         from continuum_sdk.tools import BashTool, ReadTool
-        from continuum_sdk.agent.planner import Plan, Step, StepType, StepStatus
 
         # 直接测试工具执行（不依赖 LLM）- 使用异步版本
         bash = BashTool()
@@ -388,7 +386,6 @@ class TestRealToolExecution:
     @pytest.mark.asyncio
     async def test_agent_error_recovery(self):
         """测试 Agent 错误恢复 - 验证 SelfCorrection 实际分析错误"""
-        from continuum_sdk.agent import IntelligentAgent, AgentMode
         from continuum_sdk.agent.self_correction import SelfCorrection, ErrorType, RecoveryStrategy
 
         # 直接测试 SelfCorrection 错误分类能力

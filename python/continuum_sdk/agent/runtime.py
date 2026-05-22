@@ -43,7 +43,6 @@ import asyncio
 from typing import Optional, Dict, Any, Callable, Union, AsyncIterator, List
 from datetime import datetime
 from enum import Enum
-import json
 
 # Import Rust bindings (will be available after compilation)
 try:
@@ -351,7 +350,7 @@ class Agent:
             LlmError: If LLM API call fails
         """
         try:
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()  # Check if in async context
             # Already in async context, need to run in thread
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor() as executor:

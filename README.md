@@ -49,6 +49,17 @@ Continuum is two equally important products:
 
 ## Quick Start
 
+### Environment Setup (Recommended)
+
+```bash
+# Create conda environment (reproducible)
+conda env create -f environment.yml
+conda activate continuum
+
+# Or use pip directly
+pip install -e ./python[dev]
+```
+
 ### CLI Usage
 
 ```bash
@@ -138,6 +149,9 @@ See [PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for details.
 ### Build
 
 ```bash
+# Activate environment
+conda activate continuum
+
 # Build Rust core
 cargo build --release
 

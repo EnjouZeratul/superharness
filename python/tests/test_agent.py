@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
-import asyncio
 
 from continuum_sdk.agent import Agent, AgentConfig, AgentState
 from continuum_sdk.llm import ChatResponse, TokenUsage

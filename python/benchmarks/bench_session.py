@@ -84,7 +84,7 @@ def bench_session_with_id():
 
 def bench_session_add_message():
     """测试添加消息"""
-    from continuum_sdk.agent import Session, MessageRole
+    from continuum_sdk.agent import Session
     session = Session()
     session.add_user_message("Hello")
     return session

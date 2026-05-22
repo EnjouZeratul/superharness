@@ -13,7 +13,7 @@ Features:
 import time
 import uuid
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional
 
 from .types import ToolResult, ToolError
 

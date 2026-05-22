@@ -10,21 +10,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from continuum_sdk.agent import (
     Planner,
-    Plan,
     Step,
     StepType,
     StepStatus,
     SelfCorrection,
     ErrorContext,
     ErrorType,
-    Correction,
     RecoveryStrategy,
     ProgressTracker,
-    ProgressEvent,
     ProgressState,
     StepLogger,
     IntelligentAgent,

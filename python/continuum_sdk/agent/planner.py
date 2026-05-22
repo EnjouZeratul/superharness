@@ -15,11 +15,10 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any, Callable, TYPE_CHECKING
-import asyncio
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..llm import BaseLlmClient, ChatResponse
+    from ..llm import BaseLlmClient
 
 
 class StepStatus(Enum):
@@ -326,7 +325,6 @@ Example output:
         context: Optional[Dict[str, Any]] = None
     ) -> List[Step]:
         """Pattern-based task decomposition."""
-        task_lower = task.lower()
 
         # Detect task type
         task_type = self._detect_task_type(task)

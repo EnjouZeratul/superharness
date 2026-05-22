@@ -4,7 +4,7 @@
 """
 
 import asyncio
-from continuum_sdk import Session, SessionManager, SessionState
+from continuum_sdk import SessionManager
 
 
 async def main():

@@ -7,14 +7,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest
 import tempfile
 import shutil
-from pathlib import Path
 
 # Import types
 from continuum_sdk.tools import (
     ToolMeta, ToolCategory, ToolResult, ToolError,
     BashTool, ReadTool, WriteTool, EditTool,
     GrepTool, GlobTool,
-    CustomTool, ToolRegistry, tool, register_tool, get_registry
+    ToolRegistry, tool
 )
 
 

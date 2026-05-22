@@ -7,7 +7,6 @@ from typing import Any, Callable, Dict, List, Optional, Set
 from enum import Enum
 from dataclasses import dataclass, field
 import asyncio
-from collections import defaultdict
 
 
 class NodeStatus(Enum):

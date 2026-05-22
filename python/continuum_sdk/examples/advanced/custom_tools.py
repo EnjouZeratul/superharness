@@ -6,7 +6,6 @@
 import asyncio
 from continuum_sdk.tools import (
     CustomTool,
-    ToolRegistry,
     tool,
     register_tool,
     get_registry,
