@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://www.rust-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![crates.io](https://img.shields.io/crates/v/continuum.svg)](https://crates.io/crates/continuum)
+[![PyPI](https://img.shields.io/pypi/v/continuum-agent-sdk.svg)](https://pypi.org/project/continuum-agent-sdk/)
 
 **Continuum is a concise and reliable Agent runtime.**
 
@@ -213,6 +215,27 @@ Core principles:
 
 ---
 
+## Package Registration
+
+Package names have been reserved to prevent squatting:
+
+| Platform | Package Name | Version | Status |
+|----------|--------------|---------|--------|
+| crates.io | [`continuum`](https://crates.io/crates/continuum) | v0.1.0 | ✅ Reserved |
+| PyPI | [`continuum-agent-sdk`](https://pypi.org/project/continuum-agent-sdk/) | v1.0.0 | ✅ Reserved |
+
+```bash
+# Install Python SDK
+pip install continuum-agent-sdk
+
+# Add Rust dependency
+cargo add continuum
+```
+
+> Note: These are placeholder packages. Full implementation will be released soon.
+
+---
+
 ## Development Status
 
 🚧 **In Development**
@@ -402,6 +425,27 @@ pytest
 | [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md) | 设计理念与代码规范 |
 | [SUPER_PROJECT_VISION.md](docs/SUPER_PROJECT_VISION.md) | 项目愿景 |
 | [DIFFERENTIATION_STRATEGY.md](docs/DIFFERENTIATION_STRATEGY.md) | 差异化竞争策略 |
+
+---
+
+## 包名注册
+
+包名已预留，防止被抢注：
+
+| 平台 | 包名 | 版本 | 状态 |
+|------|------|------|------|
+| crates.io | [`continuum`](https://crates.io/crates/continuum) | v0.1.0 | ✅ 已注册 |
+| PyPI | [`continuum-agent-sdk`](https://pypi.org/project/continuum-agent-sdk/) | v1.0.0 | ✅ 已注册 |
+
+```bash
+# 安装 Python SDK
+pip install continuum-agent-sdk
+
+# 添加 Rust 依赖
+cargo add continuum
+```
+
+> 注：当前为占位包，完整实现将在后续版本发布。
 
 ---
 
