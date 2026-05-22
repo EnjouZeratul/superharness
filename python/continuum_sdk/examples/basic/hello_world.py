@@ -1,19 +1,14 @@
-"""
-Hello World - 最简单的 Quick Start 示例
+"""Hello World - 最简单的 Quick Start 示例
 
 目标：3步启动 Agent
 """
 
-import sys
-import os
-# Add SDK to path (开发时使用，pip install 后不需要)
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-
+import asyncio
 from continuum_sdk import Agent
 
 # Step 1: 导入 (已在上方)
 
-# Step 2: 创建 Agent
+# Step 2: 创建 Agent (auto-configures from environment)
 agent = Agent()
 
 # Step 3: 运行任务

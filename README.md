@@ -82,21 +82,22 @@ continuum session resume <session_id>
 ### Python SDK Usage
 
 ```python
-from continuum_sdk import Agent, SessionManager
+from continuum_sdk import Agent, Session
 
-# Create Agent
-agent = Agent(
-    model="claude-sonnet-4-6",
-    tools=["file_read", "file_write", "bash"]
-)
+# Create Agent (auto-configures from environment)
+agent = Agent()
 
 # Run a task
-result = await agent.run("Help me refactor this function")
+result = agent.run("Help me refactor this function")
+
+# With explicit configuration
+agent = Agent(model="claude-sonnet-4-6", provider="anthropic")
 
 # Session management
-session = SessionManager()
+session = Session()
+session.add_user_message("Hello")
 session.save("my_session")
-session.load("my_session")
+session = Session.load("my_session")
 ```
 
 ---
@@ -325,21 +326,22 @@ continuum session resume <session_id>
 ### Python SDK 使用
 
 ```python
-from continuum_sdk import Agent, SessionManager
+from continuum_sdk import Agent, Session
 
-# 创建 Agent
-agent = Agent(
-    model="claude-sonnet-4-6",
-    tools=["file_read", "file_write", "bash"]
-)
+# 创建 Agent (自动从环境配置)
+agent = Agent()
 
 # 运行任务
-result = await agent.run("帮我重构这个函数")
+result = agent.run("帮我重构这个函数")
+
+# 指定配置
+agent = Agent(model="claude-sonnet-4-6", provider="anthropic")
 
 # 会话管理
-session = SessionManager()
+session = Session()
+session.add_user_message("你好")
 session.save("my_session")
-session.load("my_session")
+session = Session.load("my_session")
 ```
 
 ---

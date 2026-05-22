@@ -4,32 +4,32 @@
 """
 
 import asyncio
-from continuum_sdk import Agent, SessionManager
+from continuum_sdk import Agent, Session
 
 
 async def main():
     # 创建会话
-    session = await SessionManager().create_session(
-        name="hello-session",
-        working_dir="."
-    )
+    session = Session()
+    session.add_user_message("你好！请介绍一下你自己。")
 
     # 创建 Agent
-    agent = Agent(session_id=session.id)
+    agent = Agent()
 
     print("=== Hello Agent 示例 ===\n")
 
     # 发送消息
-    response = await agent.chat("你好！请介绍一下你自己。")
+    response = agent.run("你好！请介绍一下你自己。")
     print(f"Agent: {response}\n")
+    session.add_assistant_message(response)
 
     # 继续对话
-    response = await agent.chat("你能做什么？")
+    response = agent.run("你能做什么？")
     print(f"Agent: {response}\n")
+    session.add_assistant_message(response)
 
-    # 结束会话
-    await session.end()
-    print("会话已结束")
+    # 保存会话
+    session.save_to_default()
+    print(f"会话已保存，ID: {session.id}")
 
 
 if __name__ == "__main__":

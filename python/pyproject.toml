@@ -38,10 +38,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/continuum-ai/continuum"
-Documentation = "https://continuum-agent-sdk.readthedocs.io"
-Repository = "https://github.com/continuum-ai/continuum"
-Issues = "https://github.com/continuum-ai/continuum/issues"
+Homepage = "https://github.com/EnjouZeratul/continuum"
+Documentation = "https://github.com/EnjouZeratul/continuum#readme"
+Repository = "https://github.com/EnjouZeratul/continuum"
+Issues = "https://github.com/EnjouZeratul/continuum/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["continuum", "continuum_sdk"]

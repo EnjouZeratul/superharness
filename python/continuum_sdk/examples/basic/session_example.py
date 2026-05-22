@@ -4,63 +4,57 @@
 """
 
 import asyncio
-from continuum_sdk import SessionManager
+from continuum_sdk import Session
 
 
 async def main():
-    manager = SessionManager()
-
     print("=== 会话管理示例 ===\n")
 
     # 1. 创建新会话
     print("1. 创建新会话")
-    session = await manager.create_session(
-        name="demo-session",
-        working_dir="."
-    )
+    session = Session()
     print(f"   会话 ID: {session.id}")
-    print(f"   会话名称: {session.name}")
-    print(f"   状态: {session.state}\n")
+    print(f"   消息数: {session.message_count}\n")
 
-    # 2. 获取历史记录
-    print("2. 操作会话")
-    # 模拟一些对话
-    await session.add_message("user", "第一条消息")
-    await session.add_message("assistant", "收到第一条消息")
-    await session.add_message("user", "第二条消息")
+    # 2. 添加消息
+    print("2. 添加消息")
+    session.add_user_message("第一条消息")
+    session.add_assistant_message("收到第一条消息")
+    session.add_user_message("第二条消息")
 
-    history = session.history()
-    print(f"   消息数量: {len(history)}")
-    for msg in history:
-        print(f"   - [{msg['role']}]: {msg['content'][:30]}...")
+    messages = session.get_messages()
+    print(f"   消息数量: {len(messages)}")
+    for msg in messages:
+        print(f"   - [{msg.role}]: {msg.content[:30]}...")
     print()
 
-    # 3. 保存检查点
-    print("3. 保存检查点")
-    checkpoint_id = await session.save_checkpoint(name="before-rollback")
-    print(f"   检查点 ID: {checkpoint_id}\n")
+    # 3. 保存会话
+    print("3. 保存会话")
+    path = session.save_to_default()
+    print(f"   保存路径: {path}\n")
 
-    # 4. 添加更多消息
-    await session.add_message("user", "第三条消息（将被回滚）")
-    print("4. 添加了第三条消息")
-    print(f"   当前消息数: {len(session.history())}\n")
+    # 4. 会话信息
+    print("4. 会话信息")
+    print(f"   总成本: ${session.cost:.4f}")
+    print(f"   Token 数: {session.tokens}")
+    print(f"   使用工具: {session.get_tools_used()}\n")
 
-    # 5. 回滚到检查点
-    print("5. 回滚到检查点")
-    await session.rollback(checkpoint_id)
-    print(f"   回滚后消息数: {len(session.history())}\n")
-
-    # 6. 列出所有会话
-    print("6. 列出所有会话")
-    sessions = await manager.list_sessions()
-    for s in sessions:
-        print(f"   - {s['id']}: {s['name']} ({s['state']})")
+    # 5. 列出所有会话
+    print("5. 列出所有会话")
+    sessions = Session.list_saved_sessions()
+    for s in sessions[:5]:  # 只显示前5个
+        print(f"   - {s}")
     print()
 
-    # 7. 结束会话
-    print("7. 结束会话")
-    await session.end()
-    print(f"   最终状态: {session.state}\n")
+    # 6. 加载会话
+    print("6. 加载会话")
+    loaded = Session.load_from_default(session.id)
+    print(f"   加载成功，消息数: {loaded.message_count}\n")
+
+    # 7. 导出会话
+    print("7. 导出会话")
+    export_data = session.export()
+    print(f"   导出数据长度: {len(export_data)} 字符\n")
 
 
 if __name__ == "__main__":
