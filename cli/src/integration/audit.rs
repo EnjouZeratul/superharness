@@ -98,7 +98,7 @@ impl AuditService {
         let entries = self.logger.query(filter).await?;
         Ok(entries
             .into_iter()
-            .map(|e| AuditLogEntry::from_entry(e))
+            .map(AuditLogEntry::from_entry)
             .collect())
     }
 

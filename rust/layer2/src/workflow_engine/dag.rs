@@ -29,13 +29,8 @@ impl Dag {
         let id = node.id.clone();
         self.nodes.insert(id.clone(), node);
 
-        if !self.edges.contains_key(&id) {
-            self.edges.insert(id.clone(), Vec::new());
-        }
-
-        if !self.reverse_edges.contains_key(&id) {
-            self.reverse_edges.insert(id, Vec::new());
-        }
+        self.edges.entry(id.clone()).or_default();
+        self.reverse_edges.entry(id).or_default();
 
         Ok(())
     }

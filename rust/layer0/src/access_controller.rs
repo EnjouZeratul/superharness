@@ -114,10 +114,10 @@ impl AccessController {
             if let Some(role) = role_map.get(&role_name) {
                 for perm in &role.permissions {
                     // 检查通配符权限
-                    if perm.resource == "*" || perm.resource == resource {
-                        if perm.action == "*" || perm.action == action {
-                            return true;
-                        }
+                    if (perm.resource == "*" || perm.resource == resource)
+                        && (perm.action == "*" || perm.action == action)
+                    {
+                        return true;
                     }
                 }
             }
@@ -131,7 +131,7 @@ impl AccessController {
         let mut user_roles = self.user_roles.write();
         user_roles
             .entry(user_id.to_string())
-            .or_insert_with(HashSet::new)
+            .or_default()
             .insert(role_name.to_string());
     }
 

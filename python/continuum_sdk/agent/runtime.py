@@ -39,10 +39,15 @@ Environment Variables:
     - CONTINUUM_MODEL / CONTINUUM_MODEL: Model name to use
 """
 
+from __future__ import annotations
+
 import asyncio
-from typing import Optional, Dict, Any, Callable, Union, AsyncIterator, List
+from typing import Optional, Dict, Any, Callable, Union, AsyncIterator, List, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
+
+if TYPE_CHECKING:
+    from .session import Session
 
 # Import Rust bindings (will be available after compilation)
 try:

@@ -8,7 +8,6 @@
 //! - 写优先：当有写者等待时，新的读者会被阻塞
 
 use parking_lot::{Condvar, Mutex};
-use std::sync::Arc;
 use std::time::Duration;
 
 /// 读写锁状态
@@ -215,10 +214,12 @@ pub struct LockStateInfo {
 }
 
 /// RAII 读锁守卫
+#[allow(dead_code)]
 pub struct ReadGuard<'a> {
     lock: &'a ReadWriteLock,
 }
 
+#[allow(dead_code)]
 impl<'a> ReadGuard<'a> {
     pub fn new(lock: &'a ReadWriteLock) -> Self {
         let mut state = lock.state.lock();
@@ -242,10 +243,12 @@ impl<'a> Drop for ReadGuard<'a> {
 }
 
 /// RAII 写锁守卫
+#[allow(dead_code)]
 pub struct WriteGuard<'a> {
     lock: &'a ReadWriteLock,
 }
 
+#[allow(dead_code)]
 impl<'a> WriteGuard<'a> {
     pub fn new(lock: &'a ReadWriteLock) -> Self {
         let mut state = lock.state.lock();
@@ -280,6 +283,7 @@ impl<'a> Drop for WriteGuard<'a> {
 mod tests {
     use super::*;
     use std::sync::atomic::{AtomicU32, Ordering};
+    use std::sync::Arc;
     use std::thread;
 
     #[test]

@@ -2,8 +2,8 @@
 //!
 //! 管理多个 MCP 服务器连接。
 
-use super::protocol::{McpMessage, McpRequest, McpResponse, RequestId, ToolDefinition, ToolResult};
-use super::transport::{McpTransport, McpTransportType, MemoryTransport, StdioTransport};
+use super::protocol::{McpMessage, McpRequest, RequestId, ToolDefinition, ToolResult};
+use super::transport::{McpTransport, McpTransportType, MemoryTransport};
 use anyhow::{anyhow, Result};
 use parking_lot::RwLock as ParkingRwLock;
 use serde_json::Value;
@@ -26,6 +26,7 @@ pub struct McpServerConfig {
 
 /// 已连接的 MCP 服务器
 struct ConnectedServer {
+    #[allow(dead_code)]
     config: McpServerConfig,
     transport: Arc<dyn McpTransport>,
     tools: Vec<ToolDefinition>,
@@ -85,12 +86,12 @@ impl McpClientManager {
 
         // 根据传输类型创建连接
         let transport: Arc<dyn McpTransport> = match &config.transport {
-            McpTransportType::Stdio { command, args } => {
+            McpTransportType::Stdio { command: _, args: _ } => {
                 // 使用内存传输作为测试传输
                 // 生产环境需要真实的 StdioTransport
                 Arc::new(MemoryTransport::new())
             }
-            McpTransportType::Tcp { addr } => Arc::new(MemoryTransport::new()),
+            McpTransportType::Tcp { addr: _ } => Arc::new(MemoryTransport::new()),
             #[cfg(unix)]
             McpTransportType::Unix { path: _ } => Arc::new(MemoryTransport::new()),
         };
@@ -143,10 +144,10 @@ impl McpClientManager {
 
     /// 连接所有服务器
     pub async fn connect_all(&self) -> Result<Vec<String>> {
-        let configs = self.configs.read();
+        let names: Vec<String> = self.configs.read().keys().cloned().collect();
         let mut results = Vec::new();
 
-        for name in configs.keys() {
+        for name in &names {
             if self.connect(name).await.is_ok() {
                 results.push(name.clone());
             }
@@ -157,9 +158,12 @@ impl McpClientManager {
 
     /// 断开服务器连接
     pub async fn disconnect(&self, name: &str) -> Result<()> {
-        let mut servers = self.servers.write();
-        if let Some(server) = servers.remove(name) {
-            server.transport.close().await?;
+        let server = {
+            let mut servers = self.servers.write();
+            servers.remove(name)
+        };
+        if let Some(s) = server {
+            s.transport.close().await?;
         }
         Ok(())
     }

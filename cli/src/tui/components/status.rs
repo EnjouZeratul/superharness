@@ -140,7 +140,7 @@ impl StatusComponent {
             ),
             Span::raw(" "),
             Span::styled(
-                format!("{}", conn_icon),
+                conn_icon.to_string(),
                 Style::default().fg(if self.connected {
                     Color::Green
                 } else {

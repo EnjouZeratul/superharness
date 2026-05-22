@@ -9,7 +9,9 @@ use async_trait::async_trait;
 use std::path::PathBuf;
 
 /// JSON Loader 实现
+#[allow(dead_code)]
 pub struct JsonLoader {
+    #[allow(dead_code)]
     options: LoadOptions,
     /// JSON Pointer 或 jq 查询（可选）
     query: Option<String>,
@@ -75,7 +77,7 @@ impl DocumentLoader for JsonLoader {
         Ok(vec![self.load(path).await?])
     }
 
-    fn supports(&self, path: &PathBuf) -> bool {
+    fn supports(&self, path: &std::path::Path) -> bool {
         path.extension()
             .and_then(|e| e.to_str())
             .map(|e| e == "json")

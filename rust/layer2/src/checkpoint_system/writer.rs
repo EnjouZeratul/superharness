@@ -4,7 +4,6 @@
 
 use async_trait::async_trait;
 use chrono::Utc;
-use parking_lot::RwLock;
 use std::path::{Path, PathBuf};
 
 use crate::types::{CheckpointId, CheckpointMeta, Layer2Result, SessionId};
@@ -261,7 +260,7 @@ impl CheckpointSystemTrait for CheckpointWriter {
         }
 
         // 按创建时间排序（最新在前）
-        metas.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        metas.sort_by_key(|b| std::cmp::Reverse(b.created_at));
 
         Ok(metas)
     }
@@ -279,11 +278,9 @@ impl CheckpointSystemTrait for CheckpointWriter {
 
         let pattern = format!("cp_*_{}.json", checkpoint_id);
 
-        for entry in glob::glob(session_dir.join(&pattern).to_string_lossy().as_ref())? {
-            if let Ok(path) = entry {
-                std::fs::remove_file(&path)?;
-                return Ok(true);
-            }
+        if let Some(path) = glob::glob(session_dir.join(&pattern).to_string_lossy().as_ref())?.flatten().next() {
+            std::fs::remove_file(&path)?;
+            return Ok(true);
         }
 
         Ok(false)

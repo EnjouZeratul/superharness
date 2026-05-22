@@ -176,7 +176,6 @@ fn run_app(
                         match action {
                             KeyAction::Exit => break,
                             KeyAction::SendMessage(content) => {
-                                processing = true;
                                 status.set_processing(true);
 
                                 // 添加工具调用显示（模拟工具执行）
@@ -315,33 +314,33 @@ fn handle_key_event(
         // Ctrl+C: 退出
         (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
             app.running = false;
-            return Ok(KeyAction::Exit);
+            Ok(KeyAction::Exit)
         }
 
         // Ctrl+D: 退出
         (KeyModifiers::CONTROL, KeyCode::Char('d')) => {
             app.running = false;
-            return Ok(KeyAction::Exit);
+            Ok(KeyAction::Exit)
         }
 
         // Ctrl+L: 清屏
         (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
-            return Ok(KeyAction::ClearScreen);
+            Ok(KeyAction::ClearScreen)
         }
 
         // Ctrl+S: 保存会话
         (KeyModifiers::CONTROL, KeyCode::Char('s')) => {
-            return Ok(KeyAction::SaveSession);
+            Ok(KeyAction::SaveSession)
         }
 
         // Ctrl+N: 新建会话
         (KeyModifiers::CONTROL, KeyCode::Char('n')) => {
-            return Ok(KeyAction::NewSession);
+            Ok(KeyAction::NewSession)
         }
 
         // Ctrl+T: 切换工具面板
         (KeyModifiers::CONTROL, KeyCode::Char('t')) => {
-            return Ok(KeyAction::ToggleTools);
+            Ok(KeyAction::ToggleTools)
         }
 
         // Ctrl+W: 删除前一个单词
@@ -399,7 +398,7 @@ fn handle_key_event(
             input.add_to_history(&content);
             input.clear();
             status.set_message_count(chat.message_count());
-            return Ok(KeyAction::SendMessage(content));
+            Ok(KeyAction::SendMessage(content))
         }
 
         // Esc: 取消/清空输入

@@ -3,7 +3,7 @@
 //! 记忆操作工具集。
 
 use crate::builtin_tools::BuiltinTool;
-use crate::types::{Layer3Result, MemoryTier, ToolCategory};
+use crate::types::{Layer3Result, ToolCategory};
 use async_trait::async_trait;
 
 /// Save Memory Tool
@@ -45,7 +45,7 @@ impl BuiltinTool for SaveMemoryTool {
         ToolCategory::Memory
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         Ok("Memory saved successfully".to_string())
     }
 }
@@ -89,7 +89,7 @@ impl BuiltinTool for QueryMemoryTool {
         ToolCategory::Memory
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         Ok("Memory query results placeholder".to_string())
     }
 }

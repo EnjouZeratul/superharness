@@ -149,7 +149,7 @@ class TestRealLlmCalls:
             ])
             assert has_relevant_words, \
                 f"Response should discuss weather/Tokyo, got: {response.content}"
-            print(f"[Text response verified]: contains weather-related content")
+            print("[Text response verified]: contains weather-related content")
 
     @pytest.mark.asyncio
     async def test_long_response(self, client):

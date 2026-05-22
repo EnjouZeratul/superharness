@@ -337,7 +337,6 @@ impl CliApp {
 
     /// 执行 checkpoint 子命令
     async fn checkpoint_command(&self, cmd: super::args::CheckpointCmd) -> Result<()> {
-        use crate::commands;
         // checkpoint 命令在 commands 模块中实现
         match cmd {
             super::args::CheckpointCmd::List { session } => {
@@ -498,8 +497,6 @@ impl CliApp {
 
     /// 执行 LSP 命令
     async fn lsp_command(&self, cmd: super::args::LspCmd) -> Result<()> {
-        use crate::commands::tool_exec;
-
         match cmd {
             super::args::LspCmd::Definition { file, line, column } => {
                 println!("Finding definition in {} at {}:{}", file, line, column);

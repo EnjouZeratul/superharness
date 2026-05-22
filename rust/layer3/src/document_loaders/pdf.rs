@@ -12,7 +12,9 @@ use std::path::PathBuf;
 ///
 /// 注意：完整实现需要添加 pdf 解析库依赖。
 /// 当前为 stub 实现。
+#[allow(dead_code)]
 pub struct PdfLoader {
+    #[allow(dead_code)]
     options: LoadOptions,
 }
 
@@ -44,7 +46,7 @@ impl DocumentLoader for PdfLoader {
         Ok(vec![self.load(path).await?])
     }
 
-    fn supports(&self, path: &PathBuf) -> bool {
+    fn supports(&self, path: &std::path::Path) -> bool {
         path.extension()
             .and_then(|e| e.to_str())
             .map(|e| e == "pdf")

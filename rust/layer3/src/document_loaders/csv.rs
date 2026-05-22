@@ -9,7 +9,9 @@ use async_trait::async_trait;
 use std::path::PathBuf;
 
 /// CSV Loader 实现
+#[allow(dead_code)]
 pub struct CsvLoader {
+    #[allow(dead_code)]
     options: LoadOptions,
     /// 分隔符
     delimiter: char,
@@ -90,7 +92,7 @@ impl DocumentLoader for CsvLoader {
         Ok(documents)
     }
 
-    fn supports(&self, path: &PathBuf) -> bool {
+    fn supports(&self, path: &std::path::Path) -> bool {
         path.extension()
             .and_then(|e| e.to_str())
             .map(|e| e == "csv" || e == "tsv")

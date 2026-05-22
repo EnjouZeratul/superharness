@@ -203,7 +203,8 @@ impl ChannelGateway {
 
     /// 注销渠道
     pub async fn unregister_channel(&self, channel_id: &str) -> Layer4Result<bool> {
-        if let Some(channel) = self.channels.write().remove(channel_id) {
+        let channel = self.channels.write().remove(channel_id);
+        if let Some(channel) = channel {
             channel.close().await?;
             self.router.unregister_channel(channel_id);
             tracing::info!("Unregistered channel: {}", channel_id);
@@ -214,7 +215,7 @@ impl ChannelGateway {
     }
 
     /// 获取渠道
-    pub fn get_channel(&self, channel_id: &str) -> Option<Arc<dyn Channel>> {
+    pub fn get_channel(&self, _channel_id: &str) -> Option<Arc<dyn Channel>> {
         // 由于 Box<dyn Channel> 不能直接克隆，我们返回 Option
         // 实际使用时需要重新设计
         None
@@ -230,6 +231,7 @@ impl ChannelGateway {
     }
 
     /// 广播消息到所有渠道
+    #[allow(clippy::await_holding_lock)]
     pub async fn broadcast(&self, message: &OutboundMessage) -> Layer4Result<()> {
         let channels = self.channels.read();
         for (id, channel) in channels.iter() {
@@ -241,6 +243,7 @@ impl ChannelGateway {
     }
 
     /// 发送消息到指定目标
+    #[allow(clippy::await_holding_lock)]
     pub async fn send_to(
         &self,
         target: &MessageTarget,
@@ -280,6 +283,7 @@ impl ChannelGateway {
     }
 
     /// 接收消息（轮询所有渠道）
+    #[allow(clippy::await_holding_lock)]
     pub async fn receive(&self) -> Layer4Result<Option<InboundMessage>> {
         // 先检查队列
         if let Some(msg) = self.message_queue.write().pop() {
@@ -305,6 +309,7 @@ impl ChannelGateway {
     }
 
     /// 接收所有待处理消息
+    #[allow(clippy::await_holding_lock)]
     pub async fn receive_all(&self) -> Layer4Result<Vec<InboundMessage>> {
         let mut messages = Vec::new();
 
@@ -328,6 +333,7 @@ impl ChannelGateway {
     }
 
     /// 关闭所有渠道
+    #[allow(clippy::await_holding_lock)]
     pub async fn close_all(&self) -> Layer4Result<()> {
         let mut channels = self.channels.write();
         for (id, channel) in channels.drain() {

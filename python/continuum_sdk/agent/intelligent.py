@@ -16,6 +16,8 @@ Example:
     >>> result = await agent.execute_plan(plan)
 """
 
+from __future__ import annotations
+
 import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -25,7 +27,7 @@ from enum import Enum
 from .planner import Planner, Plan, Step, StepType, StepStatus
 from .self_correction import SelfCorrection, ErrorContext, RecoveryStrategy
 from .progress import ProgressTracker, ProgressEvent, StepLogger
-from ..llm import BaseLlmClient, LlmClient
+from ..llm import BaseLlmClient, LlmClient, Message
 
 
 class AgentMode(Enum):
@@ -405,7 +407,7 @@ Provide a concise analysis focusing on:
 2. What needs to be done
 3. Any issues or risks"""
 
-        messages = [LLMMessage.user(step.action)]
+        messages = [Message.user(step.action)]
 
         response = await client.chat(
             messages=messages,
@@ -422,7 +424,7 @@ Provide a concise analysis focusing on:
 
         system_prompt = "You are planning code edits. Provide specific file changes needed."
 
-        messages = [LLMMessage.user(step.action)]
+        messages = [Message.user(step.action)]
 
         response = await client.chat(
             messages=messages,
@@ -438,7 +440,7 @@ Provide a concise analysis focusing on:
 
         system_prompt = "Verify that the changes resolved the issue. Check for regressions."
 
-        messages = [LLMMessage.user(step.action)]
+        messages = [Message.user(step.action)]
 
         response = await client.chat(
             messages=messages,
@@ -452,7 +454,7 @@ Provide a concise analysis focusing on:
         """Generic LLM execution."""
         client = self._get_llm_client()
 
-        messages = [LLMMessage.user(step.action)]
+        messages = [Message.user(step.action)]
 
         response = await client.chat(messages=messages, temperature=0.3)
         return response.content

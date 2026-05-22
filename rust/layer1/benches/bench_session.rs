@@ -10,6 +10,7 @@ use std::collections::HashMap;
 struct Session {
     id: String,
     messages: Vec<Message>,
+    #[allow(dead_code)]
     metadata: HashMap<String, String>,
 }
 

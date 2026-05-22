@@ -3,10 +3,8 @@
 //! 支持 stdio 和 socket 两种传输方式。
 
 use async_trait::async_trait;
-use serde_json::Value;
-use std::io::{self, BufRead, Write};
 use std::sync::Arc;
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::Mutex;
 
@@ -304,6 +302,12 @@ fn parse_content_length(header: &str) -> Result<usize> {
 pub struct MemoryTransport {
     messages: Arc<Mutex<Vec<McpMessage>>>,
     position: Arc<Mutex<usize>>,
+}
+
+impl Default for MemoryTransport {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MemoryTransport {

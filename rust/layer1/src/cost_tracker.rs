@@ -112,6 +112,7 @@ struct UsageRecord {
     model: String,
     input_tokens: u64,
     output_tokens: u64,
+    #[allow(dead_code)]
     timestamp: Instant,
 }
 
@@ -138,12 +139,10 @@ impl CostTracker {
         output_tokens: u64,
     ) -> anyhow::Result<()> {
         // 计算成本
-        let pricing = self.pricing.get(model).cloned().unwrap_or_else(|| {
+        let pricing = self.pricing.get(model).cloned().unwrap_or(ModelPricing {
             // 默认定价（中等模型）
-            ModelPricing {
-                input_price_per_million: 3.0,
-                output_price_per_million: 15.0,
-            }
+            input_price_per_million: 3.0,
+            output_price_per_million: 15.0,
         });
 
         let cost = pricing.calculate_cost(input_tokens, output_tokens);
@@ -200,14 +199,14 @@ impl CostTracker {
             entry.input_tokens += record.input_tokens;
             entry.output_tokens += record.output_tokens;
 
-            let pricing =
-                self.pricing
-                    .get(&record.model)
-                    .cloned()
-                    .unwrap_or_else(|| ModelPricing {
-                        input_price_per_million: 3.0,
-                        output_price_per_million: 15.0,
-                    });
+            let pricing = self
+                .pricing
+                .get(&record.model)
+                .cloned()
+                .unwrap_or(ModelPricing {
+                    input_price_per_million: 3.0,
+                    output_price_per_million: 15.0,
+                });
 
             entry.cost_usd += pricing.calculate_cost(record.input_tokens, record.output_tokens);
 
@@ -238,7 +237,7 @@ impl CostTracker {
             .pricing
             .get(model)
             .cloned()
-            .unwrap_or_else(|| ModelPricing {
+            .unwrap_or(ModelPricing {
                 input_price_per_million: 3.0,
                 output_price_per_million: 15.0,
             });

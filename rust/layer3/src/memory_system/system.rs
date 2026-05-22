@@ -5,13 +5,13 @@
 use crate::memory_system::{session::SessionMemory, working::WorkingMemory, MemoryStore};
 use crate::types::{Layer3Result, MemoryEntry, MemoryQuery, MemoryTier};
 use async_trait::async_trait;
-use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 /// 统一记忆系统
 ///
 /// 整合 Working, Session, Project, LongTerm 四层记忆。
+#[allow(dead_code)]
 pub struct UnifiedMemorySystem {
     /// 工作记忆（内存环形缓冲）
     working: Arc<WorkingMemory>,
@@ -22,6 +22,7 @@ pub struct UnifiedMemorySystem {
     /// 长期记忆（向量检索）
     long_term: Option<Arc<dyn MemoryStore>>,
     /// 当前会话 ID
+    #[allow(dead_code)]
     session_id: String,
 }
 

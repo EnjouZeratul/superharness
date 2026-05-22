@@ -29,7 +29,7 @@ pub fn execute_bash(
 
     let default_dir = std::env::current_dir().unwrap_or_default();
     let cwd = cwd
-        .map(|s| Path::new(s))
+        .map(Path::new)
         .unwrap_or_else(|| default_dir.as_path());
 
     // 构建命令
@@ -219,8 +219,8 @@ pub fn execute_grep(
     fn search_file(
         file_path: &Path,
         regex: &regex::Regex,
-        show_line_numbers: bool,
-        context: Option<usize>,
+        _show_line_numbers: bool,
+        _context: Option<usize>,
         results: &mut Vec<GrepMatch>,
     ) -> Result<()> {
         let content = match fs::read_to_string(file_path) {
@@ -389,7 +389,6 @@ fn path_matches_glob(path: &Path, pattern: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
     use tempfile::TempDir;
 
     #[test]

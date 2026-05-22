@@ -44,7 +44,7 @@ impl BuiltinTool for GrepTool {
         ToolCategory::Search
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         // Stub implementation - will use ripgrep in production
         Ok("Grep results placeholder".to_string())
     }

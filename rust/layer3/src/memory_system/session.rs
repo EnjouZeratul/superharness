@@ -12,12 +12,15 @@ use std::sync::Arc;
 /// Session Memory 实现
 ///
 /// 使用 HashMap 存储会话期间的记忆。
+#[allow(dead_code)]
 pub struct SessionMemory {
     /// 存储
     storage: Arc<RwLock<HashMap<String, MemoryEntry>>>,
     /// 会话 ID
+    #[allow(dead_code)]
     session_id: String,
     /// 衰减策略
+    #[allow(dead_code)]
     decay_policy: Box<dyn DecayPolicy>,
 }
 

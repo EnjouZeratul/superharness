@@ -280,7 +280,7 @@ class StepLogger:
 
     def get_step_logs(self, step_id: str) -> List[Dict[str, Any]]:
         """Get all logs for a step."""
-        return [l for l in self.logs if l["step_id"] == step_id]
+        return [log for log in self.logs if log["step_id"] == step_id]
 
     def get_recent_logs(self, count: int = 10) -> List[Dict[str, Any]]:
         """Get most recent logs."""

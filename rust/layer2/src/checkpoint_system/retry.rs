@@ -3,7 +3,6 @@
 //! 实现三层重试机制：自动 → 降级 → 用户介入
 
 use crate::types::{Layer2Result, SessionId};
-use async_trait::async_trait;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::RwLock;
@@ -497,7 +496,7 @@ impl SessionRecovery {
         }
 
         // 按时间排序（最近的中断在前）
-        interrupted.sort_by(|a, b| b.last_activity.cmp(&a.last_activity));
+        interrupted.sort_by_key(|b| std::cmp::Reverse(b.last_activity));
 
         Ok(interrupted)
     }

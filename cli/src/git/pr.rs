@@ -309,7 +309,7 @@ impl PrCreator {
     /// 从 URL 提取 PR 编号
     fn extract_pr_number(&self, url: &str) -> Option<u64> {
         // https://github.com/owner/repo/pull/123
-        url.split('/').last()?.parse().ok()
+        url.split('/').next_back()?.parse().ok()
     }
 
     /// 生成 PR body（基于 commit 历史）

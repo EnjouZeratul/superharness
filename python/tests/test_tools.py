@@ -41,8 +41,8 @@ class TestToolMeta:
         assert meta.name == "test_tool"
         assert meta.description == "A test tool"
         assert meta.category == ToolCategory.OTHER
-        assert meta.requires_confirmation == False
-        assert meta.is_dangerous == False
+        assert not meta.requires_confirmation
+        assert not meta.is_dangerous
 
     def test_tool_meta_with_params(self):
         """测试带参数的工具元数据"""
@@ -53,8 +53,8 @@ class TestToolMeta:
             requires_confirmation=True,
             is_dangerous=True
         )
-        assert meta.requires_confirmation == True
-        assert meta.is_dangerous == True
+        assert meta.requires_confirmation
+        assert meta.is_dangerous
 
 
 class TestToolResult:
@@ -70,7 +70,7 @@ class TestToolResult:
         assert result.call_id == "call-123"
         assert result.name == "read_file"
         assert result.content == "file contents"
-        assert result.is_error == False
+        assert not result.is_error
 
     def test_tool_result_error(self):
         """测试错误结果"""
@@ -80,7 +80,7 @@ class TestToolResult:
             content="Error message",
             is_error=True
         )
-        assert result.is_error == True
+        assert result.is_error
 
 
 class TestBuiltinTools:

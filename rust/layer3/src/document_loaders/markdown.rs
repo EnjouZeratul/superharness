@@ -9,7 +9,9 @@ use async_trait::async_trait;
 use std::path::PathBuf;
 
 /// Markdown Loader 实现
+#[allow(dead_code)]
 pub struct MarkdownLoader {
+    #[allow(dead_code)]
     options: LoadOptions,
 }
 
@@ -76,7 +78,7 @@ impl DocumentLoader for MarkdownLoader {
         Ok(documents)
     }
 
-    fn supports(&self, path: &PathBuf) -> bool {
+    fn supports(&self, path: &std::path::Path) -> bool {
         path.extension()
             .and_then(|e| e.to_str())
             .map(|e| e == "md" || e == "markdown")

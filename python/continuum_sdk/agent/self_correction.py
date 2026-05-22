@@ -12,11 +12,12 @@ Features:
 
 import re
 import json
+import asyncio
+import traceback
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Dict, Any, TYPE_CHECKING
-import traceback
 
 if TYPE_CHECKING:
     from ..llm import BaseLlmClient
@@ -422,7 +423,3 @@ Context: {json.dumps(context, indent=2) if context else 'None'}"""
     def get_error_history(self) -> List[ErrorContext]:
         """Get error history."""
         return self.error_history.copy()
-
-
-# Import asyncio for async methods
-import asyncio

@@ -24,6 +24,7 @@ pub struct InputValidator {
     /// 禁止的模式
     forbidden_patterns: Vec<String>,
     /// 必须的字段
+    #[allow(dead_code)]
     required_fields: HashMap<String, bool>,
 }
 

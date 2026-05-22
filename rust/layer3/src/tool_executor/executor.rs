@@ -3,7 +3,7 @@
 //! 工具执行器的默认实现。
 
 use crate::builtin_tools::{BuiltinTool, BuiltinToolRegistry};
-use crate::tool_executor::{ExecutionContext, ToolExecutor, ToolValidator};
+use crate::tool_executor::{ToolExecutor, ToolValidator};
 use crate::types::{Layer3Error, Layer3Result, ToolMeta, ToolRequest, ToolResponse};
 use async_trait::async_trait;
 use parking_lot::RwLock;

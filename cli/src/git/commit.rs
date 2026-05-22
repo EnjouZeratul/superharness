@@ -290,9 +290,11 @@ mod tests {
     #[test]
     fn test_generate_title() {
         let gen = CommitGenerator::new();
-        let mut analysis = ChangeAnalysis::default();
-        analysis.files_changed = 3;
-        analysis.new_files = 1;
+        let analysis = ChangeAnalysis {
+            files_changed: 3,
+            new_files: 1,
+            ..Default::default()
+        };
 
         let title = gen.generate_title(&analysis);
         assert!(title.contains(":"));

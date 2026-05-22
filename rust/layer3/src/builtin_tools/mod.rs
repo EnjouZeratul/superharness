@@ -78,7 +78,7 @@ impl BuiltinToolRegistry {
 
     /// 创建并注册所有默认工具
     pub fn with_defaults() -> Self {
-        let mut registry = Self::new();
+        let registry = Self::new();
         // 注册将在各模块实现后添加
         registry
     }

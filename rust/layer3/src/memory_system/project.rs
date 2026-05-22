@@ -12,14 +12,17 @@ use std::sync::Arc;
 /// Project Memory 实现
 ///
 /// 持久化到项目目录下的 `.continuum/memory/`。
+#[allow(dead_code)]
 pub struct ProjectMemory {
     /// 项目根目录
+    #[allow(dead_code)]
     project_root: PathBuf,
     /// 内存文件路径
     memory_path: PathBuf,
     /// 内存缓存
     cache: Arc<RwLock<Vec<MemoryEntry>>>,
     /// 衰减策略
+    #[allow(dead_code)]
     decay_policy: Box<dyn DecayPolicy>,
 }
 

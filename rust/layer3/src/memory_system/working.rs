@@ -12,12 +12,14 @@ use std::sync::Arc;
 /// Working Memory 实现
 ///
 /// 使用环形缓冲区存储最近 N 条记忆。
+#[allow(dead_code)]
 pub struct WorkingMemory {
     /// 存储缓冲区
     buffer: Arc<RwLock<VecDeque<MemoryEntry>>>,
     /// 最大容量
     max_size: usize,
     /// 衰减策略
+    #[allow(dead_code)]
     decay_policy: Box<dyn DecayPolicy>,
 }
 

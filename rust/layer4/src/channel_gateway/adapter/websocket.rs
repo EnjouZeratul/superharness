@@ -30,6 +30,7 @@ impl Default for WebSocketChannelConfig {
 /// WebSocket 渠道适配器
 pub struct WebSocketChannel {
     channel_id: String,
+    #[allow(dead_code)]
     config: WebSocketChannelConfig,
     connected: RwLock<bool>,
     message_queue: RwLock<VecDeque<InboundMessage>>,

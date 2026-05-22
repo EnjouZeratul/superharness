@@ -59,7 +59,7 @@ pub trait Tool: Send + Sync {
     async fn execute(&self, args: &str) -> Layer2Result<ToolResult>;
 
     /// 验证参数
-    fn validate_args(&self, args: &serde_json::Value) -> Layer2Result<bool> {
+    fn validate_args(&self, _args: &serde_json::Value) -> Layer2Result<bool> {
         // 默认实现：总是返回 true
         Ok(true)
     }

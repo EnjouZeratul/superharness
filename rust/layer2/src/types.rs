@@ -101,9 +101,10 @@ impl fmt::Display for CheckpointId {
 }
 
 /// Agent 执行状态机
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AgentState {
+    #[default]
     Idle,
     Running,
     ToolCalling,
@@ -111,12 +112,6 @@ pub enum AgentState {
     Stopped,
     Error,
     Completed,
-}
-
-impl Default for AgentState {
-    fn default() -> Self {
-        Self::Idle
-    }
 }
 
 impl fmt::Display for AgentState {

@@ -4,9 +4,9 @@
 
 use ratatui::{
     layout::Rect,
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, Paragraph},
+    widgets::{Block, Borders, Paragraph},
     Frame,
 };
 use std::collections::VecDeque;
@@ -671,7 +671,7 @@ impl CodeEditorComponent {
 
         let mut lines_to_render = Vec::new();
 
-        for (_idx, line_num) in (self.scroll_offset..end_line).enumerate() {
+        for line_num in self.scroll_offset..end_line {
             if let Some(line) = self.lines.get(line_num) {
                 let is_current_line = line_num == self.cursor_line;
                 let line_num_str = format!("{:4} ", line_num + 1);

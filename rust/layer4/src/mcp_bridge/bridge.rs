@@ -2,7 +2,6 @@
 //!
 //! MCP 协议的主要实现。
 
-use async_trait::async_trait;
 use parking_lot::RwLock;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -10,12 +9,12 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
-use super::handler::{DefaultHandler, McpHandler, ToolExecutor};
+use super::handler::{DefaultHandler, ToolExecutor};
 use super::protocol::{
-    ContentBlock, McpMessage, McpNotification, McpRequest, McpResponse, RequestId, ToolDefinition,
+    McpMessage, McpNotification, McpRequest, McpResponse, RequestId, ToolDefinition,
     ToolResult,
 };
-use super::transport::{McpTransport, McpTransportType};
+use super::transport::McpTransport;
 use anyhow::{anyhow, Result};
 
 /// MCP 桥接器配置
@@ -49,10 +48,12 @@ pub struct McpBridge {
     /// 消息处理器
     handler: Arc<DefaultHandler>,
     /// 配置
+    #[allow(dead_code)]
     config: McpBridgeConfig,
     /// 请求 ID 计数器
     request_id_counter: AtomicU64,
     /// 待处理响应
+    #[allow(dead_code)]
     pending_responses: RwLock<HashMap<RequestId, mpsc::Sender<McpResponse>>>,
     /// 运行状态
     running: RwLock<bool>,
@@ -73,7 +74,7 @@ impl McpBridge {
     }
 
     /// 使用传输层
-    pub fn with_transport(mut self, transport: Box<dyn McpTransport>) -> Self {
+    pub fn with_transport(self, transport: Box<dyn McpTransport>) -> Self {
         *self.transport.write() = Some(transport);
         self
     }
@@ -106,7 +107,7 @@ impl McpBridge {
         *self.running.write() = true;
 
         // 启动消息处理循环
-        let handler = self.handler.clone();
+        let _handler = self.handler.clone();
 
         tokio::spawn(async move {
             // 消息处理循环
@@ -120,8 +121,8 @@ impl McpBridge {
     pub async fn stop(&self) -> Result<()> {
         *self.running.write() = false;
 
-        let mut transport_guard = self.transport.write();
-        if let Some(transport) = transport_guard.take() {
+        let transport = self.transport.write().take();
+        if let Some(transport) = transport {
             transport.close().await?;
         }
 
@@ -129,6 +130,7 @@ impl McpBridge {
     }
 
     /// 发送请求并等待响应
+    #[allow(clippy::await_holding_lock)]
     pub async fn request(&self, method: &str, params: Option<Value>) -> Result<McpResponse> {
         let id = self.next_request_id();
 
@@ -158,6 +160,7 @@ impl McpBridge {
     }
 
     /// 发送通知
+    #[allow(clippy::await_holding_lock)]
     pub async fn notify(&self, method: &str, params: Option<Value>) -> Result<()> {
         let notification = McpNotification {
             method: method.to_string(),
@@ -241,6 +244,7 @@ impl McpBridge {
 mod tests {
     use super::*;
     use crate::mcp_bridge::transport::MemoryTransport;
+    use crate::mcp_bridge::protocol::ContentBlock;
 
     #[tokio::test]
     async fn test_bridge_creation() {

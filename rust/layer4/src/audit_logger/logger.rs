@@ -3,7 +3,6 @@
 //! 主要的审计日志接口。
 
 use chrono::{DateTime, Utc};
-use parking_lot::RwLock;
 use serde_json::Value;
 use std::sync::Arc;
 
@@ -223,7 +222,7 @@ impl AuditLogger {
         user_id: &str,
         action: AuditAction,
         resource_type: &str,
-    ) -> AuditEntryBuilder {
+    ) -> AuditEntryBuilder<'_> {
         AuditEntryBuilder {
             entry: AuditEntry::new(user_id, action, resource_type),
             logger: self,

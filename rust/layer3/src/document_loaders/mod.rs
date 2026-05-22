@@ -32,7 +32,7 @@ pub trait DocumentLoader: Send + Sync {
     async fn load_and_split(&self, path: PathBuf) -> Layer3Result<Vec<Document>>;
 
     /// 检查是否支持该文件类型
-    fn supports(&self, path: &PathBuf) -> bool;
+    fn supports(&self, path: &std::path::Path) -> bool;
 
     /// 获取支持的扩展名列表
     fn extensions(&self) -> &[&str];
@@ -64,7 +64,7 @@ impl LoaderRegistry {
         self.loaders.push(loader);
     }
 
-    pub fn get_loader(&self, path: &PathBuf) -> Option<&dyn DocumentLoader> {
+    pub fn get_loader(&self, path: &std::path::Path) -> Option<&dyn DocumentLoader> {
         self.loaders
             .iter()
             .find(|l| l.supports(path))

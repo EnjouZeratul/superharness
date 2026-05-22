@@ -302,7 +302,7 @@ impl SessionListComponent {
 
                 // 构建行
                 let spans = vec![
-                    Span::styled(format!("● "), Style::default().fg(status_color)),
+                    Span::styled("● ".to_string(), Style::default().fg(status_color)),
                     Span::styled(
                         format!("{:20}", session.name.chars().take(20).collect::<String>()),
                         style,

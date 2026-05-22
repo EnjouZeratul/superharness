@@ -5,19 +5,14 @@
 use serde::{Deserialize, Serialize};
 
 /// 节点状态
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum NodeStatus {
+    #[default]
     Pending,
     Running,
     Completed,
     Failed,
     Skipped,
-}
-
-impl Default for NodeStatus {
-    fn default() -> Self {
-        Self::Pending
-    }
 }
 
 /// 工作流节点

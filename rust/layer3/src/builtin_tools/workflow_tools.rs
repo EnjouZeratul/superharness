@@ -36,7 +36,7 @@ impl BuiltinTool for CreateCheckpointTool {
         ToolCategory::Workflow
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         Ok("Checkpoint created successfully".to_string())
     }
 }
@@ -71,7 +71,7 @@ impl BuiltinTool for RestoreCheckpointTool {
         ToolCategory::Workflow
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         Ok("Checkpoint restored successfully".to_string())
     }
 }

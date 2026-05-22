@@ -2,11 +2,9 @@
 //!
 //! 发布订阅、事件溯源、持久化。
 
-use anyhow::Result;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 
 /// 事件
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,7 +38,7 @@ impl EventBus {
         self.handlers
             .write()
             .entry(event_type.to_string())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(Box::new(handler));
     }
 

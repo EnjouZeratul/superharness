@@ -75,6 +75,7 @@ mod bindings {
 
     #[pyclass(name = "LlmClient")]
     pub struct PyLlmClient {
+        #[allow(dead_code)]
         inner: std::sync::Arc<tokio::sync::Mutex<Option<sh_layer1::LlmClient>>>,
     }
 
@@ -94,6 +95,7 @@ mod bindings {
 
     #[pyclass(name = "CostTracker")]
     pub struct PyCostTracker {
+        #[allow(dead_code)]
         inner: std::sync::Arc<tokio::sync::Mutex<sh_layer1::CostTracker>>,
     }
 
@@ -117,6 +119,7 @@ mod bindings {
 
     #[pyclass(name = "AgentRuntime")]
     pub struct PyAgentRuntime {
+        #[allow(dead_code)]
         inner: std::sync::Arc<tokio::sync::Mutex<Option<sh_layer2::AgentRuntime>>>,
     }
 
@@ -132,6 +135,7 @@ mod bindings {
 
     #[pyclass(name = "SessionManager")]
     pub struct PySessionManager {
+        #[allow(dead_code)]
         inner: std::sync::Arc<
             tokio::sync::Mutex<Option<sh_layer2::session_manager::ConcurrentSessionManager>>,
         >,
@@ -149,6 +153,7 @@ mod bindings {
 
     #[pyclass(name = "CheckpointSystem")]
     pub struct PyCheckpointSystem {
+        #[allow(dead_code)]
         inner: std::sync::Arc<tokio::sync::Mutex<Option<sh_layer2::CheckpointWriter>>>,
     }
 
@@ -170,6 +175,7 @@ mod bindings {
     }
 
     #[derive(Clone)]
+    #[allow(dead_code)]
     enum AgentState {
         Idle,
         Running,

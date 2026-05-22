@@ -65,12 +65,12 @@ impl SemanticExampleSelector {
 #[async_trait]
 impl ExampleSelector for SemanticExampleSelector {
     async fn select_examples(&self, query: &str, top_k: usize) -> Layer3Result<Vec<Example>> {
-        let results = self.retriever.retrieve(query, top_k).await?;
+        let _results = self.retriever.retrieve(query, top_k).await?;
         // 根据检索结果匹配示例
         Ok(self.examples.iter().take(top_k).cloned().collect())
     }
 
-    async fn add_example(&self, example: Example) -> Layer3Result<bool> {
+    async fn add_example(&self, _example: Example) -> Layer3Result<bool> {
         // 实际实现需要索引到 retriever
         Ok(true)
     }

@@ -3,7 +3,6 @@
 //! 原子文件写入实现，确保数据持久化的完整性。
 
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 use crate::types::{Layer2Error, Layer2Result};
 

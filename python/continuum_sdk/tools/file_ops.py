@@ -12,6 +12,8 @@ Features:
 
 import time
 import uuid
+import shutil
+import difflib
 from pathlib import Path
 from typing import Optional
 
@@ -200,8 +202,6 @@ Features:
     - Atomic write (write to temp, then rename)
 """
 
-import shutil
-
 
 def write_file(
     path: str,
@@ -329,8 +329,6 @@ Features:
     - Preview changes
     - Backup before edit
 """
-
-import difflib
 
 
 def edit_file(

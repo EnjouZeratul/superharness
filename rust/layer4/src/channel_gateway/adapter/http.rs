@@ -31,6 +31,7 @@ use std::collections::HashMap;
 /// HTTP 渠道适配器
 pub struct HttpChannel {
     channel_id: String,
+    #[allow(dead_code)]
     config: HttpChannelConfig,
     connected: RwLock<bool>,
     request_queue: RwLock<VecDeque<InboundMessage>>,

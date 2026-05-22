@@ -143,7 +143,7 @@ impl WorktreeManager {
         };
 
         let output = Command::new("git")
-            .args(&[
+            .args([
                 "worktree",
                 "add",
                 &worktree_path.to_string_lossy(),
@@ -195,7 +195,7 @@ impl WorktreeManager {
         if let Some(wt) = worktree {
             // 使用 git worktree remove 命令
             let output = Command::new("git")
-                .args(&["worktree", "remove", "--force", &wt.path.to_string_lossy()])
+                .args(["worktree", "remove", "--force", &wt.path.to_string_lossy()])
                 .current_dir(&self.root_path)
                 .output();
 
@@ -222,7 +222,7 @@ impl WorktreeManager {
 
         // 使用 git worktree prune 命令
         let output = Command::new("git")
-            .args(&["worktree", "prune", "-v"])
+            .args(["worktree", "prune", "-v"])
             .current_dir(&self.root_path)
             .output();
 

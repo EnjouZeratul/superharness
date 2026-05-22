@@ -136,10 +136,11 @@ pub enum ToolCategory {
 // ============================================================================
 
 /// 记忆层级
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum MemoryTier {
     /// 工作记忆：当前对话上下文
+    #[default]
     Working,
     /// 会话记忆：单次会话内的持久化
     Session,
@@ -147,12 +148,6 @@ pub enum MemoryTier {
     Project,
     /// 长期记忆：跨项目的通用知识
     LongTerm,
-}
-
-impl Default for MemoryTier {
-    fn default() -> Self {
-        Self::Working
-    }
 }
 
 /// 记忆条目

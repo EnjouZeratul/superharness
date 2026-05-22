@@ -133,15 +133,15 @@ def tool(
                 param_type = hints.get(param_name, str)
                 prop = {"type": "string"}
 
-                if param_type == int:
+                if param_type is int:
                     prop = {"type": "integer"}
-                elif param_type == float:
+                elif param_type is float:
                     prop = {"type": "number"}
-                elif param_type == bool:
+                elif param_type is bool:
                     prop = {"type": "boolean"}
-                elif param_type == list:
+                elif param_type is list:
                     prop = {"type": "array"}
-                elif param_type == dict:
+                elif param_type is dict:
                     prop = {"type": "object"}
 
                 properties[param_name] = prop

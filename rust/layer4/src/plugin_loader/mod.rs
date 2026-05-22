@@ -163,7 +163,7 @@ impl PluginRegistry {
     }
 
     /// 获取插件实例
-    pub fn get(&self, name: &str) -> Option<Arc<dyn Plugin>> {
+    pub fn get(&self, _name: &str) -> Option<Arc<dyn Plugin>> {
         // 由于 Box 不能直接共享，这里返回 Option
         // 实际实现需要使用 Arc
         None
@@ -253,7 +253,7 @@ impl PluginLoader {
     }
 
     /// 初始化插件
-    pub async fn initialize(&self, name: &str, context: &PluginContext) -> Layer4Result<()> {
+    pub async fn initialize(&self, name: &str, _context: &PluginContext) -> Layer4Result<()> {
         self.registry.update_state(name, PluginState::Initialized);
         Ok(())
     }

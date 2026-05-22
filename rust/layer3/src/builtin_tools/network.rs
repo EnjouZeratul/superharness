@@ -49,7 +49,7 @@ impl BuiltinTool for HttpRequestTool {
         ToolCategory::Network
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         // Stub implementation
         Ok("HTTP response placeholder".to_string())
     }

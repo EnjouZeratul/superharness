@@ -76,7 +76,7 @@ impl GitCommands {
 
     /// 暂存文件
     pub fn add(&self, paths: &[&str]) -> GitResult<()> {
-        if paths.is_empty() || paths.iter().any(|p| *p == ".") {
+        if paths.is_empty() || paths.contains(&".") {
             super::commit::add_all(&self.repo_path)
         } else {
             super::commit::add(&self.repo_path, paths)

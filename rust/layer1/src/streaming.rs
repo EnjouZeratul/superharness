@@ -4,7 +4,6 @@
 
 use anyhow::Result;
 use futures::Stream;
-use std::pin::Pin;
 
 /// 流处理器
 pub struct StreamHandler;

@@ -35,8 +35,10 @@ pub struct ParsedOutput {
 }
 
 /// JSON 解析器
+#[allow(dead_code)]
 pub struct JsonParser {
     /// 是否严格模式
+    #[allow(dead_code)]
     strict: bool,
 }
 
@@ -102,17 +104,25 @@ impl OutputParser for JsonParser {
 }
 
 /// 结构化解析器
+#[allow(dead_code)]
 pub struct StructuredParser<T: for<'de> Deserialize<'de> + Serialize + Send + Sync> {
+    #[allow(dead_code)]
     schema: serde_json::Value,
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T: for<'de> Deserialize<'de> + Serialize + Send + Sync> StructuredParser<T> {
-    pub fn new() -> Self {
+impl<T: for<'de> Deserialize<'de> + Serialize + Send + Sync> Default for StructuredParser<T> {
+    fn default() -> Self {
         Self {
             schema: serde_json::Value::Null,
             _marker: std::marker::PhantomData,
         }
+    }
+}
+
+impl<T: for<'de> Deserialize<'de> + Serialize + Send + Sync> StructuredParser<T> {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn with_schema(schema: serde_json::Value) -> Self {

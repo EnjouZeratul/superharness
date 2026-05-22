@@ -6,7 +6,7 @@ use async_trait::async_trait;
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use crate::types::{Layer2Result, TaskId};
 
@@ -39,6 +39,7 @@ impl WorkflowExecutor {
     }
 
     /// 获取节点和执行器信息（不持有锁）
+    #[allow(clippy::type_complexity)]
     fn get_node_info(
         &self,
         node_id: &str,

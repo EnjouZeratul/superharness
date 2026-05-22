@@ -3,7 +3,6 @@
 //! Agent 执行运行时接口定义。
 
 use async_trait::async_trait;
-use std::sync::Arc;
 
 use crate::types::{AgentId, AgentState, Layer2Result, Message, SessionId, ToolCall, ToolResult};
 

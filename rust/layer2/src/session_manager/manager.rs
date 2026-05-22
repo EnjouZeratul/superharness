@@ -5,10 +5,9 @@
 use async_trait::async_trait;
 use parking_lot::RwLock;
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use crate::session_manager::{
-    ExecutionContext, ReadWriteLock, Session, SessionConfig, SessionManagerTrait, SessionStats,
+    ReadWriteLock, Session, SessionConfig, SessionManagerTrait, SessionStats,
 };
 use crate::types::{AgentState, Layer2Error, Layer2Result, Message, SessionId, SessionMeta};
 
@@ -41,6 +40,7 @@ impl ConcurrentSessionManager {
     }
 
     /// 获取会话锁
+    #[allow(dead_code)]
     fn get_session_lock(&self, id: &SessionId) -> Option<SessionLock> {
         let guard = self.sessions.read();
         guard.get(id).map(|s| SessionLock {
@@ -63,7 +63,7 @@ impl SessionManagerTrait for ConcurrentSessionManager {
 
         if sessions.len() >= self.max_sessions {
             return Err(Layer2Error::SessionNotFound(SessionId::new())) // TODO: 适当的错误
-                .map_err(|e| anyhow::anyhow!("Max sessions limit reached: {}", self.max_sessions));
+                .map_err(|_| anyhow::anyhow!("Max sessions limit reached: {}", self.max_sessions));
         }
 
         let session = Session::new(&config);

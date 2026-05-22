@@ -155,9 +155,11 @@ impl RateLimiter {
                 .entry(key.to_string())
                 .or_insert_with(SlidingWindowCounter::new);
 
-            if counter.minute_count() >= self.config.requests_per_minute as usize {
-                false
-            } else if counter.hour_count() >= self.config.requests_per_hour as usize {
+            let minute_exceeded =
+                counter.minute_count() >= self.config.requests_per_minute as usize;
+            let hour_exceeded = counter.hour_count() >= self.config.requests_per_hour as usize;
+
+            if minute_exceeded || hour_exceeded {
                 false
             } else {
                 counter.add_request();

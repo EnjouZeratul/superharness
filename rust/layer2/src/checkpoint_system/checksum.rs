@@ -142,7 +142,7 @@ impl ChecksumUtils {
                 serde_json::Value::Object(sorted_map)
             }
             serde_json::Value::Array(arr) => {
-                serde_json::Value::Array(arr.iter().map(|v| Self::sort_json_keys(v)).collect())
+                serde_json::Value::Array(arr.iter().map(Self::sort_json_keys).collect())
             }
             other => other.clone(),
         }

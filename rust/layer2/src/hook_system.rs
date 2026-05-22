@@ -7,7 +7,7 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::types::{AgentState, HookEvent, Layer2Result, SessionId};
+use crate::types::{HookEvent, Layer2Result, SessionId};
 
 /// Hook 回调函数类型
 pub type HookCallback = Arc<dyn Fn(&HookContext) -> Layer2Result<()> + Send + Sync>;
@@ -94,12 +94,12 @@ impl Default for HookSystem {
 impl HookSystemTrait for HookSystem {
     fn on_before(&self, event: HookEvent, callback: HookCallback) {
         let mut hooks = self.before_hooks.write();
-        hooks.entry(event).or_insert_with(Vec::new).push(callback);
+        hooks.entry(event).or_default().push(callback);
     }
 
     fn on_after(&self, event: HookEvent, callback: HookCallback) {
         let mut hooks = self.after_hooks.write();
-        hooks.entry(event).or_insert_with(Vec::new).push(callback);
+        hooks.entry(event).or_default().push(callback);
     }
 
     async fn trigger(&self, context: &HookContext) -> Layer2Result<()> {

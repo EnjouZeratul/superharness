@@ -4,7 +4,7 @@
 
 use std::path::Path;
 
-use crate::types::{Layer2Error, Layer2Result, SessionId};
+use crate::types::{Layer2Result, SessionId};
 
 /// 崩溃恢复管理器
 pub struct CrashRecovery {
@@ -130,7 +130,7 @@ impl CrashRecovery {
 
     /// 从备份恢复
     fn recover_from_backup(&self, dir: &Path) -> Layer2Result<Option<RecoveryResult>> {
-        let backup_suffix = ".backup";
+        let _backup_suffix = ".backup";
 
         for entry in std::fs::read_dir(dir)? {
             let entry = entry?;

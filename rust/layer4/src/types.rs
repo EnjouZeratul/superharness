@@ -65,18 +65,13 @@ impl Default for IntegrationConfig {
 }
 
 /// 消息优先级
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum MessagePriority {
     Low,
+    #[default]
     Normal,
     High,
     Urgent,
-}
-
-impl Default for MessagePriority {
-    fn default() -> Self {
-        Self::Normal
-    }
 }
 
 /// 插件权限

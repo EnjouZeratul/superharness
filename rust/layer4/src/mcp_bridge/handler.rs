@@ -8,8 +8,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use super::protocol::{
-    error_codes, ContentBlock, Implementation, InitializeParams, InitializeResult, McpErrorData,
-    McpMessage, McpNotification, McpRequest, McpResponse, RequestId, ServerCapabilities,
+    error_codes, Implementation, InitializeParams, InitializeResult, McpErrorData,
+    McpNotification, McpRequest, McpResponse, RequestId, ServerCapabilities,
     ToolDefinition, ToolResult, MCP_VERSION,
 };
 use anyhow::{anyhow, Result};
@@ -57,11 +57,11 @@ impl DefaultHandler {
     pub fn register_tool(&self, tool: ToolDefinition, executor: Arc<dyn ToolExecutor>) {
         let name = tool.name.clone();
         self.tools.write().insert(name.clone(), tool);
-        self.tool_executors.write().insert(name, executor);
+        self.tool_executors.write().insert(name.clone(), executor);
     }
 
     /// 处理初始化请求
-    fn handle_initialize(&self, params: &InitializeParams) -> Result<McpResponse> {
+    fn handle_initialize(&self, _params: &InitializeParams) -> Result<McpResponse> {
         let result = InitializeResult {
             protocol_version: MCP_VERSION.to_string(),
             capabilities: ServerCapabilities {
@@ -180,18 +180,8 @@ impl McpHandler for DefaultHandler {
         }
     }
 
-    async fn handle_notification(&self, notification: &McpNotification) -> Result<()> {
-        match notification.method.as_str() {
-            "notifications/initialized" => {
-                tracing::info!("Client initialized");
-            }
-            "notifications/cancelled" => {
-                tracing::info!("Request cancelled");
-            }
-            _ => {
-                tracing::debug!("Unknown notification: {}", notification.method);
-            }
-        }
+    async fn handle_notification(&self, _notification: &McpNotification) -> Result<()> {
+        // Notifications are handled asynchronously and don't require responses
         Ok(())
     }
 }
@@ -214,6 +204,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mcp_bridge::protocol::ContentBlock;
 
     #[tokio::test]
     async fn test_handle_initialize() {

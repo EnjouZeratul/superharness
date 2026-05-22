@@ -6,14 +6,14 @@ use async_trait::async_trait;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap};
-use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
-use crate::types::{AgentState, Layer2Error, Layer2Result, TaskId};
+use crate::types::{Layer2Result, TaskId};
 
 /// 任务状态
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum TaskStatus {
+    #[default]
     Pending,
     Running,
     Completed,
@@ -21,25 +21,14 @@ pub enum TaskStatus {
     Cancelled,
 }
 
-impl Default for TaskStatus {
-    fn default() -> Self {
-        Self::Pending
-    }
-}
-
 /// 任务优先级
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
 pub enum TaskPriority {
     Low = 0,
+    #[default]
     Normal = 1,
     High = 2,
     Urgent = 3,
-}
-
-impl Default for TaskPriority {
-    fn default() -> Self {
-        Self::Normal
-    }
 }
 
 /// 任务定义

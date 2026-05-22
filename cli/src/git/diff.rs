@@ -102,7 +102,7 @@ pub fn get_diff(repo_path: &Path, diff_type: DiffType, paths: &[&str]) -> GitRes
         ));
     }
 
-    let stat_stdout = String::from_utf8_lossy(&output.stdout);
+    let _stat_stdout = String::from_utf8_lossy(&output.stdout);
 
     // 获取详细 diff
     let mut detail_args = vec!["diff"];

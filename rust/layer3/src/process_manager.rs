@@ -4,7 +4,6 @@
 
 use crate::types::{Layer3Result, ProcessInfo, ProcessState};
 use async_trait::async_trait;
-use std::collections::HashMap;
 
 /// 进程管理器 trait
 ///

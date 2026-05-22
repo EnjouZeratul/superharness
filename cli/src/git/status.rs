@@ -260,10 +260,10 @@ pub fn get_status(repo_path: &Path) -> GitResult<GitStatus> {
         } else if line.starts_with("# branch.ab") {
             let parts: Vec<&str> = line.split_whitespace().collect();
             for part in parts {
-                if part.starts_with('+') {
-                    status.ahead = part[1..].parse().unwrap_or(0);
-                } else if part.starts_with('-') {
-                    status.behind = part[1..].parse().unwrap_or(0);
+                if let Some(stripped) = part.strip_prefix('+') {
+                    status.ahead = stripped.parse().unwrap_or(0);
+                } else if let Some(stripped) = part.strip_prefix('-') {
+                    status.behind = stripped.parse().unwrap_or(0);
                 }
             }
         } else if line.starts_with("1 ")

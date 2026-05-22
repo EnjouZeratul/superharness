@@ -164,7 +164,7 @@ impl InputComponent {
             .rfind('\n')
             .map(|pos| pos + 1)
             .unwrap_or(0);
-        let line_end = self.input[self.cursor_position..]
+        let _line_end = self.input[self.cursor_position..]
             .find('\n')
             .map(|pos| self.cursor_position + pos)
             .unwrap_or(self.input.len());

@@ -12,12 +12,14 @@ use std::sync::Arc;
 /// Long-term Memory 实现
 ///
 /// 使用向量数据库存储，支持语义检索。
+#[allow(dead_code)]
 pub struct LongTermMemory {
     /// 检索引擎
     retriever: Option<Arc<dyn RetrieverEngine>>,
     /// 本地缓存
     cache: Arc<RwLock<Vec<MemoryEntry>>>,
     /// 衰减策略
+    #[allow(dead_code)]
     decay_policy: Box<dyn DecayPolicy>,
 }
 

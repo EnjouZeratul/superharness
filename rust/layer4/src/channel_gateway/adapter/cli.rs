@@ -14,6 +14,7 @@ pub struct CliChannel {
     channel_id: String,
     connected: RwLock<bool>,
     input_queue: RwLock<VecDeque<InboundMessage>>,
+    #[allow(clippy::type_complexity)]
     output_callback: RwLock<Option<Box<dyn Fn(&str) + Send + Sync>>>,
 }
 

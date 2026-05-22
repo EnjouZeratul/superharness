@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use super::entry::{AuditEntry, AuditFilter, ExportFormat};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 /// 审计存储 trait
 #[async_trait]
@@ -147,6 +147,7 @@ impl AuditStorage for MemoryStorage {
 /// 文件存储
 pub struct FileStorage {
     base_path: PathBuf,
+    #[allow(dead_code)]
     max_file_size: usize,
 }
 
@@ -191,7 +192,7 @@ impl AuditStorage for FileStorage {
 
         while let Some(entry) = entries.next_entry().await? {
             let path = entry.path();
-            if path.extension().map_or(false, |e| e == "jsonl") {
+            if path.extension().is_some_and(|e| e == "jsonl") {
                 let content = tokio::fs::read_to_string(&path).await?;
 
                 for line in content.lines() {

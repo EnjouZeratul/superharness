@@ -3,7 +3,6 @@
 //! 文本分割器：将长文本分割为小块。
 
 use crate::retriever_engine::{Chunk, ChunkPosition, ChunkingStrategy, Document};
-use std::collections::HashMap;
 
 /// 递归字符文本分割器
 ///
@@ -89,13 +88,13 @@ impl RecursiveCharacterTextSplitter {
                 0
             };
 
-            if current_chunk.len() + part_len + sep_len > self.chunk_size {
-                if !current_chunk.is_empty() {
-                    chunks.push(self.create_chunk(&current_chunk, start, index, document));
-                    start += current_chunk.len().saturating_sub(self.chunk_overlap);
-                    current_chunk = String::new();
-                    index += 1;
-                }
+            if current_chunk.len() + part_len + sep_len > self.chunk_size
+                && !current_chunk.is_empty()
+            {
+                chunks.push(self.create_chunk(&current_chunk, start, index, document));
+                start += current_chunk.len().saturating_sub(self.chunk_overlap);
+                current_chunk = String::new();
+                index += 1;
             }
 
             current_chunk.push_str(part);
@@ -159,8 +158,10 @@ impl RecursiveCharacterTextSplitter {
 }
 
 /// Markdown 文本分割器
+#[allow(dead_code)]
 pub struct MarkdownTextSplitter {
     chunk_size: usize,
+    #[allow(dead_code)]
     chunk_overlap: usize,
 }
 
@@ -243,9 +244,12 @@ impl ChunkingStrategy for MarkdownTextSplitter {
 }
 
 /// 代码文本分割器
+#[allow(dead_code)]
 pub struct CodeTextSplitter {
     chunk_size: usize,
+    #[allow(dead_code)]
     chunk_overlap: usize,
+    #[allow(dead_code)]
     language: String,
 }
 
@@ -282,24 +286,25 @@ impl ChunkingStrategy for CodeTextSplitter {
                 || line.trim().starts_with("public ")
                 || line.trim().starts_with("function ");
 
-            if is_definition && current_chunk.len() > self.chunk_size / 2 {
-                if !current_chunk.trim().is_empty() {
-                    chunks.push(Chunk {
-                        id: format!("{}-{}", document.id.as_deref().unwrap_or("doc"), index),
-                        doc_id: document.id.clone().unwrap_or_default(),
-                        content: current_chunk.trim().to_string(),
-                        position: ChunkPosition {
-                            start: chunk_start,
-                            end: chunk_start + current_chunk.len(),
-                            index,
-                            total: 0,
-                        },
-                        metadata: document.metadata.clone(),
-                    });
-                    index += 1;
-                    current_chunk = String::new();
-                    chunk_start = start;
-                }
+            if is_definition
+                && current_chunk.len() > self.chunk_size / 2
+                && !current_chunk.trim().is_empty()
+            {
+                chunks.push(Chunk {
+                    id: format!("{}-{}", document.id.as_deref().unwrap_or("doc"), index),
+                    doc_id: document.id.clone().unwrap_or_default(),
+                    content: current_chunk.trim().to_string(),
+                    position: ChunkPosition {
+                        start: chunk_start,
+                        end: chunk_start + current_chunk.len(),
+                        index,
+                        total: 0,
+                    },
+                    metadata: document.metadata.clone(),
+                });
+                index += 1;
+                current_chunk = String::new();
+                chunk_start = start;
             }
             current_chunk.push_str(line);
             current_chunk.push('\n');

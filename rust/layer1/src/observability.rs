@@ -2,10 +2,9 @@
 //!
 //! Tracing、Metrics、Logs 统一接口。
 
-use anyhow::Result;
-
 /// 可观测性管理器
 pub struct Observability {
+    #[allow(dead_code)]
     enabled: bool,
 }
 

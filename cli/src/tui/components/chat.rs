@@ -329,14 +329,12 @@ mod tests {
     fn test_scroll_up() {
         let mut chat = ChatComponent::new();
         chat.scroll_up(5);
-        assert!(true);
     }
 
     #[test]
     fn test_scroll_down() {
         let mut chat = ChatComponent::new();
         chat.scroll_down(5);
-        assert!(true);
     }
 
     #[test]

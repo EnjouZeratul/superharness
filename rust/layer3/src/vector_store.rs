@@ -2,7 +2,7 @@
 //!
 //! 向量存储：持久化向量索引。
 
-use crate::retriever_engine::{Chunk, RetrievalResult};
+use crate::retriever_engine::RetrievalResult;
 use crate::types::Layer3Result;
 use async_trait::async_trait;
 use std::collections::HashMap;

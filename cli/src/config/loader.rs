@@ -8,7 +8,7 @@ pub struct ConfigLoader;
 
 impl ConfigLoader {
     /// 从文件加载配置
-    pub fn from_file(path: &Path) -> Result<()> {
+    pub fn from_file(_path: &Path) -> Result<()> {
         // 简化实现
         Ok(())
     }

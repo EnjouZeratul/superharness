@@ -3,7 +3,7 @@
 //! 代码分析工具集：LSP 相关工具。
 
 use crate::builtin_tools::BuiltinTool;
-use crate::types::{CodeLocation, Layer3Result, ToolCategory};
+use crate::types::{Layer3Result, ToolCategory};
 use async_trait::async_trait;
 
 /// Go to Definition Tool
@@ -44,7 +44,7 @@ impl BuiltinTool for GoToDefinitionTool {
         ToolCategory::CodeAnalysis
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         // Stub - will use LSP client in production
         Ok("Definition location placeholder".to_string())
     }
@@ -88,7 +88,7 @@ impl BuiltinTool for FindReferencesTool {
         ToolCategory::CodeAnalysis
     }
 
-    async fn execute(&self, args: serde_json::Value) -> Layer3Result<String> {
+    async fn execute(&self, _args: serde_json::Value) -> Layer3Result<String> {
         Ok("References list placeholder".to_string())
     }
 }

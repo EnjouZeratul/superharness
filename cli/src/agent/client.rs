@@ -448,8 +448,7 @@ mod tests {
 
     #[test]
     fn test_agent_client_creation() {
-        let client = AgentClient::new();
-        assert!(true);
+        let _client = AgentClient::new();
     }
 
     #[test]

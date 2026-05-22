@@ -28,6 +28,7 @@ pub struct CodeViewerComponent {
     /// 光标列
     cursor_col: usize,
     /// 搜索模式
+    #[allow(dead_code)]
     search_mode: bool,
     /// 搜索词
     search_term: String,
@@ -131,7 +132,7 @@ impl Default for SyntaxHighlighter {
 
 impl SyntaxHighlighter {
     /// 高亮一行代码
-    pub fn highlight_line(&self, line: &str, language: CodeLanguage) -> Vec<Span> {
+    pub fn highlight_line(&self, line: &str, language: CodeLanguage) -> Vec<Span<'_>> {
         let mut spans = Vec::new();
         let mut pos = 0;
         let chars: Vec<char> = line.chars().collect();
@@ -495,7 +496,7 @@ impl CodeViewerComponent {
         let mut lines_to_render = Vec::new();
         let end_line = (self.scroll_offset + visible_lines).min(self.lines.len());
 
-        for (idx, line_num) in (self.scroll_offset..end_line).enumerate() {
+        for line_num in self.scroll_offset..end_line {
             if let Some(line_content) = self.lines.get(line_num) {
                 let is_current_line = line_num == self.cursor_line;
                 let folded = self.folds.get(&line_num).copied().unwrap_or(false);
@@ -555,7 +556,7 @@ impl CodeViewerComponent {
     }
 
     /// 高亮搜索结果
-    fn highlight_search_results(&self, _line_num: usize, spans: Vec<Span>) -> Vec<Span> {
+    fn highlight_search_results(&self, _line_num: usize, spans: Vec<Span>) -> Vec<Span<'_>> {
         let mut result = Vec::new();
         let highlight_style = Style::default().bg(Color::Yellow).fg(Color::Black);
 

@@ -6,7 +6,6 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// LLM 提供商类型
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -376,6 +375,7 @@ struct AnthropicMessage {
 // Anthropic content - 可以是字符串或数组
 #[derive(Serialize)]
 #[serde(untagged)]
+#[allow(dead_code)]
 enum AnthropicContent {
     Text(String),
     Blocks(Vec<AnthropicContentBlock>),
@@ -389,6 +389,7 @@ struct AnthropicContentBlock {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct AnthropicResponse {
     #[serde(default)]
     id: String,
@@ -408,6 +409,7 @@ struct AnthropicResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct AnthropicContentResponse {
     #[serde(rename = "type", default)]
     content_type: String,
@@ -451,18 +453,21 @@ struct OpenAiResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct OpenAiChoice {
     message: OpenAiResponseMessage,
     finish_reason: String,
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct OpenAiResponseMessage {
     role: String,
     content: String,
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct OpenAiUsage {
     prompt_tokens: u32,
     completion_tokens: u32,
@@ -512,12 +517,14 @@ struct GeminiResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GeminiCandidate {
     content: GeminiContentResponse,
     finish_reason: String,
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GeminiContentResponse {
     parts: Vec<GeminiPartResponse>,
     role: String,
@@ -529,6 +536,7 @@ struct GeminiPartResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GeminiUsageMetadata {
     prompt_token_count: Option<u32>,
     candidates_token_count: Option<u32>,

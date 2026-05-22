@@ -120,7 +120,7 @@ class TestMemory:
         memory = Memory(session_id="test")
         entry_id = memory.remember("To be deleted", tier=MemoryTier.WORKING)
         result = memory.forget(MemoryTier.WORKING, entry_id)
-        assert result == True
+        assert result
         
         # 验证已删除
         entry = memory.get(MemoryTier.WORKING, entry_id)
@@ -130,7 +130,7 @@ class TestMemory:
         """测试删除不存在的记忆"""
         memory = Memory(session_id="test")
         result = memory.forget(MemoryTier.WORKING, "nonexistent")
-        assert result == False
+        assert not result
 
     def test_clear(self):
         """测试清空层级"""

@@ -176,8 +176,10 @@ mod tests {
 
     #[test]
     fn test_session_can_continue() {
-        let mut config = SessionConfig::default();
-        config.max_iterations = 5;
+        let config = SessionConfig {
+            max_iterations: 5,
+            ..Default::default()
+        };
 
         let mut session = Session::new(&config);
         assert!(session.can_continue());

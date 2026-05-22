@@ -13,7 +13,7 @@ impl Embeddings {
     }
 
     /// 生成嵌入向量
-    pub async fn embed(&self, text: &str) -> Result<Vec<f32>> {
+    pub async fn embed(&self, _text: &str) -> Result<Vec<f32>> {
         // TODO: 实际的嵌入实现
         Ok(vec![0.0; 768]) // 占位符
     }
