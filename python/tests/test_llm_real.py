@@ -317,6 +317,7 @@ class TestRealToolExecution:
             time.sleep(0.1)
             os.unlink(filepath)
 
+    @requires_api
     @pytest.mark.asyncio
     async def test_agent_with_bash(self):
         """测试 Agent 使用 Bash 工具 - 验证工具实际执行"""
@@ -344,6 +345,7 @@ class TestRealToolExecution:
         assert len(plan.steps) > 0
         print(f"[Plan]: {plan.task}")
 
+    @requires_api
     @pytest.mark.asyncio
     async def test_agent_with_file_ops(self):
         """测试 Agent 使用文件工具 - 验证文件读写实际工作"""
