@@ -6,5 +6,3 @@ mod client;
 
 pub use client::AgentClient;
 pub use client::AgentError;
-pub use client::AgentState;
-pub use client::StreamEvent;

@@ -233,14 +233,10 @@ impl CostTracker {
         estimated_input: u64,
         estimated_output: u64,
     ) -> CostEstimate {
-        let pricing = self
-            .pricing
-            .get(model)
-            .cloned()
-            .unwrap_or(ModelPricing {
-                input_price_per_million: 3.0,
-                output_price_per_million: 15.0,
-            });
+        let pricing = self.pricing.get(model).cloned().unwrap_or(ModelPricing {
+            input_price_per_million: 3.0,
+            output_price_per_million: 15.0,
+        });
 
         let estimated_cost = pricing.calculate_cost(estimated_input, estimated_output);
 

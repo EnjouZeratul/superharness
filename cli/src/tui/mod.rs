@@ -324,24 +324,16 @@ fn handle_key_event(
         }
 
         // Ctrl+L: 清屏
-        (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
-            Ok(KeyAction::ClearScreen)
-        }
+        (KeyModifiers::CONTROL, KeyCode::Char('l')) => Ok(KeyAction::ClearScreen),
 
         // Ctrl+S: 保存会话
-        (KeyModifiers::CONTROL, KeyCode::Char('s')) => {
-            Ok(KeyAction::SaveSession)
-        }
+        (KeyModifiers::CONTROL, KeyCode::Char('s')) => Ok(KeyAction::SaveSession),
 
         // Ctrl+N: 新建会话
-        (KeyModifiers::CONTROL, KeyCode::Char('n')) => {
-            Ok(KeyAction::NewSession)
-        }
+        (KeyModifiers::CONTROL, KeyCode::Char('n')) => Ok(KeyAction::NewSession),
 
         // Ctrl+T: 切换工具面板
-        (KeyModifiers::CONTROL, KeyCode::Char('t')) => {
-            Ok(KeyAction::ToggleTools)
-        }
+        (KeyModifiers::CONTROL, KeyCode::Char('t')) => Ok(KeyAction::ToggleTools),
 
         // Ctrl+W: 删除前一个单词
         (KeyModifiers::CONTROL, KeyCode::Char('w')) => {

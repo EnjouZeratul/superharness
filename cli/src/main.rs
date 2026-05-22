@@ -2,7 +2,9 @@
 //!
 //! 终端 Agent 产品入口点。
 
-use clap::Parser;
+// 允许未使用的代码（测试和未来功能）
+#![allow(dead_code)]
+
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod agent;

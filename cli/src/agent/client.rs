@@ -45,6 +45,7 @@ pub struct ChatMessage {
 
 /// Agent 错误类型
 #[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 pub enum AgentError {
     /// 配置错误（无API密钥等）
     ConfigError(String),

@@ -7,12 +7,7 @@ pub mod diff;
 pub mod pr;
 pub mod status;
 
-pub use branch::BranchManager;
 pub use commands::GitCommands;
-pub use commit::CommitGenerator;
-pub use diff::GitDiff;
-pub use pr::PrCreator;
-pub use status::GitStatus;
 
 /// Git 错误类型
 #[derive(Debug, thiserror::Error)]

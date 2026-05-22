@@ -5,7 +5,7 @@
 
 mod common;
 
-use common::test_config::{get_api_key, get_base_url, get_model, is_api_available, load_env};
+use common::test_config::{get_api_key, get_base_url, get_model, load_env};
 
 use continuum_cli as cli;
 use std::fs;
@@ -384,7 +384,7 @@ mod cli_e2e_tests {
         assert!(result.contains("bytes"));
 
         // 追加写入
-        let result = cli::commands::tool_exec::execute_write(
+        let _result = cli::commands::tool_exec::execute_write(
             file_path.to_str().unwrap(),
             Some("appended"),
             true,
@@ -396,7 +396,7 @@ mod cli_e2e_tests {
         assert!(content.contains("appended"));
 
         // 备份写入
-        let result = cli::commands::tool_exec::execute_write(
+        let _result = cli::commands::tool_exec::execute_write(
             file_path.to_str().unwrap(),
             Some("with backup"),
             false,
@@ -644,7 +644,6 @@ mod git_tests {
 
 #[cfg(test)]
 mod mcp_tests {
-    use super::*;
 
     #[tokio::test]
     async fn test_mcp_memory_transport() {
@@ -676,12 +675,8 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_tool_call_real() {
-        use sh_layer4::mcp_bridge::handler::{
-            DefaultHandler, McpHandler, SimpleToolExecutor, ToolExecutor,
-        };
-        use sh_layer4::mcp_bridge::protocol::{
-            ContentBlock, McpRequest, RequestId, ToolDefinition, ToolResult,
-        };
+        use sh_layer4::mcp_bridge::handler::{DefaultHandler, McpHandler, SimpleToolExecutor};
+        use sh_layer4::mcp_bridge::protocol::{ContentBlock, McpRequest, RequestId, ToolResult};
         use std::sync::Arc;
 
         let handler = DefaultHandler::new("test-server", "1.0.0");

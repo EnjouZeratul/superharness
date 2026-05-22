@@ -142,9 +142,8 @@ mod tests {
         use crate::channel_gateway::MessageTarget;
 
         let channel = CliChannel::new("test-cli");
-        let output = RwLock::new(String::new());
 
-        channel.set_output_callback(|content| {
+        channel.set_output_callback(|_content| {
             // 在实际测试中这里会更新 output
         });
 

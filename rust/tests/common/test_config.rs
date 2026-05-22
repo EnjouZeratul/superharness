@@ -72,6 +72,7 @@ pub fn get_model() -> String {
 }
 
 /// 检查 API 是否可用
+#[allow(dead_code)]
 pub fn is_api_available() -> bool {
     match get_api_key() {
         None => false,

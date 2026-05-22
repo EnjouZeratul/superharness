@@ -86,7 +86,10 @@ impl McpClientManager {
 
         // 根据传输类型创建连接
         let transport: Arc<dyn McpTransport> = match &config.transport {
-            McpTransportType::Stdio { command: _, args: _ } => {
+            McpTransportType::Stdio {
+                command: _,
+                args: _,
+            } => {
                 // 使用内存传输作为测试传输
                 // 生产环境需要真实的 StdioTransport
                 Arc::new(MemoryTransport::new())

@@ -28,9 +28,7 @@ pub fn execute_bash(
     let start = Instant::now();
 
     let default_dir = std::env::current_dir().unwrap_or_default();
-    let cwd = cwd
-        .map(Path::new)
-        .unwrap_or_else(|| default_dir.as_path());
+    let cwd = cwd.map(Path::new).unwrap_or_else(|| default_dir.as_path());
 
     // 构建命令
     let output = if cfg!(target_os = "windows") {

@@ -10,6 +10,9 @@
 //! - `mcp_bridge`: MCP 协议桥接 (Terminal 1)
 //! - `audit_logger`: 审计日志 (Terminal 1)
 
+// 允许未使用的代码（测试和未来功能）
+#![allow(dead_code)]
+
 pub mod audit_logger;
 pub mod channel_gateway;
 pub mod mcp_bridge;

@@ -62,7 +62,6 @@ mod llm_tests {
 
         let _client = LlmClient::new(provider, api_key).with_base_url(base_url);
         // 验证客户端创建成功（无 panic）
-        assert!(true);
     }
 
     #[tokio::test]
@@ -174,7 +173,7 @@ mod cli_e2e_tests {
         .unwrap();
         assert!(result.contains("bytes"));
 
-        let result = cli::commands::tool_exec::execute_write(
+        let _result = cli::commands::tool_exec::execute_write(
             file_path.to_str().unwrap(),
             Some("appended"),
             true,
@@ -186,7 +185,7 @@ mod cli_e2e_tests {
         assert!(content.contains("appended"));
 
         let backup_path = dir.path().join("write_test.txt.bak");
-        let result = cli::commands::tool_exec::execute_write(
+        let _result = cli::commands::tool_exec::execute_write(
             file_path.to_str().unwrap(),
             Some("with backup"),
             false,
@@ -327,7 +326,7 @@ mod git_tests {
 
         let diff = diff::get_diff(dir.path(), diff::DiffType::Working, &[]).unwrap();
         let stat = diff.stat();
-        assert!(stat.contains("file") || diff.files_changed >= 0);
+        assert!(stat.contains("file") || diff.files_changed > 0);
     }
 
     #[test]
@@ -350,7 +349,6 @@ mod git_tests {
 
 #[cfg(test)]
 mod mcp_tests {
-    use super::*;
 
     #[tokio::test]
     async fn test_mcp_memory_transport() {
@@ -375,7 +373,7 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_tool_call() {
-        use sh_layer4::mcp_bridge::protocol::{ContentBlock, ToolDefinition, ToolResult};
+        use sh_layer4::mcp_bridge::protocol::{ContentBlock, ToolResult};
         use sh_layer4::mcp_bridge::McpBridge;
 
         let bridge = McpBridge::new(Default::default());
@@ -400,7 +398,6 @@ mod mcp_tests {
         });
 
         // 注册成功即测试通过
-        assert!(true);
     }
 
     #[tokio::test]

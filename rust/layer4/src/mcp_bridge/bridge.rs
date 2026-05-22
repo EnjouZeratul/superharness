@@ -11,8 +11,7 @@ use tokio::sync::mpsc;
 
 use super::handler::{DefaultHandler, ToolExecutor};
 use super::protocol::{
-    McpMessage, McpNotification, McpRequest, McpResponse, RequestId, ToolDefinition,
-    ToolResult,
+    McpMessage, McpNotification, McpRequest, McpResponse, RequestId, ToolDefinition, ToolResult,
 };
 use super::transport::McpTransport;
 use anyhow::{anyhow, Result};
@@ -243,7 +242,6 @@ impl McpBridge {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mcp_bridge::transport::MemoryTransport;
     use crate::mcp_bridge::protocol::ContentBlock;
 
     #[tokio::test]

@@ -278,7 +278,10 @@ impl CheckpointSystemTrait for CheckpointWriter {
 
         let pattern = format!("cp_*_{}.json", checkpoint_id);
 
-        if let Some(path) = glob::glob(session_dir.join(&pattern).to_string_lossy().as_ref())?.flatten().next() {
+        if let Some(path) = glob::glob(session_dir.join(&pattern).to_string_lossy().as_ref())?
+            .flatten()
+            .next()
+        {
             std::fs::remove_file(&path)?;
             return Ok(true);
         }

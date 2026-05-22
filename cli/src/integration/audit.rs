@@ -96,10 +96,7 @@ impl AuditService {
     /// 查询审计日志
     pub async fn query(&self, filter: AuditFilter) -> Result<Vec<AuditLogEntry>> {
         let entries = self.logger.query(filter).await?;
-        Ok(entries
-            .into_iter()
-            .map(AuditLogEntry::from_entry)
-            .collect())
+        Ok(entries.into_iter().map(AuditLogEntry::from_entry).collect())
     }
 
     /// 查询用户操作
