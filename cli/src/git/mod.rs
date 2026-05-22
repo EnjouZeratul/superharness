@@ -1,18 +1,18 @@
 //! Git 集成模块
 
-pub mod commands;
-pub mod diff;
-pub mod status;
-pub mod commit;
 pub mod branch;
+pub mod commands;
+pub mod commit;
+pub mod diff;
 pub mod pr;
+pub mod status;
 
-pub use commands::GitCommands;
-pub use status::GitStatus;
-pub use diff::GitDiff;
-pub use commit::CommitGenerator;
 pub use branch::BranchManager;
+pub use commands::GitCommands;
+pub use commit::CommitGenerator;
+pub use diff::GitDiff;
 pub use pr::PrCreator;
+pub use status::GitStatus;
 
 /// Git 错误类型
 #[derive(Debug, thiserror::Error)]

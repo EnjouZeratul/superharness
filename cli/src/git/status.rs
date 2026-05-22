@@ -76,7 +76,10 @@ impl FileStatus {
 
     /// 是否已暂存
     pub fn is_staged(&self) -> bool {
-        matches!(self, FileStatus::Staged | FileStatus::New | FileStatus::Renamed)
+        matches!(
+            self,
+            FileStatus::Staged | FileStatus::New | FileStatus::Renamed
+        )
     }
 
     /// 获取显示文本
@@ -208,22 +211,14 @@ impl GitStatus {
             if !staged.is_empty() {
                 output.push_str("\nChanges to be committed:\n");
                 for entry in staged {
-                    output.push_str(&format!(
-                        "\t{}\t{}\n",
-                        entry.status.display(),
-                        entry.path
-                    ));
+                    output.push_str(&format!("\t{}\t{}\n", entry.status.display(), entry.path));
                 }
             }
 
             if !unstaged.is_empty() {
                 output.push_str("\nChanges not staged for commit:\n");
                 for entry in unstaged {
-                    output.push_str(&format!(
-                        "\t{}\t{}\n",
-                        entry.status.display(),
-                        entry.path
-                    ));
+                    output.push_str(&format!("\t{}\t{}\n", entry.status.display(), entry.path));
                 }
             }
 
@@ -257,7 +252,11 @@ pub fn get_status(repo_path: &Path) -> GitResult<GitStatus> {
 
     for line in stdout.lines() {
         if line.starts_with("# branch.head") {
-            status.branch = line.split_whitespace().nth(2).unwrap_or("unknown").to_string();
+            status.branch = line
+                .split_whitespace()
+                .nth(2)
+                .unwrap_or("unknown")
+                .to_string();
         } else if line.starts_with("# branch.ab") {
             let parts: Vec<&str> = line.split_whitespace().collect();
             for part in parts {
@@ -267,21 +266,27 @@ pub fn get_status(repo_path: &Path) -> GitResult<GitStatus> {
                     status.behind = part[1..].parse().unwrap_or(0);
                 }
             }
-        } else if line.starts_with("1 ") || line.starts_with("2 ") || line.starts_with("u ") || line.starts_with("? ") || line.starts_with("! ") {
+        } else if line.starts_with("1 ")
+            || line.starts_with("2 ")
+            || line.starts_with("u ")
+            || line.starts_with("? ")
+            || line.starts_with("! ")
+        {
             // 解析文件状态
             let parts: Vec<&str> = line.split_whitespace().collect();
             if parts.len() >= 2 {
-                let (code, path) = if line.starts_with("1 ") || line.starts_with("2 ") || line.starts_with("u ") {
-                    // porcelain v2 ordinary/renamed/unmerged entries: XY status is in parts[1]
-                    // e.g., "1 M. N... 100644 100644 100644 hash hash filename"
-                    // parts[0]="1", parts[1]="M.", parts[last]="filename"
-                    (parts[1], parts.last().unwrap())
-                } else {
-                    // untracked "?" or ignored "!" entries
-                    // e.g., "? untracked.txt"
-                    // parts[0]="?", parts[1]="untracked.txt"
-                    (parts[0], parts.last().unwrap())
-                };
+                let (code, path) =
+                    if line.starts_with("1 ") || line.starts_with("2 ") || line.starts_with("u ") {
+                        // porcelain v2 ordinary/renamed/unmerged entries: XY status is in parts[1]
+                        // e.g., "1 M. N... 100644 100644 100644 hash hash filename"
+                        // parts[0]="1", parts[1]="M.", parts[last]="filename"
+                        (parts[1], parts.last().unwrap())
+                    } else {
+                        // untracked "?" or ignored "!" entries
+                        // e.g., "? untracked.txt"
+                        // parts[0]="?", parts[1]="untracked.txt"
+                        (parts[0], parts.last().unwrap())
+                    };
 
                 let entry = StatusEntry {
                     status: FileStatus::from_code(code.trim()),

@@ -5,7 +5,7 @@
 
 mod common;
 
-use common::test_config::{load_env, get_api_key, get_base_url, get_model, is_api_available};
+use common::test_config::{get_api_key, get_base_url, get_model, is_api_available, load_env};
 
 macro_rules! require_api {
     () => {
@@ -17,9 +17,9 @@ macro_rules! require_api {
 }
 
 use continuum_cli as cli;
-use tempfile::TempDir;
 use std::fs;
 use std::process::Command;
+use tempfile::TempDir;
 
 // ===== 1. LLM 真实调用 =====
 
@@ -70,7 +70,9 @@ mod llm_tests {
         require_api!();
         load_env();
 
-        use sh_layer1::llm_client::{LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole};
+        use sh_layer1::llm_client::{
+            LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole,
+        };
 
         let api_key = get_api_key().unwrap();
         let base_url = get_base_url();
@@ -119,7 +121,8 @@ mod cli_e2e_tests {
 
     #[test]
     fn test_cli_bash_command() {
-        let result = cli::commands::tool_exec::execute_bash("echo hello_world", None, 10, false).unwrap();
+        let result =
+            cli::commands::tool_exec::execute_bash("echo hello_world", None, 10, false).unwrap();
         assert!(result.stdout.contains("hello_world"));
         assert_eq!(result.exit_code, 0);
         assert!(!result.timed_out);
@@ -136,15 +139,24 @@ mod cli_e2e_tests {
         let content: Vec<String> = (1..=20).map(|i| format!("Line {}", i)).collect();
         fs::write(&file_path, content.join("\n")).unwrap();
 
-        let result = cli::commands::tool_exec::execute_read(file_path.to_str().unwrap(), None, None, false).unwrap();
+        let result =
+            cli::commands::tool_exec::execute_read(file_path.to_str().unwrap(), None, None, false)
+                .unwrap();
         assert!(result.contains("Line 1"));
         assert!(result.contains("Line 20"));
 
-        let result = cli::commands::tool_exec::execute_read(file_path.to_str().unwrap(), Some(5), Some(3), false).unwrap();
+        let result = cli::commands::tool_exec::execute_read(
+            file_path.to_str().unwrap(),
+            Some(5),
+            Some(3),
+            false,
+        )
+        .unwrap();
         assert!(result.contains("Line 6"));
         assert!(!result.contains("Line 1"));
 
-        let result = cli::commands::tool_exec::execute_read("/nonexistent/file.txt", None, None, false);
+        let result =
+            cli::commands::tool_exec::execute_read("/nonexistent/file.txt", None, None, false);
         assert!(result.is_err());
     }
 
@@ -158,7 +170,8 @@ mod cli_e2e_tests {
             Some("first write"),
             false,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(result.contains("bytes"));
 
         let result = cli::commands::tool_exec::execute_write(
@@ -166,7 +179,8 @@ mod cli_e2e_tests {
             Some("appended"),
             true,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         let content = fs::read_to_string(&file_path).unwrap();
         assert!(content.contains("first write"));
         assert!(content.contains("appended"));
@@ -177,7 +191,8 @@ mod cli_e2e_tests {
             Some("with backup"),
             false,
             true,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(backup_path.exists());
     }
 
@@ -192,17 +207,15 @@ mod cli_e2e_tests {
             "foo",
             "QUX",
             false,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(result.contains("1 occurrence"));
         let content = fs::read_to_string(&file_path).unwrap();
         assert_eq!(content, "QUX bar foo baz foo");
 
-        let result = cli::commands::tool_exec::execute_edit(
-            file_path.to_str().unwrap(),
-            "foo",
-            "QUX",
-            true,
-        ).unwrap();
+        let result =
+            cli::commands::tool_exec::execute_edit(file_path.to_str().unwrap(), "foo", "QUX", true)
+                .unwrap();
         assert!(result.contains("2 occurrence"));
         let content = fs::read_to_string(&file_path).unwrap();
         assert_eq!(content, "QUX bar QUX baz QUX");
@@ -212,8 +225,16 @@ mod cli_e2e_tests {
     fn test_cli_grep_command() {
         let dir = TempDir::new().unwrap();
 
-        fs::write(dir.path().join("app.rs"), "fn main() {\n    println!(\"hello\");\n}\n").unwrap();
-        fs::write(dir.path().join("lib.rs"), "pub fn greet() {\n    \"hello\"\n}\n").unwrap();
+        fs::write(
+            dir.path().join("app.rs"),
+            "fn main() {\n    println!(\"hello\");\n}\n",
+        )
+        .unwrap();
+        fs::write(
+            dir.path().join("lib.rs"),
+            "pub fn greet() {\n    \"hello\"\n}\n",
+        )
+        .unwrap();
 
         let results = cli::commands::tool_exec::execute_grep(
             "hello",
@@ -222,7 +243,8 @@ mod cli_e2e_tests {
             false,
             true,
             None,
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(results.len(), 2);
 
         let results = cli::commands::tool_exec::execute_grep(
@@ -232,7 +254,8 @@ mod cli_e2e_tests {
             false,
             true,
             None,
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(results.len(), 2);
     }
 }
@@ -242,13 +265,29 @@ mod cli_e2e_tests {
 #[cfg(test)]
 mod git_tests {
     use super::*;
-    use cli::git::{status, diff, branch};
+    use cli::git::{branch, diff, status};
 
     fn init_git_repo(dir: &std::path::Path) {
-        Command::new("git").args(["init"]).current_dir(dir).output().unwrap();
-        Command::new("git").args(["config", "user.email", "test@test.com"]).current_dir(dir).output().unwrap();
-        Command::new("git").args(["config", "user.name", "Test"]).current_dir(dir).output().unwrap();
-        Command::new("git").args(["commit", "--allow-empty", "-m", "init"]).current_dir(dir).output().unwrap();
+        Command::new("git")
+            .args(["init"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["config", "user.email", "test@test.com"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["config", "user.name", "Test"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["commit", "--allow-empty", "-m", "init"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
     }
 
     #[test]
@@ -272,8 +311,16 @@ mod git_tests {
 
         // 创建并提交文件
         fs::write(dir.path().join("file.txt"), "initial").unwrap();
-        Command::new("git").args(["add", "."]).current_dir(dir.path()).output().unwrap();
-        Command::new("git").args(["commit", "-m", "add file"]).current_dir(dir.path()).output().unwrap();
+        Command::new("git")
+            .args(["add", "."])
+            .current_dir(dir.path())
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["commit", "-m", "add file"])
+            .current_dir(dir.path())
+            .output()
+            .unwrap();
 
         // 修改文件
         fs::write(dir.path().join("file.txt"), "modified").unwrap();
@@ -307,8 +354,8 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_memory_transport() {
-        use sh_layer4::mcp_bridge::transport::{MemoryTransport, McpTransport};
         use sh_layer4::mcp_bridge::protocol::{McpMessage, McpRequest, RequestId};
+        use sh_layer4::mcp_bridge::transport::{McpTransport, MemoryTransport};
 
         let transport = MemoryTransport::new();
 
@@ -328,8 +375,8 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_tool_call() {
-        use sh_layer4::mcp_bridge::McpBridge;
         use sh_layer4::mcp_bridge::protocol::{ContentBlock, ToolDefinition, ToolResult};
+        use sh_layer4::mcp_bridge::McpBridge;
 
         let bridge = McpBridge::new(Default::default());
 
@@ -432,9 +479,18 @@ mod recovery_tests {
     fn test_error_recovery_category() {
         use sh_layer2::checkpoint_system::ErrorCategory;
 
-        assert_eq!(ErrorCategory::from_error_message("network timeout"), ErrorCategory::Transient);
-        assert_eq!(ErrorCategory::from_error_message("api key invalid"), ErrorCategory::Configuration);
-        assert_eq!(ErrorCategory::from_error_message("invalid parameter"), ErrorCategory::Logic);
+        assert_eq!(
+            ErrorCategory::from_error_message("network timeout"),
+            ErrorCategory::Transient
+        );
+        assert_eq!(
+            ErrorCategory::from_error_message("api key invalid"),
+            ErrorCategory::Configuration
+        );
+        assert_eq!(
+            ErrorCategory::from_error_message("invalid parameter"),
+            ErrorCategory::Logic
+        );
 
         assert!(ErrorCategory::Transient.is_retryable());
         assert!(ErrorCategory::Resource.is_retryable());
@@ -458,8 +514,7 @@ mod recovery_tests {
     async fn test_error_recovery_stats() {
         use sh_layer2::checkpoint_system::{ErrorRecovery, FallbackStrategy};
 
-        let recovery = ErrorRecovery::new()
-            .with_fallback(FallbackStrategy::Skip);
+        let recovery = ErrorRecovery::new().with_fallback(FallbackStrategy::Skip);
 
         let stats = recovery.get_stats().await;
         assert_eq!(stats.total_errors, 0);

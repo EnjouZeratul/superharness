@@ -5,7 +5,7 @@
 
 mod common;
 
-use common::test_config::{load_env, get_api_key, get_base_url, get_model, is_api_available};
+use common::test_config::{get_api_key, get_base_url, get_model, is_api_available, load_env};
 
 macro_rules! require_api {
     () => {
@@ -20,9 +20,9 @@ macro_rules! require_api {
 }
 
 use continuum_cli as cli;
-use tempfile::TempDir;
 use std::fs;
 use std::process::Command;
+use tempfile::TempDir;
 
 // ===== 1. LLM 真实调用 =====
 
@@ -50,7 +50,9 @@ mod llm_tests {
         require_api!();
         load_env();
 
-        use sh_layer1::llm_client::{LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole};
+        use sh_layer1::llm_client::{
+            LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole,
+        };
 
         let api_key = get_api_key().unwrap();
         let base_url = get_base_url();
@@ -61,7 +63,7 @@ mod llm_tests {
         } else if base_url.contains("gemini") || base_url.contains("google") {
             LlmProvider::Gemini
         } else {
-            LlmProvider::Anthropic  // 使用 Anthropic 格式的 API
+            LlmProvider::Anthropic // 使用 Anthropic 格式的 API
         };
 
         // 创建客户端并用自定义 base_url 覆盖默认值
@@ -86,7 +88,10 @@ mod llm_tests {
                 println!("LLM response: {}", response.content);
                 assert!(!response.content.is_empty(), "Response should not be empty");
                 assert!(response.usage.input_tokens > 0, "Should have input tokens");
-                assert!(response.usage.output_tokens > 0, "Should have output tokens");
+                assert!(
+                    response.usage.output_tokens > 0,
+                    "Should have output tokens"
+                );
                 // 验证内容包含预期的关键词
                 let content_lower = response.content.to_lowercase();
                 assert!(
@@ -115,7 +120,9 @@ mod llm_tests {
         require_api!();
         load_env();
 
-        use sh_layer1::llm_client::{LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole};
+        use sh_layer1::llm_client::{
+            LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole,
+        };
 
         let api_key = get_api_key().unwrap();
         let base_url = get_base_url();
@@ -148,15 +155,25 @@ mod llm_tests {
         match result {
             Ok(response) => {
                 println!("LLM tool call response: {}", response.content);
-                assert!(!response.content.is_empty(), "Tool call response should not be empty");
-                assert!(response.usage.output_tokens > 0, "Should have output tokens");
+                assert!(
+                    !response.content.is_empty(),
+                    "Tool call response should not be empty"
+                );
+                assert!(
+                    response.usage.output_tokens > 0,
+                    "Should have output tokens"
+                );
                 let content_lower = response.content.to_lowercase();
                 let is_command_like = content_lower.contains("find")
                     || content_lower.contains("ls")
                     || content_lower.contains("dir")
                     || content_lower.contains("glob")
                     || content_lower.contains("*.rs");
-                assert!(is_command_like, "Response should suggest a file listing command, got: {}", response.content);
+                assert!(
+                    is_command_like,
+                    "Response should suggest a file listing command, got: {}",
+                    response.content
+                );
             }
             Err(e) => {
                 let error_msg = format!("{}", e);
@@ -178,7 +195,9 @@ mod llm_tests {
         require_api!();
         load_env();
 
-        use sh_layer1::llm_client::{LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole};
+        use sh_layer1::llm_client::{
+            LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole,
+        };
 
         let api_key = get_api_key().unwrap();
         let base_url = get_base_url();
@@ -210,14 +229,28 @@ mod llm_tests {
 
         match result {
             Ok(response) => {
-                println!("LLM long response ({} chars): {}...", response.content.len(), &response.content[..response.content.len().min(200)]);
-                assert!(response.content.len() > 100, "Long response should be >100 chars, got {} chars", response.content.len());
+                println!(
+                    "LLM long response ({} chars): {}...",
+                    response.content.len(),
+                    &response.content[..response.content.len().min(200)]
+                );
+                assert!(
+                    response.content.len() > 100,
+                    "Long response should be >100 chars, got {} chars",
+                    response.content.len()
+                );
                 assert!(response.usage.input_tokens > 0, "Should have input tokens");
-                assert!(response.usage.output_tokens > 20, "Should have significant output tokens for long response, got {}", response.usage.output_tokens);
+                assert!(
+                    response.usage.output_tokens > 20,
+                    "Should have significant output tokens for long response, got {}",
+                    response.usage.output_tokens
+                );
                 // 验证内容包含 Rust 相关关键词
                 let content_lower = response.content.to_lowercase();
                 assert!(
-                    content_lower.contains("rust") || content_lower.contains("memory") || content_lower.contains("safety"),
+                    content_lower.contains("rust")
+                        || content_lower.contains("memory")
+                        || content_lower.contains("safety"),
                     "Long response should discuss Rust/memory/safety, got: {}...",
                     &response.content[..response.content.len().min(100)]
                 );
@@ -233,7 +266,9 @@ mod llm_tests {
         require_api!();
         load_env();
 
-        use sh_layer1::llm_client::{LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole};
+        use sh_layer1::llm_client::{
+            LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole,
+        };
 
         let api_key = get_api_key().unwrap();
         let base_url = get_base_url();
@@ -276,7 +311,10 @@ mod llm_tests {
         match result {
             Ok(response) => {
                 println!("LLM multi-turn response: {}", response.content);
-                assert!(!response.content.is_empty(), "Multi-turn response should not be empty");
+                assert!(
+                    !response.content.is_empty(),
+                    "Multi-turn response should not be empty"
+                );
                 let content_lower = response.content.to_lowercase();
                 assert!(
                     content_lower.contains("pineapple"),
@@ -299,7 +337,8 @@ mod cli_e2e_tests {
 
     #[test]
     fn test_cli_bash_command() {
-        let result = cli::commands::tool_exec::execute_bash("echo hello_world", None, 10, false).unwrap();
+        let result =
+            cli::commands::tool_exec::execute_bash("echo hello_world", None, 10, false).unwrap();
         assert!(result.stdout.contains("hello_world"));
         assert_eq!(result.exit_code, 0);
         assert!(!result.timed_out);
@@ -318,17 +357,26 @@ mod cli_e2e_tests {
         fs::write(&file_path, content.join("\n")).unwrap();
 
         // 读取完整文件
-        let result = cli::commands::tool_exec::execute_read(file_path.to_str().unwrap(), None, None, false).unwrap();
+        let result =
+            cli::commands::tool_exec::execute_read(file_path.to_str().unwrap(), None, None, false)
+                .unwrap();
         assert!(result.contains("Line 1"));
         assert!(result.contains("Line 20"));
 
         // 读取部分行
-        let result = cli::commands::tool_exec::execute_read(file_path.to_str().unwrap(), Some(5), Some(3), false).unwrap();
+        let result = cli::commands::tool_exec::execute_read(
+            file_path.to_str().unwrap(),
+            Some(5),
+            Some(3),
+            false,
+        )
+        .unwrap();
         assert!(result.contains("Line 6"));
         assert!(!result.contains("Line 1"));
 
         // 读取不存在的文件
-        let result = cli::commands::tool_exec::execute_read("/nonexistent/file.txt", None, None, false);
+        let result =
+            cli::commands::tool_exec::execute_read("/nonexistent/file.txt", None, None, false);
         assert!(result.is_err());
     }
 
@@ -343,7 +391,8 @@ mod cli_e2e_tests {
             Some("first write"),
             false,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(result.contains("bytes"));
 
         // 追加写入
@@ -352,7 +401,8 @@ mod cli_e2e_tests {
             Some("appended"),
             true,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         let content = fs::read_to_string(&file_path).unwrap();
         assert!(content.contains("first write"));
         assert!(content.contains("appended"));
@@ -363,7 +413,8 @@ mod cli_e2e_tests {
             Some("with backup"),
             false,
             true,
-        ).unwrap();
+        )
+        .unwrap();
         let backup_path = dir.path().join("write_test.txt.bak");
         assert!(backup_path.exists());
     }
@@ -380,18 +431,16 @@ mod cli_e2e_tests {
             "foo",
             "QUX",
             false,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(result.contains("1 occurrence"));
         let content = fs::read_to_string(&file_path).unwrap();
         assert_eq!(content, "QUX bar foo baz foo");
 
         // 替换所有
-        let result = cli::commands::tool_exec::execute_edit(
-            file_path.to_str().unwrap(),
-            "foo",
-            "QUX",
-            true,
-        ).unwrap();
+        let result =
+            cli::commands::tool_exec::execute_edit(file_path.to_str().unwrap(), "foo", "QUX", true)
+                .unwrap();
         assert!(result.contains("2 occurrence"));
         let content = fs::read_to_string(&file_path).unwrap();
         assert_eq!(content, "QUX bar QUX baz QUX");
@@ -401,8 +450,16 @@ mod cli_e2e_tests {
     fn test_cli_grep_command() {
         let dir = TempDir::new().unwrap();
 
-        fs::write(dir.path().join("app.rs"), "fn main() {\n    println!(\"hello\");\n}\n").unwrap();
-        fs::write(dir.path().join("lib.rs"), "pub fn greet() {\n    \"hello\"\n}\n").unwrap();
+        fs::write(
+            dir.path().join("app.rs"),
+            "fn main() {\n    println!(\"hello\");\n}\n",
+        )
+        .unwrap();
+        fs::write(
+            dir.path().join("lib.rs"),
+            "pub fn greet() {\n    \"hello\"\n}\n",
+        )
+        .unwrap();
 
         // 搜索所有文件
         let results = cli::commands::tool_exec::execute_grep(
@@ -412,7 +469,8 @@ mod cli_e2e_tests {
             false,
             true,
             None,
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(results.len(), 2);
 
         // 用 glob 过滤
@@ -423,7 +481,8 @@ mod cli_e2e_tests {
             false,
             true,
             None,
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(results.len(), 2);
 
         // 不存在的模式
@@ -434,7 +493,8 @@ mod cli_e2e_tests {
             false,
             true,
             None,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(results.is_empty());
     }
 }
@@ -444,13 +504,29 @@ mod cli_e2e_tests {
 #[cfg(test)]
 mod git_tests {
     use super::*;
-    use cli::git::{status, diff, branch, commit};
+    use cli::git::{branch, commit, diff, status};
 
     fn init_git_repo(dir: &std::path::Path) {
-        Command::new("git").args(["init"]).current_dir(dir).output().unwrap();
-        Command::new("git").args(["config", "user.email", "test@test.com"]).current_dir(dir).output().unwrap();
-        Command::new("git").args(["config", "user.name", "Test"]).current_dir(dir).output().unwrap();
-        Command::new("git").args(["commit", "--allow-empty", "-m", "init"]).current_dir(dir).output().unwrap();
+        Command::new("git")
+            .args(["init"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["config", "user.email", "test@test.com"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["config", "user.name", "Test"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["commit", "--allow-empty", "-m", "init"])
+            .current_dir(dir)
+            .output()
+            .unwrap();
     }
 
     #[test]
@@ -470,7 +546,11 @@ mod git_tests {
         assert!(rendered.contains("untracked"));
 
         // git add 后验证 staged
-        Command::new("git").args(["add", "."]).current_dir(dir.path()).output().unwrap();
+        Command::new("git")
+            .args(["add", "."])
+            .current_dir(dir.path())
+            .output()
+            .unwrap();
         let status = status::get_status(dir.path()).unwrap();
         assert!(!status.staged_files().is_empty());
     }
@@ -482,8 +562,16 @@ mod git_tests {
 
         // 创建并提交文件
         fs::write(dir.path().join("file.txt"), "initial content\n").unwrap();
-        Command::new("git").args(["add", "."]).current_dir(dir.path()).output().unwrap();
-        Command::new("git").args(["commit", "-m", "add file"]).current_dir(dir.path()).output().unwrap();
+        Command::new("git")
+            .args(["add", "."])
+            .current_dir(dir.path())
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["commit", "-m", "add file"])
+            .current_dir(dir.path())
+            .output()
+            .unwrap();
 
         // 修改文件
         fs::write(dir.path().join("file.txt"), "modified content\n").unwrap();
@@ -572,8 +660,8 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_memory_transport() {
-        use sh_layer4::mcp_bridge::transport::{MemoryTransport, McpTransport};
         use sh_layer4::mcp_bridge::protocol::{McpMessage, McpRequest, RequestId};
+        use sh_layer4::mcp_bridge::transport::{McpTransport, MemoryTransport};
 
         let transport = MemoryTransport::new();
 
@@ -600,8 +688,12 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_tool_call_real() {
-        use sh_layer4::mcp_bridge::handler::{DefaultHandler, McpHandler, SimpleToolExecutor, ToolExecutor};
-        use sh_layer4::mcp_bridge::protocol::{ContentBlock, McpRequest, RequestId, ToolDefinition, ToolResult};
+        use sh_layer4::mcp_bridge::handler::{
+            DefaultHandler, McpHandler, SimpleToolExecutor, ToolExecutor,
+        };
+        use sh_layer4::mcp_bridge::protocol::{
+            ContentBlock, McpRequest, RequestId, ToolDefinition, ToolResult,
+        };
         use std::sync::Arc;
 
         let handler = DefaultHandler::new("test-server", "1.0.0");
@@ -763,9 +855,18 @@ mod recovery_tests {
     fn test_error_recovery_category() {
         use sh_layer2::checkpoint_system::ErrorCategory;
 
-        assert_eq!(ErrorCategory::from_error_message("network timeout"), ErrorCategory::Transient);
-        assert_eq!(ErrorCategory::from_error_message("api key invalid"), ErrorCategory::Configuration);
-        assert_eq!(ErrorCategory::from_error_message("invalid parameter"), ErrorCategory::Logic);
+        assert_eq!(
+            ErrorCategory::from_error_message("network timeout"),
+            ErrorCategory::Transient
+        );
+        assert_eq!(
+            ErrorCategory::from_error_message("api key invalid"),
+            ErrorCategory::Configuration
+        );
+        assert_eq!(
+            ErrorCategory::from_error_message("invalid parameter"),
+            ErrorCategory::Logic
+        );
 
         assert!(ErrorCategory::Transient.is_retryable());
         assert!(ErrorCategory::Resource.is_retryable());
@@ -789,8 +890,7 @@ mod recovery_tests {
     async fn test_error_recovery_stats() {
         use sh_layer2::checkpoint_system::{ErrorRecovery, FallbackStrategy};
 
-        let recovery = ErrorRecovery::new()
-            .with_fallback(FallbackStrategy::Skip);
+        let recovery = ErrorRecovery::new().with_fallback(FallbackStrategy::Skip);
 
         let stats = recovery.get_stats().await;
         assert_eq!(stats.total_errors, 0);
@@ -812,9 +912,11 @@ mod recovery_tests {
 
     #[test]
     fn test_checkpoint_real_save_load() {
-        use sh_layer2::checkpoint_system::{CheckpointWriter, CheckpointData, CheckpointSystemTrait};
-        use sh_layer2::types::{CheckpointId, SessionId};
         use chrono::Utc;
+        use sh_layer2::checkpoint_system::{
+            CheckpointData, CheckpointSystemTrait, CheckpointWriter,
+        };
+        use sh_layer2::types::{CheckpointId, SessionId};
 
         let temp_dir = TempDir::new().unwrap();
         let writer = CheckpointWriter::new(temp_dir.path());

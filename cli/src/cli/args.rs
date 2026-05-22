@@ -76,7 +76,6 @@ pub enum Commands {
     },
 
     // ===== 工具链命令 =====
-
     /// 执行 shell 命令
     Bash {
         /// 要执行的命令
@@ -173,7 +172,6 @@ pub enum Commands {
     },
 
     // ===== Git 命令 =====
-
     /// Git 工作流集成
     Git {
         #[command(subcommand)]
@@ -542,10 +540,24 @@ mod tests {
 
     #[test]
     fn test_read_command() {
-        let args = CliArgs::try_parse_from(["continuum", "read", "test.txt", "--offset", "10", "--limit", "20"]);
+        let args = CliArgs::try_parse_from([
+            "continuum",
+            "read",
+            "test.txt",
+            "--offset",
+            "10",
+            "--limit",
+            "20",
+        ]);
         assert!(args.is_ok());
         let args = args.unwrap();
-        if let Some(Commands::Read { file, offset, limit, .. }) = args.command {
+        if let Some(Commands::Read {
+            file,
+            offset,
+            limit,
+            ..
+        }) = args.command
+        {
             assert_eq!(file, "test.txt");
             assert_eq!(offset, Some(10));
             assert_eq!(limit, Some(20));
@@ -556,10 +568,17 @@ mod tests {
 
     #[test]
     fn test_write_command() {
-        let args = CliArgs::try_parse_from(["continuum", "write", "test.txt", "hello world", "--backup"]);
+        let args =
+            CliArgs::try_parse_from(["continuum", "write", "test.txt", "hello world", "--backup"]);
         assert!(args.is_ok());
         let args = args.unwrap();
-        if let Some(Commands::Write { file, content, backup, .. }) = args.command {
+        if let Some(Commands::Write {
+            file,
+            content,
+            backup,
+            ..
+        }) = args.command
+        {
             assert_eq!(file, "test.txt");
             assert_eq!(content, Some("hello world".to_string()));
             assert!(backup);
@@ -571,12 +590,24 @@ mod tests {
     #[test]
     fn test_edit_command() {
         let args = CliArgs::try_parse_from([
-            "continuum", "edit", "test.txt",
-            "--old", "foo", "--new", "bar", "--replace-all"
+            "continuum",
+            "edit",
+            "test.txt",
+            "--old",
+            "foo",
+            "--new",
+            "bar",
+            "--replace-all",
         ]);
         assert!(args.is_ok());
         let args = args.unwrap();
-        if let Some(Commands::Edit { file, old, new, replace_all }) = args.command {
+        if let Some(Commands::Edit {
+            file,
+            old,
+            new,
+            replace_all,
+        }) = args.command
+        {
             assert_eq!(file, "test.txt");
             assert_eq!(old, "foo");
             assert_eq!(new, "bar");
@@ -589,11 +620,25 @@ mod tests {
     #[test]
     fn test_grep_command() {
         let args = CliArgs::try_parse_from([
-            "continuum", "grep", "pattern", "--path", "src/", "--ignore-case", "--context", "2"
+            "continuum",
+            "grep",
+            "pattern",
+            "--path",
+            "src/",
+            "--ignore-case",
+            "--context",
+            "2",
         ]);
         assert!(args.is_ok());
         let args = args.unwrap();
-        if let Some(Commands::Grep { pattern, path, ignore_case, context, .. }) = args.command {
+        if let Some(Commands::Grep {
+            pattern,
+            path,
+            ignore_case,
+            context,
+            ..
+        }) = args.command
+        {
             assert_eq!(pattern, "pattern");
             assert_eq!(path, "src/");
             assert!(ignore_case);
@@ -618,9 +663,8 @@ mod tests {
 
     #[test]
     fn test_lsp_definition_command() {
-        let args = CliArgs::try_parse_from([
-            "continuum", "lsp", "definition", "test.rs", "10", "5"
-        ]);
+        let args =
+            CliArgs::try_parse_from(["continuum", "lsp", "definition", "test.rs", "10", "5"]);
         assert!(args.is_ok());
         let args = args.unwrap();
         if let Some(Commands::Lsp { cmd }) = args.command {

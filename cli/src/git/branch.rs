@@ -135,7 +135,10 @@ impl BranchManager {
                 .output()
                 .map_err(|e| GitError::CommandFailed(e.to_string()))?;
 
-            Ok(format!("HEAD detached at {}", String::from_utf8_lossy(&rev_output.stdout).trim()))
+            Ok(format!(
+                "HEAD detached at {}",
+                String::from_utf8_lossy(&rev_output.stdout).trim()
+            ))
         } else {
             Ok(current)
         }
@@ -209,7 +212,9 @@ impl BranchManager {
     pub fn delete(&self, name: &str, force: bool) -> GitResult<()> {
         let current = self.current()?;
         if name == current {
-            return Err(GitError::CommandFailed("Cannot delete current branch".to_string()));
+            return Err(GitError::CommandFailed(
+                "Cannot delete current branch".to_string(),
+            ));
         }
 
         let mut args = vec!["branch"];

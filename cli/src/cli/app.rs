@@ -178,32 +178,67 @@ impl CliApp {
             Commands::Checkpoint { cmd } => self.checkpoint_command(cmd.clone()).await,
 
             // 工具链命令
-            Commands::Bash { command, cwd, timeout, capture_stderr } => {
-                self.bash_command(command.clone(), cwd.clone(), *timeout, *capture_stderr).await
+            Commands::Bash {
+                command,
+                cwd,
+                timeout,
+                capture_stderr,
+            } => {
+                self.bash_command(command.clone(), cwd.clone(), *timeout, *capture_stderr)
+                    .await
             }
-            Commands::Read { file, offset, limit, line_numbers } => {
-                self.read_command(file.clone(), *offset, *limit, *line_numbers).await
+            Commands::Read {
+                file,
+                offset,
+                limit,
+                line_numbers,
+            } => {
+                self.read_command(file.clone(), *offset, *limit, *line_numbers)
+                    .await
             }
-            Commands::Write { file, content, append, backup } => {
-                self.write_command(file.clone(), content.clone(), *append, *backup).await
+            Commands::Write {
+                file,
+                content,
+                append,
+                backup,
+            } => {
+                self.write_command(file.clone(), content.clone(), *append, *backup)
+                    .await
             }
-            Commands::Edit { file, old, new, replace_all } => {
-                self.edit_command(file.clone(), old.clone(), new.clone(), *replace_all).await
+            Commands::Edit {
+                file,
+                old,
+                new,
+                replace_all,
+            } => {
+                self.edit_command(file.clone(), old.clone(), new.clone(), *replace_all)
+                    .await
             }
-            Commands::Grep { pattern, path, glob, ignore_case, line_numbers, context } => {
-                self.grep_command(pattern.clone(), path.clone(), glob.clone(), *ignore_case, *line_numbers, *context).await
+            Commands::Grep {
+                pattern,
+                path,
+                glob,
+                ignore_case,
+                line_numbers,
+                context,
+            } => {
+                self.grep_command(
+                    pattern.clone(),
+                    path.clone(),
+                    glob.clone(),
+                    *ignore_case,
+                    *line_numbers,
+                    *context,
+                )
+                .await
             }
             Commands::Glob { pattern, path } => {
                 self.glob_command(pattern.clone(), path.clone()).await
             }
-            Commands::Lsp { cmd } => {
-                self.lsp_command(cmd.clone()).await
-            }
+            Commands::Lsp { cmd } => self.lsp_command(cmd.clone()).await,
 
             // Git 命令
-            Commands::Git { cmd } => {
-                self.git_command(cmd.clone()).await
-            }
+            Commands::Git { cmd } => self.git_command(cmd.clone()).await,
         };
 
         // 记录退出审计
@@ -497,8 +532,7 @@ impl CliApp {
     async fn git_command(&self, cmd: super::args::GitCmd) -> Result<()> {
         use crate::git::GitCommands;
 
-        let git = GitCommands::from_cwd()
-            .map_err(|e| anyhow::anyhow!("Git error: {}", e))?;
+        let git = GitCommands::from_cwd().map_err(|e| anyhow::anyhow!("Git error: {}", e))?;
 
         match cmd {
             super::args::GitCmd::Status { short } => {
@@ -514,7 +548,11 @@ impl CliApp {
                 println!("{}", git.diff(staged, &path_refs)?);
             }
 
-            super::args::GitCmd::Commit { message, amend, add_all } => {
+            super::args::GitCmd::Commit {
+                message,
+                amend,
+                add_all,
+            } => {
                 if add_all {
                     git.add(&["."])?;
                 }
@@ -541,7 +579,11 @@ impl CliApp {
     }
 
     /// 执行 Git Branch 子命令
-    async fn git_branch_command(&self, git: &crate::git::GitCommands, cmd: super::args::GitBranchCmd) -> Result<()> {
+    async fn git_branch_command(
+        &self,
+        git: &crate::git::GitCommands,
+        cmd: super::args::GitBranchCmd,
+    ) -> Result<()> {
         match cmd {
             super::args::GitBranchCmd::List { all } => {
                 println!("{}", git.branch_list(all)?);
@@ -571,12 +613,22 @@ impl CliApp {
     }
 
     /// 执行 Git PR 子命令
-    async fn git_pr_command(&self, git: &crate::git::GitCommands, cmd: super::args::GitPrCmd) -> Result<()> {
+    async fn git_pr_command(
+        &self,
+        git: &crate::git::GitCommands,
+        cmd: super::args::GitPrCmd,
+    ) -> Result<()> {
         match cmd {
-            super::args::GitPrCmd::Create { title, body, base, draft } => {
+            super::args::GitPrCmd::Create {
+                title,
+                body,
+                base,
+                draft,
+            } => {
                 let title = title.unwrap_or_else(|| {
                     // 尝试从当前分支名生成标题
-                    git.branch_current().unwrap_or_else(|_| "New feature".to_string())
+                    git.branch_current()
+                        .unwrap_or_else(|_| "New feature".to_string())
                 });
 
                 let result = git.pr_create(&title, body.as_deref(), &base, draft)?;

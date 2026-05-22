@@ -28,7 +28,9 @@ pub fn execute_bash(
     let start = Instant::now();
 
     let default_dir = std::env::current_dir().unwrap_or_default();
-    let cwd = cwd.map(|s| Path::new(s)).unwrap_or_else(|| default_dir.as_path());
+    let cwd = cwd
+        .map(|s| Path::new(s))
+        .unwrap_or_else(|| default_dir.as_path());
 
     // 构建命令
     let output = if cfg!(target_os = "windows") {
@@ -75,8 +77,8 @@ pub fn execute_read(
         anyhow::bail!("File not found: {}", file_path);
     }
 
-    let content = fs::read_to_string(path)
-        .with_context(|| format!("Failed to read file: {}", file_path))?;
+    let content =
+        fs::read_to_string(path).with_context(|| format!("Failed to read file: {}", file_path))?;
 
     let lines: Vec<&str> = content.lines().collect();
     let total_lines = lines.len();
@@ -150,8 +152,7 @@ pub fn execute_write(
             .with_context(|| format!("Failed to write file: {}", file_path))?;
     } else {
         // 覆盖模式
-        fs::write(path, content)
-            .with_context(|| format!("Failed to write file: {}", file_path))?;
+        fs::write(path, content).with_context(|| format!("Failed to write file: {}", file_path))?;
     }
 
     let bytes_written = content.len();
@@ -159,19 +160,14 @@ pub fn execute_write(
 }
 
 /// 编辑文件（精确替换）
-pub fn execute_edit(
-    file_path: &str,
-    old: &str,
-    new: &str,
-    replace_all: bool,
-) -> Result<String> {
+pub fn execute_edit(file_path: &str, old: &str, new: &str, replace_all: bool) -> Result<String> {
     let path = Path::new(file_path);
     if !path.exists() {
         anyhow::bail!("File not found: {}", file_path);
     }
 
-    let content = fs::read_to_string(path)
-        .with_context(|| format!("Failed to read file: {}", file_path))?;
+    let content =
+        fs::read_to_string(path).with_context(|| format!("Failed to read file: {}", file_path))?;
 
     let (new_content, count) = if replace_all {
         let count = content.matches(old).count();
@@ -190,10 +186,7 @@ pub fn execute_edit(
     fs::write(path, &new_content)
         .with_context(|| format!("Failed to write file: {}", file_path))?;
 
-    Ok(format!(
-        "Replaced {} occurrence(s) in {}",
-        count, file_path
-    ))
+    Ok(format!("Replaced {} occurrence(s) in {}", count, file_path))
 }
 
 /// 搜索结果
@@ -268,11 +261,21 @@ pub fn execute_grep(
                 // 跳过隐藏目录和常见的排除目录
                 if let Some(name) = path.file_name() {
                     let name_str = name.to_string_lossy();
-                    if name_str.starts_with('.') || name_str == "target" || name_str == "node_modules" {
+                    if name_str.starts_with('.')
+                        || name_str == "target"
+                        || name_str == "node_modules"
+                    {
                         continue;
                     }
                 }
-                walk_dir(&path, regex, glob_filter, show_line_numbers, context, results)?;
+                walk_dir(
+                    &path,
+                    regex,
+                    glob_filter,
+                    show_line_numbers,
+                    context,
+                    results,
+                )?;
             } else if path.is_file() {
                 // 检查 glob 过滤
                 if let Some(glob) = glob_filter {
@@ -287,7 +290,14 @@ pub fn execute_grep(
         Ok(())
     }
 
-    walk_dir(base_path, &regex, glob_filter, show_line_numbers, context, &mut results)?;
+    walk_dir(
+        base_path,
+        &regex,
+        glob_filter,
+        show_line_numbers,
+        context,
+        &mut results,
+    )?;
     Ok(results)
 }
 
@@ -395,12 +405,7 @@ mod tests {
         let file_path = dir.path().join("test.txt");
         fs::write(&file_path, "line1\nline2\nline3\n").unwrap();
 
-        let result = execute_read(
-            file_path.to_str().unwrap(),
-            Some(1),
-            Some(1),
-            true,
-        ).unwrap();
+        let result = execute_read(file_path.to_str().unwrap(), Some(1), Some(1), true).unwrap();
         assert!(result.contains("line2"));
         assert!(result.contains("2")); // line number
     }
@@ -415,7 +420,8 @@ mod tests {
             Some("hello world"),
             false,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         assert!(result.contains("11 bytes"));
 
         let content = fs::read_to_string(&file_path).unwrap();
@@ -428,12 +434,7 @@ mod tests {
         let file_path = dir.path().join("test.txt");
         fs::write(&file_path, "hello foo world foo").unwrap();
 
-        let result = execute_edit(
-            file_path.to_str().unwrap(),
-            "foo",
-            "bar",
-            false,
-        ).unwrap();
+        let result = execute_edit(file_path.to_str().unwrap(), "foo", "bar", false).unwrap();
         assert!(result.contains("1 occurrence"));
 
         let content = fs::read_to_string(&file_path).unwrap();
@@ -446,12 +447,7 @@ mod tests {
         let file_path = dir.path().join("test.txt");
         fs::write(&file_path, "foo foo foo").unwrap();
 
-        let result = execute_edit(
-            file_path.to_str().unwrap(),
-            "foo",
-            "bar",
-            true,
-        ).unwrap();
+        let result = execute_edit(file_path.to_str().unwrap(), "foo", "bar", true).unwrap();
         assert!(result.contains("3 occurrence"));
 
         let content = fs::read_to_string(&file_path).unwrap();

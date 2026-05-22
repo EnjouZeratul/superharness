@@ -50,7 +50,10 @@ impl GitDiff {
         ));
 
         for entry in &self.entries {
-            output.push_str(&format!("diff -- {} -> {}\n", entry.old_path, entry.new_path));
+            output.push_str(&format!(
+                "diff -- {} -> {}\n",
+                entry.old_path, entry.new_path
+            ));
             output.push_str(&format!("  +{} -{}\n", entry.additions, entry.deletions));
 
             if !entry.diff_content.is_empty() {

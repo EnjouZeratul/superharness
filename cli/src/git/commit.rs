@@ -42,7 +42,11 @@ impl CommitGenerator {
     }
 
     /// 根据变更自动生成 commit 消息
-    pub fn generate(&self, diff: &super::diff::GitDiff, status: &super::status::GitStatus) -> String {
+    pub fn generate(
+        &self,
+        diff: &super::diff::GitDiff,
+        status: &super::status::GitStatus,
+    ) -> String {
         // 分析变更内容
         let changes = self.analyze_changes(diff, status);
 
@@ -112,7 +116,10 @@ impl CommitGenerator {
     /// 生成标题
     fn generate_title(&self, analysis: &ChangeAnalysis) -> String {
         // 根据变更类型选择前缀
-        let prefix = if analysis.test_changes > 0 && analysis.rust_changes == 0 && analysis.python_changes == 0 {
+        let prefix = if analysis.test_changes > 0
+            && analysis.rust_changes == 0
+            && analysis.python_changes == 0
+        {
             "test"
         } else if analysis.docs_changes > 0 && analysis.rust_changes == 0 {
             "docs"

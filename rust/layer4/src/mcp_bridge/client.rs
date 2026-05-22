@@ -3,7 +3,7 @@
 //! 管理多个 MCP 服务器连接。
 
 use super::protocol::{McpMessage, McpRequest, McpResponse, RequestId, ToolDefinition, ToolResult};
-use super::transport::{McpTransport, McpTransportType, StdioTransport, MemoryTransport};
+use super::transport::{McpTransport, McpTransportType, MemoryTransport, StdioTransport};
 use anyhow::{anyhow, Result};
 use parking_lot::RwLock as ParkingRwLock;
 use serde_json::Value;
@@ -90,13 +90,9 @@ impl McpClientManager {
                 // 生产环境需要真实的 StdioTransport
                 Arc::new(MemoryTransport::new())
             }
-            McpTransportType::Tcp { addr } => {
-                Arc::new(MemoryTransport::new())
-            }
+            McpTransportType::Tcp { addr } => Arc::new(MemoryTransport::new()),
             #[cfg(unix)]
-            McpTransportType::Unix { path: _ } => {
-                Arc::new(MemoryTransport::new())
-            }
+            McpTransportType::Unix { path: _ } => Arc::new(MemoryTransport::new()),
         };
 
         // 发送初始化请求
@@ -245,8 +241,8 @@ impl McpClientManager {
                 }
 
                 if let Some(result) = response.result {
-                    let tool_result: ToolResult = serde_json::from_value(result)
-                        .unwrap_or_else(|_| ToolResult {
+                    let tool_result: ToolResult =
+                        serde_json::from_value(result).unwrap_or_else(|_| ToolResult {
                             is_error: false,
                             content: vec![super::protocol::ContentBlock::Text {
                                 text: "Tool executed successfully".to_string(),
@@ -257,17 +253,17 @@ impl McpClientManager {
                     Err(anyhow!("Empty response"))
                 }
             }
-            Some(McpMessage::Error(error)) => {
-                Err(anyhow!("Error: {:?}", error))
-            }
-            _ => {
-                Err(anyhow!("Unexpected response type"))
-            }
+            Some(McpMessage::Error(error)) => Err(anyhow!("Error: {:?}", error)),
+            _ => Err(anyhow!("Unexpected response type")),
         }
     }
 
     /// 注册工具到服务器
-    pub async fn register_tools(&self, server_name: &str, tools: Vec<ToolDefinition>) -> Result<()> {
+    pub async fn register_tools(
+        &self,
+        server_name: &str,
+        tools: Vec<ToolDefinition>,
+    ) -> Result<()> {
         let mut servers = self.servers.write();
         let server = servers
             .get_mut(server_name)

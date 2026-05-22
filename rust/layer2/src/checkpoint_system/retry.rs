@@ -31,15 +31,30 @@ impl ErrorCategory {
     pub fn from_error_message(msg: &str) -> Self {
         let msg_lower = msg.to_lowercase();
 
-        if msg_lower.contains("timeout") || msg_lower.contains("network") || msg_lower.contains("rate limit") {
+        if msg_lower.contains("timeout")
+            || msg_lower.contains("network")
+            || msg_lower.contains("rate limit")
+        {
             ErrorCategory::Transient
-        } else if msg_lower.contains("memory") || msg_lower.contains("disk") || msg_lower.contains("resource") {
+        } else if msg_lower.contains("memory")
+            || msg_lower.contains("disk")
+            || msg_lower.contains("resource")
+        {
             ErrorCategory::Resource
-        } else if msg_lower.contains("api key") || msg_lower.contains("config") || msg_lower.contains("auth") {
+        } else if msg_lower.contains("api key")
+            || msg_lower.contains("config")
+            || msg_lower.contains("auth")
+        {
             ErrorCategory::Configuration
-        } else if msg_lower.contains("invalid") || msg_lower.contains("parameter") || msg_lower.contains("argument") {
+        } else if msg_lower.contains("invalid")
+            || msg_lower.contains("parameter")
+            || msg_lower.contains("argument")
+        {
             ErrorCategory::Logic
-        } else if msg_lower.contains("interrupt") || msg_lower.contains("cancel") || msg_lower.contains("abort") {
+        } else if msg_lower.contains("interrupt")
+            || msg_lower.contains("cancel")
+            || msg_lower.contains("abort")
+        {
             ErrorCategory::UserInterrupt
         } else {
             ErrorCategory::System
@@ -151,7 +166,8 @@ pub enum RecoveryAction {
 }
 
 /// 用户确认回调
-pub type UserConfirmationCallback = Arc<dyn Fn(&str, Vec<RecoveryAction>) -> RecoveryAction + Send + Sync>;
+pub type UserConfirmationCallback =
+    Arc<dyn Fn(&str, Vec<RecoveryAction>) -> RecoveryAction + Send + Sync>;
 
 /// 错误恢复管理器
 pub struct ErrorRecovery {
@@ -420,7 +436,9 @@ impl ErrorRecovery {
             ErrorCategory::Logic => "Verify your input parameters".to_string(),
             ErrorCategory::UserInterrupt => "Operation was cancelled".to_string(),
             ErrorCategory::Transient => "Temporary issue, will retry automatically".to_string(),
-            ErrorCategory::Resource => "System resource issue, consider freeing up memory/disk".to_string(),
+            ErrorCategory::Resource => {
+                "System resource issue, consider freeing up memory/disk".to_string()
+            }
             ErrorCategory::System => "Unknown error occurred".to_string(),
         }
     }
@@ -491,7 +509,8 @@ impl SessionRecovery {
                 if sessions.is_empty() {
                     "No interrupted sessions found.".to_string()
                 } else {
-                    let mut output = format!("Found {} interrupted session(s):\n\n", sessions.len());
+                    let mut output =
+                        format!("Found {} interrupted session(s):\n\n", sessions.len());
                     for (i, session) in sessions.iter().enumerate() {
                         output.push_str(&format!(
                             "{}. Session: {}\n   Task: {}\n   Iteration: {}\n   Last activity: {}\n\n",

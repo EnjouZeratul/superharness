@@ -384,7 +384,7 @@ enum AnthropicContent {
 #[derive(Serialize)]
 struct AnthropicContentBlock {
     #[serde(rename = "type")]
-    content_type: String,  // "text"
+    content_type: String, // "text"
     text: String,
 }
 

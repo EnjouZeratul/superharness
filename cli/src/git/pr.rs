@@ -131,11 +131,7 @@ impl PrCreator {
         draft: bool,
     ) -> GitResult<PullRequest> {
         let mut args = vec![
-            "pr", "create",
-            "--title", title,
-            "--body", body,
-            "--base", base,
-            "--head", head,
+            "pr", "create", "--title", title, "--body", body, "--base", base, "--head", head,
         ];
 
         if draft {
@@ -181,11 +177,16 @@ impl PrCreator {
         head: &str,
     ) -> GitResult<PullRequest> {
         let args = vec![
-            "mr", "create",
-            "--title", title,
-            "--description", body,
-            "--target-branch", base,
-            "--source-branch", head,
+            "mr",
+            "create",
+            "--title",
+            title,
+            "--description",
+            body,
+            "--target-branch",
+            base,
+            "--source-branch",
+            head,
         ];
 
         let output = Command::new("glab")
@@ -224,7 +225,14 @@ impl PrCreator {
         };
 
         let output = Command::new("gh")
-            .args(["pr", "list", "--state", state_arg, "--json", "number,title,state,author,baseRefName,headRefName,url,isDraft"])
+            .args([
+                "pr",
+                "list",
+                "--state",
+                state_arg,
+                "--json",
+                "number,title,state,author,baseRefName,headRefName,url,isDraft",
+            ])
             .current_dir(&self.repo_path)
             .output()
             .map_err(|e| GitError::CommandFailed(e.to_string()))?;
@@ -253,22 +261,42 @@ impl PrCreator {
                 for item in arr {
                     let pr = PullRequest {
                         number: item.get("number").and_then(|v| v.as_u64()).unwrap_or(0),
-                        title: item.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                        title: item
+                            .get("title")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string(),
                         state: match item.get("state").and_then(|v| v.as_str()).unwrap_or("") {
                             "OPEN" => PrState::Open,
                             "CLOSED" => PrState::Closed,
                             "MERGED" => PrState::Merged,
                             _ => PrState::Open,
                         },
-                        author: item.get("author")
+                        author: item
+                            .get("author")
                             .and_then(|v| v.get("login"))
                             .and_then(|v| v.as_str())
                             .unwrap_or("")
                             .to_string(),
-                        base_branch: item.get("baseRefName").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                        head_branch: item.get("headRefName").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                        url: item.get("url").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                        draft: item.get("isDraft").and_then(|v| v.as_bool()).unwrap_or(false),
+                        base_branch: item
+                            .get("baseRefName")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string(),
+                        head_branch: item
+                            .get("headRefName")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string(),
+                        url: item
+                            .get("url")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string(),
+                        draft: item
+                            .get("isDraft")
+                            .and_then(|v| v.as_bool())
+                            .unwrap_or(false),
                     };
                     prs.push(pr);
                 }
