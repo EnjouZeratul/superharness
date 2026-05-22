@@ -266,7 +266,6 @@ mod tests {
         });
 
         // 工具已注册
-        assert!(true);
     }
 
     #[tokio::test]

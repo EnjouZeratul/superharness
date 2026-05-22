@@ -676,7 +676,7 @@ mod mcp_tests {
     #[tokio::test]
     async fn test_mcp_tool_call_real() {
         use sh_layer4::mcp_bridge::handler::{DefaultHandler, McpHandler, SimpleToolExecutor};
-        use sh_layer4::mcp_bridge::protocol::{ContentBlock, McpRequest, RequestId, ToolResult};
+        use sh_layer4::mcp_bridge::protocol::{ContentBlock, McpRequest, RequestId, ToolDefinition, ToolResult};
         use std::sync::Arc;
 
         let handler = DefaultHandler::new("test-server", "1.0.0");
