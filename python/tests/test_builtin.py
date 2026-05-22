@@ -527,14 +527,13 @@ class TestBashTool:
         """测试指定工作目录"""
         with tempfile.TemporaryDirectory() as tmpdir:
             bash = BashTool()
-            # 使用 cd 命令验证工作目录
-            result = bash.run("cd", working_dir=tmpdir)
+            # 跨平台：写入文件并验证工作目录
+            result = bash.run("echo test > test_file.txt", working_dir=tmpdir)
 
             assert result.is_error is False
-            # Windows 使用 cd 命令显示当前目录
-            # 验证目录名出现在输出中（不比较完整路径格式）
-            dir_name = os.path.basename(tmpdir)
-            assert dir_name in result.content or tmpdir in result.content
+            # 验证文件是否创建在指定目录
+            test_file = os.path.join(tmpdir, "test_file.txt")
+            assert os.path.exists(test_file), f"File should be created in {tmpdir}"
 
     def test_bash_working_directory_not_found(self):
         """测试工作目录不存在"""
