@@ -14,8 +14,7 @@ import sys
 import os
 import pytest
 import json
-from unittest.mock import AsyncMock, MagicMock, patch, Mock
-from typing import Dict, Any, List
+from unittest.mock import AsyncMock, patch, Mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,7 +24,6 @@ from continuum_sdk.llm.client import (
     OpenAIClient,
     GeminiClient,
     CustomClient,
-    BaseLlmClient,
 )
 from continuum_sdk.llm.types import (
     Message,
@@ -43,7 +41,6 @@ from continuum_sdk.llm.errors import (
     TimeoutError,
     InvalidResponseError,
     ModelNotFoundError,
-    InsufficientQuotaError,
     ContentFilterError,
     classify_http_error,
 )
@@ -1015,17 +1012,23 @@ class TestGeminiStreaming:
 
     @pytest.mark.asyncio
     async def test_stream_invocation(self):
-        """Test Gemini stream request is sent""" 
+        """Test Gemini stream request is sent"""
         client = GeminiClient(api_key="test-key")
 
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.aiter_text = Mock(return_value=self._async_iter([""]))
 
-        with patch.object(client._client, "stream", return_value=self._async_context(mock_response)):
-            async for _ in client.chat_stream([Message.user("Hi")]):
-                pass
-            assert True
+        with patch.object(client._client, "stream", return_value=self._async_context(mock_response)) as mock_stream:
+            chunks = []
+            async for chunk in client.chat_stream([Message.user("Hi")]):
+                chunks.append(chunk)
+
+            # Verify stream was called
+            mock_stream.assert_called_once()
+            # Verify stream completed without error
+            assert len(chunks) == 0 or all(c is not None for c in chunks)
+
 
     @pytest.mark.asyncio
     async def test_stream_error(self):

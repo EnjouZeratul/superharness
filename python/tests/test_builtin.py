@@ -11,22 +11,19 @@ import sys
 import pytest
 import tempfile
 import asyncio
-import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from continuum_sdk.tools.file_ops import (
     ReadTool, WriteTool, EditTool,
-    read_file, write_file, edit_file,
     detect_encoding,
 )
 from continuum_sdk.tools.bash import (
-    BashTool, bash_execute, bash_execute_sync,
-    validate_command, DANGEROUS_COMMANDS, BLOCKED_COMMANDS,
+    BashTool, validate_command, BLOCKED_COMMANDS,
 )
 from continuum_sdk.tools.search import (
     GrepTool, GlobTool,
-    grep, glob as glob_tool,
+    grep,
 )
 from continuum_sdk.tools.types import ToolError, ToolResult
 from continuum_sdk.tools.builtin import (

@@ -10,8 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
-from datetime import datetime, timedelta
+from unittest.mock import Mock, AsyncMock, patch
 
 from continuum_sdk.agent import (
     Planner,
@@ -1222,7 +1221,6 @@ class TestIntelligentAgentRetryLogic:
         # Need to reset step status back to PENDING after RETRYING
         # because get_pending_steps only returns PENDING steps
         # This is a known behavior: RETRYING steps need external reset
-        original_get_pending = plan.get_pending_steps
 
         def patched_get_pending():
             # Include RETRYING steps as pending
@@ -1241,7 +1239,7 @@ class TestIntelligentAgentRetryLogic:
         plan.get_pending_steps = patched_get_pending
 
         with patch.object(agent, '_execute_step', side_effect=flaky_execute):
-            result = await agent.execute(plan)
+            await agent.execute(plan)
 
         assert call_count >= 2  # Failed once, then succeeded
 
