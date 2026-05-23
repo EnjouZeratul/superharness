@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "continuum"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2717,7 +2717,7 @@ dependencies = [
 
 [[package]]
 name = "sh-core"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2736,7 +2736,7 @@ dependencies = [
 
 [[package]]
 name = "sh-layer0"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2755,7 +2755,7 @@ dependencies = [
 
 [[package]]
 name = "sh-layer1"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2782,7 +2782,7 @@ dependencies = [
 
 [[package]]
 name = "sh-layer2"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2805,7 +2805,7 @@ dependencies = [
 
 [[package]]
 name = "sh-layer3"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2828,7 +2828,7 @@ dependencies = [
 
 [[package]]
 name = "sh-layer4"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2850,7 +2850,7 @@ dependencies = [
 
 [[package]]
 name = "sh-python"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "chrono",

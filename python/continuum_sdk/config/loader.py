@@ -243,8 +243,8 @@ class Config:
         """
         从环境变量加载配置
 
-        环境变量优先级：CONTINUUM_* > CONTINUUM_* > ANTHROPIC_*
-        例：CONTINUUM_PROVIDER=anthropic
+        环境变量优先级：CONTINUUM_* > {PROVIDER}_* > ANTHROPIC_*
+        例：CONTINUUM_PROVIDER=openai, CONTINUUM_API_KEY=xxx
         """
         env_mapping = {
             "PROVIDER": "provider",
@@ -264,14 +264,50 @@ class Config:
             "AUDIT_RETENTION": ("audit_retention_days", int),
         }
 
+        # Provider-specific env var names
+        provider_env_keys = {
+            "anthropic": "ANTHROPIC_API_KEY",
+            "openai": "OPENAI_API_KEY",
+            "google": "GOOGLE_API_KEY",
+            "gemini": "GOOGLE_API_KEY",
+        }
+
         config_data = {}
+
+        # First pass: get provider to know which fallback to use
+        provider = (
+            os.environ.get(f"{cls.ENV_PREFIX}PROVIDER")
+            or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}PROVIDER")
+            or "anthropic"
+        )
+        config_data["provider"] = provider
+
+        # Get provider-specific fallback env var
+        provider_fallback_key = provider_env_keys.get(provider, "ANTHROPIC_API_KEY")
+
         for env_suffix, config_key in env_mapping.items():
             # 检查多个环境变量前缀（按优先级）
-            value = (
-                os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
-                or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
-                or os.environ.get(f"ANTHROPIC_{env_suffix}")
-            )
+            if env_suffix == "API_KEY":
+                # For API_KEY, use provider-specific fallback
+                value = (
+                    os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
+                    or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
+                    or os.environ.get(provider_fallback_key)
+                )
+            elif env_suffix == "BASE_URL":
+                # For BASE_URL, check provider-specific var too
+                value = (
+                    os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
+                    or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
+                    or os.environ.get(f"{provider.upper()}_BASE_URL")
+                )
+            else:
+                value = (
+                    os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
+                    or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
+                    or os.environ.get(f"ANTHROPIC_{env_suffix}")
+                )
+
             if value:
                 if isinstance(config_key, tuple):
                     key, converter = config_key

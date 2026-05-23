@@ -12,12 +12,12 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Continuum Team"]
 license = "MIT"
-repository = "https://github.com/continuum-ai/continuum"
-homepage = "https://github.com/continuum-ai/continuum"
+repository = "https://github.com/EnjouZeratul/continuum"
+homepage = "https://github.com/EnjouZeratul/continuum"
 documentation = "https://docs.rs/continuum"
 keywords = ["agent", "llm", "ai", "runtime", "terminal"]
 categories = ["development-tools", "api-bindings", "command-line-utilities"]
@@ -90,12 +90,12 @@ tempfile = "3.14"
 criterion = "0.5"
 
 # Layer 内部依赖（共享）
-sh-layer0 = { version = "0.1.0", path = "rust/layer0" }
-sh-layer1 = { version = "0.1.0", path = "rust/layer1" }
-sh-layer2 = { version = "0.1.0", path = "rust/layer2" }
-sh-layer3 = { version = "0.1.0", path = "rust/layer3" }
-sh-layer4 = { version = "0.1.0", path = "rust/layer4" }
-sh-core = { version = "0.1.0", path = "rust/sh-core" }
+sh-layer0 = { version = "1.0.0", path = "rust/layer0" }
+sh-layer1 = { version = "1.0.0", path = "rust/layer1" }
+sh-layer2 = { version = "1.0.0", path = "rust/layer2" }
+sh-layer3 = { version = "1.0.0", path = "rust/layer3" }
+sh-layer4 = { version = "1.0.0", path = "rust/layer4" }
+sh-core = { version = "1.0.0", path = "rust/sh-core" }
 
 [profile.release]
 lto = true

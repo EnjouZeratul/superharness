@@ -62,21 +62,73 @@ conda activate continuum
 pip install -e ./python[dev]
 ```
 
+### API Key Configuration
+
+**Method 1: Environment Variables (Recommended)**
+
+```bash
+# Unified key (works for any provider)
+export CONTINUUM_API_KEY=your-api-key
+export CONTINUUM_PROVIDER=anthropic  # or openai, google
+
+# Or provider-specific keys
+export ANTHROPIC_API_KEY=your-anthropic-key
+export OPENAI_API_KEY=your-openai-key
+export GOOGLE_API_KEY=your-google-key
+
+# Custom API URL (optional, for proxies or private deployments)
+export CONTINUUM_BASE_URL=https://your-proxy.example.com
+# Or provider-specific
+export OPENAI_BASE_URL=https://api.openai.com/v1
+```
+
+**Method 2: Configuration File**
+
+```bash
+# Copy example config
+cp python/continuum_sdk/config/config.example.toml ~/.continuum/config.toml
+
+# Edit the file
+# Note: Use ${ENV_VAR} to reference environment variables (safer)
+api_key = "${ANTHROPIC_API_KEY}"
+```
+
+| Provider | Env Key | Default URL | API Format |
+|----------|---------|-------------|------------|
+| Anthropic | `ANTHROPIC_API_KEY` | `https://api.anthropic.com` | Anthropic |
+| OpenAI | `OPENAI_API_KEY` | `https://api.openai.com/v1` | OpenAI |
+| Google/Gemini | `GOOGLE_API_KEY` | `https://generativelanguage.googleapis.com/v1beta` | Google |
+| Together | `TOGETHER_API_KEY` | `https://api.together.xyz/v1` | OpenAI |
+| Groq | `GROQ_API_KEY` | `https://api.groq.com/openai/v1` | OpenAI |
+| DeepSeek | `DEEPSEEK_API_KEY` | `https://api.deepseek.com/v1` | OpenAI |
+| Moonshot | `MOONSHOT_API_KEY` | `https://api.moonshot.cn/v1` | OpenAI |
+| Custom | Any | User-defined | OpenAI or Anthropic |
+
 ### CLI Usage
 
 ```bash
-# Install
-cargo install continuum
+# Install from source
+cargo install --path cli
 
-# Run a task
+# Or after publishing to crates.io
+cargo install continuum-agent-sdk
+
+# Run a task (uses current directory as workspace)
 continuum run "Analyze this project structure"
 
-# Start TUI mode
+# Start TUI mode (default when no command specified)
+continuum
+# or
 continuum tui
 
 # Manage sessions
 continuum session list
 continuum session resume <session_id>
+
+# Configure
+continuum config init
+continuum config set provider anthropic
+continuum config show
 ```
 
 ### Python SDK Usage
@@ -306,16 +358,43 @@ Continuum 是两个同等重要的产品：
 
 ## 快速开始
 
+### API Key 配置
+
+**方式 1：环境变量（推荐）**
+
+```bash
+# 统一密钥（适用于任何提供商）
+export CONTINUUM_API_KEY=your-api-key
+export CONTINUUM_PROVIDER=anthropic  # 或 openai, google
+
+# 或使用提供商特定密钥
+export ANTHROPIC_API_KEY=your-anthropic-key
+export OPENAI_API_KEY=your-openai-key
+export GOOGLE_API_KEY=your-google-key
+
+# 自定义 API URL（可选，用于代理或私有部署）
+export CONTINUUM_BASE_URL=https://your-proxy.example.com
+```
+
+**方式 2：配置文件**
+
+```bash
+# 复制示例配置
+cp python/continuum_sdk/config/config.example.toml ~/.continuum/config.toml
+```
+
 ### CLI 使用
 
 ```bash
-# 安装
-cargo install continuum
+# 从源码安装
+cargo install --path cli
 
-# 运行任务
+# 运行任务（以当前目录为工作区）
 continuum run "分析这个项目结构"
 
-# 启动 TUI 模式
+# 启动 TUI 模式（默认行为）
+continuum
+# 或显式指定
 continuum tui
 
 # 管理会话

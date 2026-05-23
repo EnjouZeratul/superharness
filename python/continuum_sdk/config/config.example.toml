@@ -1,0 +1,88 @@
+# Continuum Agent SDK 配置示例
+# 复制此文件到 ~/.continuum/config.toml 或项目根目录的 .continuum/config.toml
+
+# ==================== 提供商配置 ====================
+
+# 当前使用的提供商 (anthropic, openai, google, 或自定义)
+provider = "anthropic"
+
+# API Key（推荐使用环境变量，不建议直接写入配置文件）
+# api_key = "your-api-key-here"
+
+# 自定义 API URL（可选，用于代理或私有部署）
+# base_url = "https://your-proxy.example.com"
+
+# ==================== 模型配置 ====================
+# 注意：模型不硬编码，可指定任意模型名称，SDK 会向 URL 发送请求
+
+# 默认模型（根据 provider 选择合适的模型）
+model = "claude-sonnet-4-6"
+
+# 小模型（用于简单任务，节省成本）
+small_model = "claude-haiku-4-5"
+
+# ==================== 执行参数 ====================
+
+# 最大 token 数
+max_tokens = 4096
+
+# 温度参数 (0.0-1.0)
+temperature = 0.7
+
+# 预算上限 (USD)
+# budget = 10.0
+
+# ==================== 工作目录配置 ====================
+
+# Git worktrees 目录
+# worktrees_dir = "~/.continuum/worktrees"
+
+# 插件目录
+# plugins_dir = "~/.continuum/plugins"
+
+# ==================== 日志与审计 ====================
+
+# 日志级别: trace, debug, info, warn, error
+log_level = "info"
+
+# 是否启用审计日志
+audit_enabled = true
+
+# 审计日志保留天数
+audit_retention_days = 90
+
+# ==================== 多提供商配置示例 ====================
+
+[providers.anthropic]
+api_key = "${ANTHROPIC_API_KEY}"
+base_url = "https://api.anthropic.com"
+model = "claude-sonnet-4-6"  # 可改为任意模型名称
+
+[providers.openai]
+api_key = "${OPENAI_API_KEY}"
+base_url = "https://api.openai.com/v1"
+model = "gpt-4.1"  # 支持任意 OpenAI 模型
+
+[providers.google]
+api_key = "${GOOGLE_API_KEY}"
+base_url = "https://generativelanguage.googleapis.com/v1beta"
+model = "gemini-2.5-pro"  # 支持任意 Gemini 模型
+
+# ==================== 自定义提供商 ====================
+# 支持两种 API 格式：anthropic（A社格式）和 openai（OpenAI 兼容格式）
+# 大多数第三方提供商使用 OpenAI 兼容格式
+
+# OpenAI 兼容格式示例（Together, Groq, DeepSeek, 月之暗面 等）
+# [providers.my-openai-provider]
+# api_format = "openai"           # openai 或 anthropic
+# api_key = "${CUSTOM_API_KEY}"
+# base_url = "https://api.custom.com/v1"
+# model = "custom-model-1"        # 任意模型名称
+
+# Anthropic 格式示例（自建 Anthropic 代理等）
+# [providers.my-anthropic-proxy]
+# api_format = "anthropic"
+# api_key = "${ANTHROPIC_API_KEY}"
+# base_url = "https://my-proxy.example.com"
+# model = "claude-sonnet-4-6"
+
