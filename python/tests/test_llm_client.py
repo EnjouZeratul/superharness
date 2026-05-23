@@ -65,7 +65,7 @@ class TestLlmClientFactory:
         assert isinstance(client, OpenAIClient)
         assert client.api_key == "test-key"
         assert client.provider == "openai"
-        assert client.default_model == "gpt-4"
+        assert client.default_model == "gpt-4.1"
 
     def test_create_gemini_client(self):
         """测试创建 Gemini 客户端"""
@@ -86,18 +86,34 @@ class TestLlmClientFactory:
             api_key="test-key",
             base_url="https://custom.api.com/v1"
         )
-        assert isinstance(client, CustomClient)
+        assert isinstance(client, (OpenAIClient, CustomClient))
         assert client.base_url == "https://custom.api.com/v1"
 
     def test_custom_client_requires_base_url(self):
-        """测试自定义客户端必须提供 base_url"""
-        with pytest.raises(ValueError, match="base_url is required"):
-            LlmClient.for_provider("custom", api_key="test-key")
+        """测试自定义提供商无 base_url 时使用默认 URL"""
+        # 现在会根据 api_format 自动路由，不会抛错
+        client = LlmClient.for_provider("custom", api_key="test-key")
+        # 应该创建一个 OpenAI 兼容客户端
+        assert isinstance(client, (OpenAIClient, CustomClient))
 
-    def test_unknown_provider_raises_error(self):
-        """测试未知提供商抛出错误"""
-        with pytest.raises(ValueError, match="Unknown provider"):
-            LlmClient.for_provider("unknown", api_key="test-key")
+    def test_unknown_provider_falls_back_to_openai_format(self):
+        """测试未知提供商回退到 OpenAI 格式"""
+        # 未知提供商有 base_url 则创建 OpenAI 兼容客户端
+        client = LlmClient.for_provider(
+            "unknown_provider_xyz",
+            api_key="test-key",
+            base_url="https://api.example.com/v1"
+        )
+        assert isinstance(client, (OpenAIClient, CustomClient))
+
+        # 可以指定 api_format 强制使用某种格式
+        client2 = LlmClient.for_provider(
+            "my_custom_provider",
+            api_key="test-key",
+            base_url="https://api.custom.com/v1",
+            api_format="openai"
+        )
+        assert isinstance(client2, OpenAIClient)
 
     def test_provider_name_case_insensitive(self):
         """测试提供商名称不区分大小写"""

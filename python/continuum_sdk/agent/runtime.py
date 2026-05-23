@@ -88,9 +88,10 @@ class AgentConfig:
     Attributes:
         name: Agent identifier name
         model: LLM model to use
-        provider: LLM provider (anthropic, openai, gemini)
+        provider: LLM provider (anthropic, openai, gemini, together, etc.)
         api_key: API key for authentication
         base_url: Optional custom API endpoint
+        api_format: API format (anthropic, openai, google). Auto-detected from provider if not set.
         budget: Optional cost budget limit
         max_tokens: Maximum tokens per response
         temperature: Sampling temperature
@@ -105,6 +106,7 @@ class AgentConfig:
         provider: str = "anthropic",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
+        api_format: Optional[str] = None,
         budget: Optional[float] = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
@@ -117,6 +119,7 @@ class AgentConfig:
         self.provider = provider
         self.api_key = api_key
         self.base_url = base_url
+        self.api_format = api_format
         self.budget = budget
         self.max_tokens = max_tokens
         self.temperature = temperature
@@ -131,6 +134,7 @@ class AgentConfig:
             "provider": self.provider,
             "api_key": self.api_key,
             "base_url": self.base_url,
+            "api_format": self.api_format,
             "budget": self.budget,
             "max_tokens": self.max_tokens,
             "temperature": self.temperature,
@@ -282,6 +286,7 @@ class Agent:
                 api_key=self._config.api_key,
                 base_url=self._config.base_url,
                 model=self._config.model,
+                api_format=self._config.api_format,
                 timeout=self._config.timeout,
             )
 

@@ -717,11 +717,15 @@ class LlmClient:
     """
     Unified LLM client factory.
 
-    Creates the appropriate client based on provider.
+    Creates the appropriate client based on provider or api_format.
 
     Usage:
         >>> client = LlmClient.for_provider("anthropic", api_key="...")
         >>> response = await client.chat([Message.user("Hello")])
+
+        >>> # Custom provider with OpenAI format
+        >>> client = LlmClient.for_provider("custom", api_key="...",
+        ...     base_url="https://api.custom.com/v1", api_format="openai")
     """
 
     @staticmethod
@@ -730,52 +734,84 @@ class LlmClient:
         api_key: str,
         base_url: Optional[str] = None,
         model: Optional[str] = None,
+        api_format: Optional[str] = None,
         **kwargs,
     ) -> BaseLlmClient:
         """
         Create client for specified provider.
 
         Args:
-            provider: Provider name (anthropic, openai, gemini, custom)
+            provider: Provider name (anthropic, openai, gemini, google,
+                      together, groq, deepseek, moonshot, custom, etc.)
             api_key: API key for authentication
-            base_url: Optional custom base URL
+            base_url: Optional custom base URL (uses default if not provided)
             model: Default model to use
+            api_format: API format override ("anthropic", "openai", "google")
+                        If not specified, uses provider's default format
             **kwargs: Additional client options
 
         Returns:
             Appropriate LLM client instance
         """
-        provider = provider.lower()
+        from continuum_sdk.config.providers import (
+            BUILTIN_PROVIDERS,
+            get_default_base_url,
+            get_default_model,
+            ApiFormat,
+        )
 
-        if provider == "anthropic":
+        provider_lower = provider.lower()
+
+        # Get provider info for defaults
+        provider_info = BUILTIN_PROVIDERS.get(provider_lower)
+
+        # Determine base_url
+        if base_url is None and provider_info:
+            base_url = provider_info.default_base_url
+
+        # Determine model
+        if model is None and provider_info:
+            model = provider_info.default_model
+
+        # Determine api_format
+        if api_format is None and provider_info:
+            format_enum = provider_info.api_format
+            api_format = format_enum.value if format_enum else "openai"
+
+        api_format_lower = (api_format or "openai").lower()
+
+        # Route by api_format, not provider name
+        if api_format_lower == "anthropic":
             return AnthropicClient(
                 api_key=api_key,
                 base_url=base_url,
                 default_model=model or "claude-sonnet-4-6",
                 **kwargs,
             )
-        elif provider == "openai":
+        elif api_format_lower == "openai":
+            # OpenAI format: works for OpenAI, Together, Groq, DeepSeek, etc.
             return OpenAIClient(
                 api_key=api_key,
-                base_url=base_url,
+                base_url=base_url or "https://api.openai.com/v1",
                 default_model=model or "gpt-4",
                 **kwargs,
             )
-        elif provider in ("gemini", "google"):
+        elif api_format_lower in ("google", "gemini"):
             return GeminiClient(
                 api_key=api_key,
                 base_url=base_url,
-                default_model=model or "gemini-1.5-pro",
+                default_model=model or "gemini-2.5-pro",
                 **kwargs,
             )
-        elif provider == "custom":
+        else:
+            # Unknown format, fall back to OpenAI-compatible
             if not base_url:
-                raise ValueError("base_url is required for custom provider")
+                raise ValueError(
+                    f"base_url is required for unknown provider/format: {provider}/{api_format}"
+                )
             return CustomClient(
                 api_key=api_key,
                 base_url=base_url,
                 default_model=model or "default",
                 **kwargs,
             )
-        else:
-            raise ValueError(f"Unknown provider: {provider}")

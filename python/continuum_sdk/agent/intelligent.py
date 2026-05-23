@@ -89,6 +89,7 @@ class IntelligentAgent:
         provider: str = "anthropic",
         model: Optional[str] = None,
         base_url: Optional[str] = None,
+        api_format: Optional[str] = None,
         mode: AgentMode = AgentMode.INTERACTIVE,
         max_retries: int = 3,
         on_progress: Optional[Callable[[ProgressEvent], None]] = None,
@@ -98,9 +99,10 @@ class IntelligentAgent:
 
         Args:
             api_key: API key for LLM (uses env var if not provided)
-            provider: LLM provider (anthropic, openai, gemini)
+            provider: LLM provider (anthropic, openai, gemini, together, etc.)
             model: Model to use
             base_url: Optional custom base URL
+            api_format: API format override (anthropic|openai|google)
             mode: Execution mode
             max_retries: Max retries per step
             on_progress: Progress callback
@@ -109,6 +111,7 @@ class IntelligentAgent:
         self.provider = provider
         self.model = model
         self.base_url = base_url
+        self.api_format = api_format
         self.mode = mode
         self.max_retries = max_retries
 
@@ -146,6 +149,7 @@ class IntelligentAgent:
                 api_key=self.api_key,
                 base_url=self.base_url,
                 model=self.model,
+                api_format=self.api_format,
             )
 
         return self._llm_client

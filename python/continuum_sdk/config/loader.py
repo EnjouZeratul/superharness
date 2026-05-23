@@ -100,6 +100,7 @@ class Config:
         provider: str = "anthropic",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
+        api_format: Optional[str] = None,
         model: Optional[str] = None,
         small_model: Optional[str] = None,
         effort_level: str = "medium",
@@ -118,9 +119,10 @@ class Config:
         创建配置
 
         Args:
-            provider: LLM 提供商 (anthropic|openai|google|custom)
+            provider: LLM 提供商 (anthropic|openai|google|custom|together|groq|...)
             api_key: API 密钥
-            base_url: API 基础 URL（用于自定义端点）
+            base_url: API 基础 URL（用于自定义端点或代理）
+            api_format: API 格式 (anthropic|openai|google)。不设置则根据 provider 自动推断
             model: 主模型名称
             small_model: 小模型名称（用于简单任务）
             effort_level: 努力级别 (low|medium|high|max)
@@ -139,6 +141,7 @@ class Config:
             "provider": provider,
             "api_key": api_key,
             "base_url": base_url,
+            "api_format": api_format,
             "model": model,
             "small_model": small_model,
             "effort_level": effort_level,
@@ -184,6 +187,11 @@ class Config:
     def base_url(self) -> Optional[str]:
         """API 基础 URL"""
         return self._data.get("base_url")
+
+    @property
+    def api_format(self) -> Optional[str]:
+        """API 请求格式 (anthropic|openai|google)"""
+        return self._data.get("api_format")
 
     @property
     def effort_level(self) -> str:
@@ -250,6 +258,7 @@ class Config:
             "PROVIDER": "provider",
             "API_KEY": "api_key",
             "BASE_URL": "base_url",
+            "API_FORMAT": "api_format",  # 新增：anthropic, openai, google
             "MODEL": "model",
             "SMALL_MODEL": "small_model",
             "EFFORT_LEVEL": "effort_level",
