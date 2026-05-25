@@ -4,7 +4,6 @@ Provides Python access to Continuum's built-in tools via Rust binding.
 
 [STABILITY: STABLE] Core tools 稳定可用
 [NOTE] 当 Rust binding 不可用时，自动降级到 placeholder 模式
-"""
 
 The BuiltinTools class wraps the Rust ToolExecutor for high-performance
 file operations, search, and shell command execution.
