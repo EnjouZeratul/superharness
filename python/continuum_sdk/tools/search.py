@@ -9,14 +9,14 @@ Features:
     - Results filtering
 """
 
+import re
 import time
 import uuid
-import re
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Pattern
+from typing import Any, Dict, List, Optional, Pattern
 
-from .types import ToolResult, ToolError
 from .file_ops import detect_encoding
+from .types import ToolError, ToolResult
 
 
 def grep(

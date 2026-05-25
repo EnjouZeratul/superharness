@@ -4,6 +4,7 @@
 """
 
 import asyncio
+
 from continuum_sdk import Session
 
 

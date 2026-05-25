@@ -88,9 +88,9 @@ See Also:
 from __future__ import annotations
 
 import asyncio
-from typing import Optional, Dict, Any, Callable, Union, AsyncIterator, List, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Dict, List, Optional, Union
 
 if TYPE_CHECKING:
     from .session import Session
@@ -107,15 +107,17 @@ from ..config import Config
 
 # Import LLM client
 from ..llm import (
-    LlmClient,
+    AuthenticationError,
     BaseLlmClient,
-    Message,
-    MessageRole as LlmMessageRole,
     ChatResponse,
+    LlmClient,
+    LlmError,
+    Message,
     StreamChunk,
     ToolDefinition,
-    LlmError,
-    AuthenticationError,
+)
+from ..llm import (
+    MessageRole as LlmMessageRole,
 )
 
 

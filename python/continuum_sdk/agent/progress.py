@@ -66,8 +66,8 @@ See Also:
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Callable
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 
 class ProgressState(Enum):

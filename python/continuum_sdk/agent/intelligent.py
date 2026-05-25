@@ -79,13 +79,13 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Callable
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
-from .planner import Planner, Plan, Step, StepType, StepStatus
-from .self_correction import SelfCorrection, ErrorContext, RecoveryStrategy
-from .progress import ProgressTracker, ProgressEvent, StepLogger
 from ..llm import BaseLlmClient, LlmClient, Message
+from .planner import Plan, Planner, Step, StepStatus, StepType
+from .progress import ProgressEvent, ProgressTracker, StepLogger
+from .self_correction import ErrorContext, RecoveryStrategy, SelfCorrection
 
 
 class AgentMode(Enum):
@@ -420,7 +420,7 @@ class IntelligentAgent:
         """
 
         # Import tools
-        from ..tools import BashTool, ReadTool, GrepTool
+        from ..tools import BashTool, GrepTool, ReadTool
 
         # Execute based on step type
         if step.type == StepType.SEARCH:

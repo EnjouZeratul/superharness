@@ -28,28 +28,27 @@ Quick Start:
 """
 
 # Tool types
-from .types import ToolResult, ToolError, ToolMeta, ToolCategory
-
 # Real tool implementations
 from .bash import BashTool, bash_execute, bash_execute_sync, validate_command
-from .file_ops import (
-    ReadTool,
-    WriteTool,
-    EditTool,
-    read_file,
-    write_file,
-    edit_file,
-    detect_encoding,
-)
-from .search import (
-    GrepTool,
-    GlobTool,
-    grep,
-    glob,
-)
 
 # Legacy compatibility (custom tools)
-from .custom import CustomTool, ToolRegistry, tool, register_tool, get_registry
+from .custom import CustomTool, ToolRegistry, get_registry, register_tool, tool
+from .file_ops import (
+    EditTool,
+    ReadTool,
+    WriteTool,
+    detect_encoding,
+    edit_file,
+    read_file,
+    write_file,
+)
+from .search import (
+    GlobTool,
+    GrepTool,
+    glob,
+    grep,
+)
+from .types import ToolCategory, ToolError, ToolMeta, ToolResult
 
 __all__ = [
     # Types

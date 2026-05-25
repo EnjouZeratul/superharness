@@ -51,24 +51,24 @@ See Also:
 import json
 from abc import ABC, abstractmethod
 from typing import (
-    Optional,
-    List,
-    Dict,
     Any,
     AsyncIterator,
+    Dict,
+    List,
+    Optional,
 )
 
 import httpx
 
-from .types import (
-    Message,
-    ChatResponse,
-    StreamChunk,
-    ToolDefinition,
-)
 from .errors import (
     InvalidResponseError,
     classify_http_error,
+)
+from .types import (
+    ChatResponse,
+    Message,
+    StreamChunk,
+    ToolDefinition,
 )
 
 

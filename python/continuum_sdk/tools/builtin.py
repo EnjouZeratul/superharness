@@ -80,10 +80,10 @@ Requirements:
     Falls back to placeholder mode without the binding.
 """
 
-from typing import Any, Dict, List, Optional
-from enum import Enum
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 # Import Rust binding
 try:

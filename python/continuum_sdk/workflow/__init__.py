@@ -31,7 +31,7 @@ Parallel Execution:
     >>> dag.add(Node("d", func=task_d).depends_on("b", "c"))
 """
 
-from .dag import DAG, Node, NodeStatus, NodeResult, DAGResult
+from .dag import DAG, DAGResult, Node, NodeResult, NodeStatus
 
 __all__ = [
     "DAG",

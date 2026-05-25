@@ -36,9 +36,7 @@ pub fn execute(cmd: SessionCmd) -> Result<()> {
                         SessionCmd::Delete { session_id, force } => {
                             delete_session(manager, &session_id, force).await
                         }
-                        SessionCmd::Show { session_id } => {
-                            show_session(manager, &session_id).await
-                        }
+                        SessionCmd::Show { session_id } => show_session(manager, &session_id).await,
                     }
                 })
             })
@@ -50,15 +48,11 @@ pub fn execute(cmd: SessionCmd) -> Result<()> {
                 let manager = get_session_manager();
                 match cmd {
                     SessionCmd::List { all } => list_sessions(manager, all).await,
-                    SessionCmd::Resume { session_id } => {
-                        resume_session(manager, &session_id).await
-                    }
+                    SessionCmd::Resume { session_id } => resume_session(manager, &session_id).await,
                     SessionCmd::Delete { session_id, force } => {
                         delete_session(manager, &session_id, force).await
                     }
-                    SessionCmd::Show { session_id } => {
-                        show_session(manager, &session_id).await
-                    }
+                    SessionCmd::Show { session_id } => show_session(manager, &session_id).await,
                 }
             })
         }
@@ -179,8 +173,14 @@ async fn show_session(manager: &ConcurrentSessionManager, session_id: &str) -> R
             println!("ID: {}", session.session_id.0);
             println!("Agent: {}", session.agent_id);
             println!("State: {:?}", session.state);
-            println!("Created: {}", session.created_at.format("%Y-%m-%d %H:%M:%S"));
-            println!("Last Updated: {}", session.last_updated.format("%Y-%m-%d %H:%M:%S"));
+            println!(
+                "Created: {}",
+                session.created_at.format("%Y-%m-%d %H:%M:%S")
+            );
+            println!(
+                "Last Updated: {}",
+                session.last_updated.format("%Y-%m-%d %H:%M:%S")
+            );
             println!("Iteration: {}", session.iteration);
             println!("Checkpoint Count: {}", session.checkpoint_count);
             println!("Messages: {}", session.messages.len());

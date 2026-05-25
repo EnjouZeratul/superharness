@@ -84,11 +84,11 @@ See Also:
     MessageRole: Role enumeration
 """
 
-from typing import Optional, List, Dict, Any, Union
+import json
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-import json
+from typing import Any, Dict, List, Optional, Union
 
 # Import Rust bindings
 try:

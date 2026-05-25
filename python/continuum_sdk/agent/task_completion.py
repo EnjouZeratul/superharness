@@ -21,12 +21,12 @@ Example:
     True 0.95
 """
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Dict, Any, List
-import json
+from typing import Any, Dict, List, Optional
 
 from ..llm import BaseLlmClient, Message
 

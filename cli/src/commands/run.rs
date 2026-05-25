@@ -2,8 +2,8 @@
 //!
 //! 执行 Agent 任务，支持交互模式和非交互模式。
 
-use anyhow::Result;
 use crate::commands::tool_exec;
+use anyhow::Result;
 
 /// 执行 run 命令
 pub fn execute(
@@ -56,10 +56,16 @@ fn execute_task(task: &str, debug: bool) -> Result<String> {
 
     match tool_name.as_str() {
         "bash" => {
-            let command = params.get("command").and_then(|c| c.as_str()).unwrap_or(task);
+            let command = params
+                .get("command")
+                .and_then(|c| c.as_str())
+                .unwrap_or(task);
             let result = tool_exec::execute_bash(command, None, 30, false)?;
             if result.exit_code != 0 {
-                Ok(format!("Error (exit {}): {}", result.exit_code, result.stderr))
+                Ok(format!(
+                    "Error (exit {}): {}",
+                    result.exit_code, result.stderr
+                ))
             } else {
                 Ok(result.stdout)
             }
@@ -69,7 +75,10 @@ fn execute_task(task: &str, debug: bool) -> Result<String> {
             tool_exec::execute_read(path, None, None, false)
         }
         "write_file" => {
-            let path = params.get("path").and_then(|p| p.as_str()).unwrap_or("output.txt");
+            let path = params
+                .get("path")
+                .and_then(|p| p.as_str())
+                .unwrap_or("output.txt");
             let content = params.get("content").and_then(|c| c.as_str()).unwrap_or("");
             tool_exec::execute_write(path, Some(content), false, false)
         }
@@ -80,11 +89,18 @@ fn execute_task(task: &str, debug: bool) -> Result<String> {
             if results.is_empty() {
                 Ok("(no matches)".to_string())
             } else {
-                Ok(results.iter().map(|m| format!("{}:{}: {}", m.file, m.line_number, m.line)).collect::<Vec<_>>().join("\n"))
+                Ok(results
+                    .iter()
+                    .map(|m| format!("{}:{}: {}", m.file, m.line_number, m.line))
+                    .collect::<Vec<_>>()
+                    .join("\n"))
             }
         }
         "glob" => {
-            let pattern = params.get("pattern").and_then(|p| p.as_str()).unwrap_or("*");
+            let pattern = params
+                .get("pattern")
+                .and_then(|p| p.as_str())
+                .unwrap_or("*");
             let path = params.get("path").and_then(|p| p.as_str()).unwrap_or(".");
             let results = tool_exec::execute_glob(pattern, path)?;
             if results.is_empty() {
@@ -101,7 +117,10 @@ fn execute_task(task: &str, debug: bool) -> Result<String> {
             // 尝试作为 shell 命令执行
             let result = tool_exec::execute_bash(task, None, 30, false)?;
             if result.exit_code != 0 {
-                Ok(format!("Error (exit {}): {}", result.exit_code, result.stderr))
+                Ok(format!(
+                    "Error (exit {}): {}",
+                    result.exit_code, result.stderr
+                ))
             } else {
                 Ok(result.stdout)
             }
@@ -142,12 +161,18 @@ fn parse_task(task: &str) -> (String, serde_json::Value) {
 
     if task_lower.starts_with("grep:") || task_lower.starts_with("search:") {
         let pattern = task.splitn(2, ':').nth(1).unwrap_or(task).trim();
-        return ("grep".to_string(), serde_json::json!({"pattern": pattern, "path": "."}));
+        return (
+            "grep".to_string(),
+            serde_json::json!({"pattern": pattern, "path": "."}),
+        );
     }
 
     if task_lower.starts_with("glob:") || task_lower.starts_with("find:") {
         let pattern = task.splitn(2, ':').nth(1).unwrap_or(task).trim();
-        return ("glob".to_string(), serde_json::json!({"pattern": pattern, "path": "."}));
+        return (
+            "glob".to_string(),
+            serde_json::json!({"pattern": pattern, "path": "."}),
+        );
     }
 
     if task_lower.starts_with("read:") || task_lower.starts_with("cat:") {
@@ -158,28 +183,48 @@ fn parse_task(task: &str) -> (String, serde_json::Value) {
     if task_lower.starts_with("write:") {
         let parts: Vec<&str> = task.splitn(3, ':').collect();
         if parts.len() >= 3 {
-            return ("write_file".to_string(), serde_json::json!({"path": parts[1].trim(), "content": parts[2].trim()}));
+            return (
+                "write_file".to_string(),
+                serde_json::json!({"path": parts[1].trim(), "content": parts[2].trim()}),
+            );
         }
     }
 
     // 基于���键词自动选择工具
-    if task_lower.contains("list") && (task_lower.contains("file") || task_lower.contains("dir") || task_lower.contains("directory")) {
-        return ("list_directory".to_string(), serde_json::json!({"path": "."}));
+    if task_lower.contains("list")
+        && (task_lower.contains("file")
+            || task_lower.contains("dir")
+            || task_lower.contains("directory"))
+    {
+        return (
+            "list_directory".to_string(),
+            serde_json::json!({"path": "."}),
+        );
     }
 
-    if task_lower.contains("find") && (task_lower.contains(".py") || task_lower.contains("python")) {
-        return ("glob".to_string(), serde_json::json!({"pattern": "**/*.py", "path": "."}));
+    if task_lower.contains("find") && (task_lower.contains(".py") || task_lower.contains("python"))
+    {
+        return (
+            "glob".to_string(),
+            serde_json::json!({"pattern": "**/*.py", "path": "."}),
+        );
     }
 
     if task_lower.contains("find") && (task_lower.contains(".rs") || task_lower.contains("rust")) {
-        return ("glob".to_string(), serde_json::json!({"pattern": "**/*.rs", "path": "."}));
+        return (
+            "glob".to_string(),
+            serde_json::json!({"pattern": "**/*.rs", "path": "."}),
+        );
     }
 
     if task_lower.contains("search") || task_lower.contains("grep") {
         let words: Vec<&str> = task.split_whitespace().collect();
         if words.len() > 1 {
             // 尝试提取最后一个词作为 pattern
-            return ("grep".to_string(), serde_json::json!({"pattern": words.last().unwrap(), "path": "."}));
+            return (
+                "grep".to_string(),
+                serde_json::json!({"pattern": words.last().unwrap(), "path": "."}),
+            );
         }
     }
 

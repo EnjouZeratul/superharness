@@ -10,14 +10,14 @@ Features:
     - Line number formatting
 """
 
+import difflib
+import shutil
 import time
 import uuid
-import shutil
-import difflib
 from pathlib import Path
 from typing import Optional
 
-from .types import ToolResult, ToolError
+from .types import ToolError, ToolResult
 
 
 def detect_encoding(file_path: Path) -> str:

@@ -4,13 +4,13 @@
 """
 
 import asyncio
+
 from continuum_sdk.tools import (
     CustomTool,
-    tool,
-    register_tool,
     get_registry,
+    register_tool,
+    tool,
 )
-
 
 # ==================== 方式 1: 继承 CustomTool ====================
 

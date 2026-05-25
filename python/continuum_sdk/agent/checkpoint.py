@@ -93,11 +93,11 @@ See Also:
     CheckpointMeta: Checkpoint metadata structure
 """
 
-from typing import Optional, Dict, Any, List
-from pathlib import Path
+import json
 from dataclasses import dataclass
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Import Rust binding
 try:
@@ -105,6 +105,9 @@ try:
     HAS_RUST_BINDING = True
 except ImportError:
     HAS_RUST_BINDING = False
+    # Define placeholder for type annotation
+    class RustCheckpointSystem:
+        pass
 
 
 @dataclass

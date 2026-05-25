@@ -28,7 +28,7 @@ Quick Start:
     >>> print(context)  # "User prefers Python"
 """
 
-from .layers import Memory, MemoryTier, MemoryEntry, TierProxy
+from .layers import Memory, MemoryEntry, MemoryTier, TierProxy
 
 __all__ = [
     "Memory",

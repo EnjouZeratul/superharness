@@ -12,15 +12,14 @@ Features:
 """
 
 import asyncio
+import os
+import shlex
 import time
 import uuid
-import shlex
-import os
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict, Optional
 
-from .types import ToolResult, ToolError
-
+from .types import ToolError, ToolResult
 
 # Dangerous commands that require explicit confirmation
 DANGEROUS_COMMANDS = {
