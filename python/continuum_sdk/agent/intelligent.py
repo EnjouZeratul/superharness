@@ -77,10 +77,11 @@ Components:
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from ..llm import BaseLlmClient, LlmClient, Message
 from .planner import Plan, Planner, Step, StepStatus, StepType
@@ -104,12 +105,12 @@ class ExecutionResult:
     completed_steps: int
     total_steps: int
     duration_seconds: float
-    result: Optional[str] = None
-    error: Optional[str] = None
+    result: str | None = None
+    error: str | None = None
     corrections_applied: int = 0
-    logs: List[Dict[str, Any]] = field(default_factory=list)
+    logs: list[dict[str, Any]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "plan_id": self.plan_id,
             "task": self.task,
@@ -143,14 +144,14 @@ class IntelligentAgent:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         provider: str = "anthropic",
-        model: Optional[str] = None,
-        base_url: Optional[str] = None,
-        api_format: Optional[str] = None,
+        model: str | None = None,
+        base_url: str | None = None,
+        api_format: str | None = None,
         mode: AgentMode = AgentMode.INTERACTIVE,
         max_retries: int = 3,
-        on_progress: Optional[Callable[[ProgressEvent], None]] = None,
+        on_progress: Callable[[ProgressEvent], None] | None = None,
     ):
         """
         Initialize intelligent agent.
@@ -174,15 +175,15 @@ class IntelligentAgent:
         self.max_retries = max_retries
 
         # Initialize components
-        self._llm_client: Optional[BaseLlmClient] = None
+        self._llm_client: BaseLlmClient | None = None
         self.planner = Planner()
         self.correction = SelfCorrection()
         self.tracker = ProgressTracker()
         self.logger = StepLogger()
 
         # State
-        self.current_plan: Optional[Plan] = None
-        self.context: Dict[str, Any] = {}
+        self.current_plan: Plan | None = None
+        self.context: dict[str, Any] = {}
 
         # Register progress callback
         if on_progress:
@@ -212,7 +213,7 @@ class IntelligentAgent:
 
         return self._llm_client
 
-    async def plan(self, task: str, context: Optional[Dict[str, Any]] = None) -> Plan:
+    async def plan(self, task: str, context: dict[str, Any] | None = None) -> Plan:
         """
         Create execution plan for a task.
 
@@ -235,11 +236,11 @@ class IntelligentAgent:
 
     async def execute(
         self,
-        plan: Optional[Plan] = None,
-        task: Optional[str] = None,
-        on_step_start: Optional[Callable[[Step], bool]] = None,
-        on_step_complete: Optional[Callable[[Step], None]] = None,
-        on_error: Optional[Callable[[Step, ErrorContext], bool]] = None,
+        plan: Plan | None = None,
+        task: str | None = None,
+        on_step_start: Callable[[Step], bool] | None = None,
+        on_step_complete: Callable[[Step], None] | None = None,
+        on_error: Callable[[Step, ErrorContext], bool] | None = None,
     ) -> ExecutionResult:
         """
         Execute a plan.
@@ -521,7 +522,7 @@ Provide a concise analysis focusing on:
         response = await client.chat(messages=messages, temperature=0.3)
         return response.content
 
-    def _extract_pattern(self, action: str) -> Optional[str]:
+    def _extract_pattern(self, action: str) -> str | None:
         """Extract search pattern from action."""
         # Simple extraction: look for quoted strings or key terms
         import re
@@ -536,7 +537,7 @@ Provide a concise analysis focusing on:
 
         return None
 
-    def _extract_file(self, action: str) -> Optional[str]:
+    def _extract_file(self, action: str) -> str | None:
         """Extract file path from action."""
         import re
         # Look for file paths
@@ -559,7 +560,7 @@ Provide a concise analysis focusing on:
         plan = await self.plan(task)
         return await self.execute(plan, **kwargs)
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Get current progress."""
         return self.tracker.get_progress()
 
@@ -567,7 +568,7 @@ Provide a concise analysis focusing on:
         """Get human-readable progress."""
         return self.tracker.get_progress_text()
 
-    def get_plan_summary(self) -> Optional[str]:
+    def get_plan_summary(self) -> str | None:
         """Get summary of current plan."""
         if not self.current_plan:
             return None

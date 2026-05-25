@@ -97,7 +97,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Import Rust binding
 try:
@@ -120,7 +120,7 @@ class CheckpointMeta:
     iteration: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CheckpointMeta":
+    def from_dict(cls, data: dict[str, Any]) -> "CheckpointMeta":
         return cls(
             checkpoint_id=data.get("checkpoint_id", ""),
             session_id=data.get("session_id", ""),
@@ -143,9 +143,9 @@ class CheckpointClient:
         >>> print(data)
     """
 
-    _system: Optional[RustCheckpointSystem] = None
+    _system: RustCheckpointSystem | None = None
 
-    def __init__(self, storage_path: Optional[Path] = None):
+    def __init__(self, storage_path: Path | None = None):
         """Initialize checkpoint client.
 
         Args:
@@ -167,7 +167,7 @@ class CheckpointClient:
                 "Ensure sh_python.pyd is in the package directory."
             )
 
-    def save(self, session_id: str, state: Dict[str, Any]) -> str:
+    def save(self, session_id: str, state: dict[str, Any]) -> str:
         """Save checkpoint for session.
 
         Args:
@@ -184,8 +184,8 @@ class CheckpointClient:
     def load(
         self,
         session_id: str,
-        checkpoint_id: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        checkpoint_id: str | None = None
+    ) -> dict[str, Any] | None:
         """Load checkpoint for session.
 
         Args:
@@ -204,7 +204,7 @@ class CheckpointClient:
                 return {"raw": result}
         return None
 
-    def list(self, session_id: str) -> List[str]:
+    def list(self, session_id: str) -> list[str]:
         """List all checkpoints for session.
 
         Args:

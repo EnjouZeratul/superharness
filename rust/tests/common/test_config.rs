@@ -107,8 +107,14 @@ mod tests {
         assert!(!is_valid_key("placeholder"), "Should reject placeholder");
 
         // 有效格式（仅检查不为空且非占位符）
-        assert!(is_valid_key("sk-proj-abc123def456"), "Should accept valid key format");
-        assert!(is_valid_key("anthropic-api-key-12345"), "Should accept valid key format");
+        assert!(
+            is_valid_key("sk-proj-abc123def456"),
+            "Should accept valid key format"
+        );
+        assert!(
+            is_valid_key("anthropic-api-key-12345"),
+            "Should accept valid key format"
+        );
     }
 
     /// 检查 key 是否为有效的 API key（非占位符）

@@ -88,7 +88,7 @@ import json
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 # Import Rust bindings
 try:
@@ -113,15 +113,15 @@ class Message:
         self,
         role: MessageRole,
         content: str,
-        timestamp: Optional[datetime] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        timestamp: datetime | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         self.role = role
         self.content = content
         self.timestamp = timestamp or datetime.now()
         self.metadata = metadata or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "role": self.role.value,
             "content": self.content,
@@ -130,7 +130,7 @@ class Message:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Message":
+    def from_dict(cls, data: dict[str, Any]) -> "Message":
         return cls(
             role=MessageRole(data["role"]),
             content=data["content"],
@@ -169,7 +169,7 @@ class Session:
         'Python is a programming language.'
     """
 
-    def __init__(self, id: Optional[str] = None):
+    def __init__(self, id: str | None = None):
         """
         Create a new Session.
 
@@ -177,10 +177,10 @@ class Session:
             id: Optional session identifier. Auto-generated if not provided.
         """
         self._id = id or "default-session"
-        self._messages: List[Message] = []
+        self._messages: list[Message] = []
         self._created_at = datetime.now()
-        self._metadata: Dict[str, Any] = {}
-        self._tools_used: List[str] = []
+        self._metadata: dict[str, Any] = {}
+        self._tools_used: list[str] = []
         self._cost: float = 0.0
         self._token_count: int = 0
 
@@ -225,7 +225,7 @@ class Session:
         self,
         role: MessageRole,
         content: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Message:
         """
         添加消息
@@ -262,7 +262,7 @@ class Session:
         """添加系统消息"""
         return self.add_message(MessageRole.SYSTEM, content)
 
-    def get_messages(self) -> List[Message]:
+    def get_messages(self) -> list[Message]:
         """获取所有消息"""
         if self._rust_session:
             # 从 Rust 绑定获取
@@ -276,7 +276,7 @@ class Session:
             ]
         return self._messages.copy()
 
-    def get_last_message(self) -> Optional[Message]:
+    def get_last_message(self) -> Message | None:
         """获取最后一条消息"""
         if not self._messages:
             return None
@@ -292,7 +292,7 @@ class Session:
         """设置元数据"""
         self._metadata[key] = value
 
-    def get_metadata(self, key: str) -> Optional[Any]:
+    def get_metadata(self, key: str) -> Any | None:
         """获取元数据"""
         return self._metadata.get(key)
 
@@ -300,7 +300,7 @@ class Session:
         """记录工具使用"""
         self._tools_used.append(tool_name)
 
-    def get_tools_used(self) -> List[str]:
+    def get_tools_used(self) -> list[str]:
         """获取使用的工具列表"""
         return self._tools_used.copy()
 
@@ -341,7 +341,7 @@ class Session:
     def __repr__(self) -> str:
         return f"Session(id={self._id}, messages={len(self._messages)})"
 
-    def save(self, path: Union[str, Path]) -> None:
+    def save(self, path: str | Path) -> None:
         """
         Save session to file.
 
@@ -366,7 +366,7 @@ class Session:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     @classmethod
-    def load(cls, path: Union[str, Path]) -> "Session":
+    def load(cls, path: str | Path) -> "Session":
         """
         Load session from file.
 
@@ -384,7 +384,7 @@ class Session:
         if not path.exists():
             raise FileNotFoundError(f"Session file not found: {path}")
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         session = cls(id=data["id"])
@@ -397,7 +397,7 @@ class Session:
 
         return session
 
-    def delete(self, path: Union[str, Path]) -> None:
+    def delete(self, path: str | Path) -> None:
         """
         Delete session file.
 
@@ -447,7 +447,7 @@ class Session:
         return cls.load(path)
 
     @classmethod
-    def list_saved_sessions(cls) -> List[str]:
+    def list_saved_sessions(cls) -> list[str]:
         """
         List all saved session IDs in default directory.
 
@@ -461,7 +461,7 @@ class Session:
         return [f.stem for f in session_dir.glob("*.json")]
 
 
-def create_session(id: Optional[str] = None) -> Session:
+def create_session(id: str | None = None) -> Session:
     """
     Convenience function to create a Session.
 

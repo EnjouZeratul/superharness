@@ -4,9 +4,11 @@
 """
 
 import asyncio
+import builtins
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, get_type_hints
+from collections.abc import Callable
+from typing import Any, get_type_hints
 
 
 class CustomTool(ABC):
@@ -53,7 +55,7 @@ class CustomTool(ABC):
         ...
 
     @abstractmethod
-    def parameters_schema(self) -> Dict[str, Any]:
+    def parameters_schema(self) -> dict[str, Any]:
         """参数 JSON Schema"""
         ...
 
@@ -77,7 +79,7 @@ class CustomTool(ABC):
         """是否为危险操作"""
         return False
 
-    def to_meta(self) -> Dict[str, Any]:
+    def to_meta(self) -> dict[str, Any]:
         """转换为元数据字典"""
         return {
             "name": self.name,
@@ -92,7 +94,7 @@ class CustomTool(ABC):
 def tool(
     name: str,
     description: str,
-    parameters: Optional[Dict[str, Any]] = None,
+    parameters: dict[str, Any] | None = None,
     requires_confirmation: bool = False,
     is_dangerous: bool = False
 ) -> Callable:
@@ -165,7 +167,7 @@ def tool(
             def description(self) -> str:
                 return description
 
-            def parameters_schema(self) -> Dict[str, Any]:
+            def parameters_schema(self) -> dict[str, Any]:
                 return inferred_params
 
             @property
@@ -207,7 +209,7 @@ class ToolRegistry:
 
     def __init__(self):
         """初始化注册表"""
-        self._tools: Dict[str, CustomTool] = {}
+        self._tools: dict[str, CustomTool] = {}
 
     def register(self, tool: CustomTool) -> None:
         """注册工具
@@ -224,15 +226,15 @@ class ToolRegistry:
             return True
         return False
 
-    def get(self, name: str) -> Optional[CustomTool]:
+    def get(self, name: str) -> CustomTool | None:
         """获取工具"""
         return self._tools.get(name)
 
-    def list(self) -> List[CustomTool]:
+    def list(self) -> list[CustomTool]:
         """列出所有工具"""
         return list(self._tools.values())
 
-    def list_names(self) -> List[str]:
+    def list_names(self) -> builtins.list[str]:
         """列出所有工具名称"""
         return list(self._tools.keys())
 
@@ -255,7 +257,7 @@ class ToolRegistry:
         """检查工具是否存在"""
         return name in self._tools
 
-    def get_meta(self, name: str) -> Optional[Dict[str, Any]]:
+    def get_meta(self, name: str) -> dict[str, Any] | None:
         """获取工具元数据"""
         tool = self.get(name)
         return tool.to_meta() if tool else None

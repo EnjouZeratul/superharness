@@ -39,7 +39,11 @@ impl GrepTool {
     }
 
     /// Recursively collect files in directory
-    fn collect_files(&self, dir: &Path, glob_pattern: Option<&str>) -> Layer3Result<Vec<std::path::PathBuf>> {
+    fn collect_files(
+        &self,
+        dir: &Path,
+        glob_pattern: Option<&str>,
+    ) -> Layer3Result<Vec<std::path::PathBuf>> {
         let mut files = Vec::new();
 
         fn walk_dir(dir: &Path, files: &mut Vec<std::path::PathBuf>, glob_filter: Option<&str>) {
@@ -48,14 +52,21 @@ impl GrepTool {
                     let path = entry.path();
                     if path.is_dir() {
                         // Skip hidden directories
-                        if !path.file_name().map(|n| n.to_string_lossy().starts_with('.')).unwrap_or(false) {
+                        if !path
+                            .file_name()
+                            .map(|n| n.to_string_lossy().starts_with('.'))
+                            .unwrap_or(false)
+                        {
                             walk_dir(&path, files, glob_filter);
                         }
                     } else if path.is_file() {
                         // Apply glob filter if provided
                         let include = if let Some(glob) = glob_filter {
                             // Simple glob matching: *.ext or **/*.ext
-                            let file_name = path.file_name().map(|n| n.to_string_lossy()).unwrap_or_default();
+                            let file_name = path
+                                .file_name()
+                                .map(|n| n.to_string_lossy())
+                                .unwrap_or_default();
                             if glob.starts_with("**/") {
                                 let suffix = &glob[3..];
                                 file_name.ends_with(suffix.trim_start_matches('*'))
@@ -140,8 +151,7 @@ impl BuiltinTool for GrepTool {
             regex_builder = Regex::new(&format!("(?i){}", pattern_str));
         }
 
-        let pattern = regex_builder
-            .map_err(|e| anyhow::anyhow!("Invalid regex pattern: {}", e))?;
+        let pattern = regex_builder.map_err(|e| anyhow::anyhow!("Invalid regex pattern: {}", e))?;
 
         let search_path = Path::new(path_str);
 
@@ -167,7 +177,8 @@ impl BuiltinTool for GrepTool {
                 if total_matches >= max_results {
                     break;
                 }
-                if let Ok(results) = self.search_file(&file, &pattern, max_results - total_matches) {
+                if let Ok(results) = self.search_file(&file, &pattern, max_results - total_matches)
+                {
                     for (line_num, line) in results {
                         output_lines.push(format!("{}:{}: {}", file.display(), line_num, line));
                         total_matches += 1;
@@ -230,11 +241,18 @@ impl GlobTool {
                     let path = entry.path();
                     if path.is_dir() {
                         // Skip hidden directories
-                        if !path.file_name().map(|n| n.to_string_lossy().starts_with('.')).unwrap_or(false) {
+                        if !path
+                            .file_name()
+                            .map(|n| n.to_string_lossy().starts_with('.'))
+                            .unwrap_or(false)
+                        {
                             walk_dir(&path, files, pattern);
                         }
                     } else if path.is_file() {
-                        let file_name = path.file_name().map(|n| n.to_string_lossy()).unwrap_or_default();
+                        let file_name = path
+                            .file_name()
+                            .map(|n| n.to_string_lossy())
+                            .unwrap_or_default();
                         if GlobTool::matches_pattern(&file_name, pattern) {
                             files.push(path);
                         }
@@ -246,8 +264,14 @@ impl GlobTool {
         walk_dir(dir, &mut files, pattern);
         // Sort by modification time (newest first)
         files.sort_by(|a, b| {
-            let a_time = a.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
-            let b_time = b.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
+            let a_time = a
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::UNIX_EPOCH);
+            let b_time = b
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::UNIX_EPOCH);
             b_time.cmp(&a_time)
         });
 
@@ -343,10 +367,13 @@ mod tests {
         writeln!(file, "hello again").unwrap();
 
         let tool = GrepTool;
-        let result = tool.execute(json!({
-            "pattern": "hello",
-            "path": file_path.to_str().unwrap()
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "hello",
+                "path": file_path.to_str().unwrap()
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("hello"));
         assert!(!result.contains("foo"));
@@ -365,11 +392,14 @@ mod tests {
         writeln!(f2, "fn test() {{ }}").unwrap();
 
         let tool = GrepTool;
-        let result = tool.execute(json!({
-            "pattern": "fn\\s+\\w+",
-            "path": temp_dir.path().to_str().unwrap(),
-            "glob": "*.txt"
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "fn\\s+\\w+",
+                "path": temp_dir.path().to_str().unwrap(),
+                "glob": "*.txt"
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("fn main"));
         assert!(result.contains("fn test"));
@@ -384,11 +414,14 @@ mod tests {
         writeln!(file, "HELLO World").unwrap();
 
         let tool = GrepTool;
-        let result = tool.execute(json!({
-            "pattern": "hello",
-            "path": file_path.to_str().unwrap(),
-            "case_sensitive": false
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "hello",
+                "path": file_path.to_str().unwrap(),
+                "case_sensitive": false
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("HELLO"));
     }
@@ -402,10 +435,13 @@ mod tests {
         writeln!(file, "hello world").unwrap();
 
         let tool = GrepTool;
-        let result = tool.execute(json!({
-            "pattern": "nonexistent",
-            "path": file_path.to_str().unwrap()
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "nonexistent",
+                "path": file_path.to_str().unwrap()
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("no matches"));
     }
@@ -413,9 +449,11 @@ mod tests {
     #[tokio::test]
     async fn test_grep_invalid_pattern() {
         let tool = GrepTool;
-        let result = tool.execute(json!({
-            "pattern": "[invalid("
-        })).await;
+        let result = tool
+            .execute(json!({
+                "pattern": "[invalid("
+            }))
+            .await;
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Invalid regex"));
@@ -430,10 +468,13 @@ mod tests {
         fs::File::create(temp_dir.path().join("file3.txt")).unwrap();
 
         let tool = GlobTool;
-        let result = tool.execute(json!({
-            "pattern": "*.rs",
-            "path": temp_dir.path().to_str().unwrap()
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "*.rs",
+                "path": temp_dir.path().to_str().unwrap()
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("file1.rs"));
         assert!(result.contains("file2.rs"));
@@ -449,10 +490,13 @@ mod tests {
         fs::File::create(subdir.join("deep.rs")).unwrap();
 
         let tool = GlobTool;
-        let result = tool.execute(json!({
-            "pattern": "**/*.rs",
-            "path": temp_dir.path().to_str().unwrap()
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "**/*.rs",
+                "path": temp_dir.path().to_str().unwrap()
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("deep.rs"));
     }
@@ -462,10 +506,13 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
 
         let tool = GlobTool;
-        let result = tool.execute(json!({
-            "pattern": "*.xyz",
-            "path": temp_dir.path().to_str().unwrap()
-        })).await.unwrap();
+        let result = tool
+            .execute(json!({
+                "pattern": "*.xyz",
+                "path": temp_dir.path().to_str().unwrap()
+            }))
+            .await
+            .unwrap();
 
         assert!(result.contains("no matches"));
     }
@@ -473,10 +520,12 @@ mod tests {
     #[tokio::test]
     async fn test_glob_nonexistent_path() {
         let tool = GlobTool;
-        let result = tool.execute(json!({
-            "pattern": "*.rs",
-            "path": "/nonexistent/path"
-        })).await;
+        let result = tool
+            .execute(json!({
+                "pattern": "*.rs",
+                "path": "/nonexistent/path"
+            }))
+            .await;
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Path not found"));

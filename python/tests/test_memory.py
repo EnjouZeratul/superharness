@@ -1,11 +1,13 @@
 """Memory 单元测试"""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
-from continuum_sdk.memory import Memory, MemoryTier, MemoryEntry, TierProxy
+
+from continuum_sdk.memory import Memory, MemoryEntry, MemoryTier, TierProxy
 
 
 class TestMemoryTier:
@@ -97,7 +99,7 @@ class TestMemory:
         memory = Memory(session_id="test")
         memory.remember("Working info", tier=MemoryTier.WORKING)
         memory.remember("Project info", tier=MemoryTier.PROJECT)
-        
+
         results = memory.recall("info", tier=MemoryTier.WORKING)
         assert len(results) == 1
 
@@ -121,7 +123,7 @@ class TestMemory:
         entry_id = memory.remember("To be deleted", tier=MemoryTier.WORKING)
         result = memory.forget(MemoryTier.WORKING, entry_id)
         assert result
-        
+
         # 验证已删除
         entry = memory.get(MemoryTier.WORKING, entry_id)
         assert entry is None
@@ -137,7 +139,7 @@ class TestMemory:
         memory = Memory(session_id="test")
         memory.remember("Item 1", tier=MemoryTier.WORKING)
         memory.remember("Item 2", tier=MemoryTier.WORKING)
-        
+
         count = memory.clear(MemoryTier.WORKING)
         assert count == 2
         assert len(memory.recall("")) == 0
@@ -148,7 +150,7 @@ class TestMemory:
         memory.remember("W1", tier=MemoryTier.WORKING)
         memory.remember("S1", tier=MemoryTier.SESSION)
         memory.remember("S2", tier=MemoryTier.SESSION)
-        
+
         stats = memory.stats()
         assert stats[MemoryTier.WORKING] == 1
         assert stats[MemoryTier.SESSION] == 2
@@ -199,11 +201,11 @@ class TestWorkingMemoryLimit:
     def test_working_memory_limit(self):
         """测试工作记忆大小限制"""
         memory = Memory(session_id="limit-test")
-        
+
         # 添加超过限制的数量
         for i in range(150):
             memory.remember(f"Item {i}", tier=MemoryTier.WORKING)
-        
+
         stats = memory.stats()
         # 工作记忆应被限制在100条
         assert stats[MemoryTier.WORKING] <= 100

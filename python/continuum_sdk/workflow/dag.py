@@ -69,9 +69,10 @@ See Also:
 """
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any
 
 
 class NodeStatus(Enum):
@@ -89,7 +90,7 @@ class NodeResult:
     node_id: str
     status: NodeStatus
     output: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     duration_ms: int = 0
 
 
@@ -108,10 +109,10 @@ class Node:
     """
 
     id: str
-    func: Optional[Callable] = None
-    name: Optional[str] = None
-    description: Optional[str] = None
-    dependencies: Set[str] = field(default_factory=set)
+    func: Callable | None = None
+    name: str | None = None
+    description: str | None = None
+    dependencies: set[str] = field(default_factory=set)
 
     def depends_on(self, *node_ids: str) -> 'Node':
         """添加依赖节点
@@ -136,8 +137,8 @@ class DAGResult:
 
     def __init__(self, dag_id: str):
         self.dag_id = dag_id
-        self._results: Dict[str, NodeResult] = {}
-        self._execution_order: List[str] = []
+        self._results: dict[str, NodeResult] = {}
+        self._execution_order: list[str] = []
 
     @property
     def status(self) -> NodeStatus:
@@ -153,7 +154,7 @@ class DAGResult:
 
         return NodeStatus.SUCCESS
 
-    def get_output(self, node_id: str) -> Optional[Any]:
+    def get_output(self, node_id: str) -> Any | None:
         """获取节点输出
 
         Args:
@@ -165,7 +166,7 @@ class DAGResult:
         result = self._results.get(node_id)
         return result.output if result else None
 
-    def get_result(self, node_id: str) -> Optional[NodeResult]:
+    def get_result(self, node_id: str) -> NodeResult | None:
         """获取节点结果
 
         Args:
@@ -176,7 +177,7 @@ class DAGResult:
         """
         return self._results.get(node_id)
 
-    def get_all_outputs(self) -> Dict[str, Any]:
+    def get_all_outputs(self) -> dict[str, Any]:
         """获取所有节点输出"""
         return {
             node_id: result.output
@@ -184,14 +185,14 @@ class DAGResult:
             if result.output is not None
         }
 
-    def failed_nodes(self) -> List[str]:
+    def failed_nodes(self) -> list[str]:
         """获取失败的节点 ID"""
         return [
             node_id for node_id, result in self._results.items()
             if result.status == NodeStatus.FAILED
         ]
 
-    def execution_order(self) -> List[str]:
+    def execution_order(self) -> list[str]:
         """获取实际执行顺序"""
         return self._execution_order.copy()
 
@@ -222,7 +223,7 @@ class DAG:
         output = result.get_output("save")
     """
 
-    def __init__(self, id: str, name: Optional[str] = None):
+    def __init__(self, id: str, name: str | None = None):
         """初始化 DAG
 
         Args:
@@ -231,7 +232,7 @@ class DAG:
         """
         self.id = id
         self.name = name or id
-        self._nodes: Dict[str, Node] = {}
+        self._nodes: dict[str, Node] = {}
 
     def add(self, node: Node) -> 'DAG':
         """添加节点
@@ -245,7 +246,7 @@ class DAG:
         self._nodes[node.id] = node
         return self
 
-    def get(self, node_id: str) -> Optional[Node]:
+    def get(self, node_id: str) -> Node | None:
         """获取节点"""
         return self._nodes.get(node_id)
 
@@ -274,7 +275,7 @@ class DAG:
             node.depends_on(*depends)
         return self
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """验证 DAG
 
         Returns:
@@ -316,7 +317,7 @@ class DAG:
 
         return errors
 
-    def _get_execution_order(self) -> List[str]:
+    def _get_execution_order(self) -> list[str]:
         """获取拓扑排序的执行顺序"""
         in_degree = {node_id: 0 for node_id in self._nodes}
         order = []
@@ -349,7 +350,7 @@ class DAG:
 
     async def execute(
         self,
-        inputs: Optional[Dict[str, Any]] = None,
+        inputs: dict[str, Any] | None = None,
         parallel: bool = True
     ) -> DAGResult:
         """执行工作流
@@ -378,7 +379,7 @@ class DAG:
 
         # 获取执行顺序
         order = self._get_execution_order()
-        outputs: Dict[str, Any] = dict(inputs)
+        outputs: dict[str, Any] = dict(inputs)
 
         if parallel:
             # 并行执行（按层级）
@@ -400,7 +401,7 @@ class DAG:
 
         return result
 
-    def _get_levels(self) -> List[List[str]]:
+    def _get_levels(self) -> list[list[str]]:
         """获取按层级分组的节点（用于并行执行）"""
         levels = []
         assigned = set()
@@ -423,7 +424,7 @@ class DAG:
     async def _execute_node(
         self,
         node: Node,
-        outputs: Dict[str, Any],
+        outputs: dict[str, Any],
         result: DAGResult
     ) -> None:
         """执行单个节点"""

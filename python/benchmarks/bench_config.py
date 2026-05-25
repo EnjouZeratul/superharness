@@ -1,37 +1,38 @@
 """Config 性能基准测试"""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import time
 import statistics
+import time
 
 
 class BenchResult:
     def __init__(self, name: str):
         self.name = name
         self.times = []
-    
+
     def add(self, elapsed: float):
         self.times.append(elapsed)
-    
+
     @property
     def mean(self) -> float:
         return statistics.mean(self.times) if self.times else 0
-    
+
     @property
     def median(self) -> float:
         return statistics.median(self.times) if self.times else 0
-    
+
     @property
     def stdev(self) -> float:
         return statistics.stdev(self.times) if len(self.times) > 1 else 0
-    
+
     @property
     def min(self) -> float:
         return min(self.times) if self.times else 0
-    
+
     @property
     def max(self) -> float:
         return max(self.times) if self.times else 0
@@ -40,17 +41,17 @@ class BenchResult:
 def bench(func, iterations=100):
     """运行基准测试"""
     result = BenchResult(func.__name__)
-    
+
     # 预热
     func()
-    
+
     # 正式测试
     for _ in range(iterations):
         start = time.perf_counter()
         func()
         elapsed = time.perf_counter() - start
         result.add(elapsed)
-    
+
     return result
 
 
@@ -125,8 +126,9 @@ def bench_config_from_dict():
 
 def bench_config_load_toml():
     """测试TOML文件加载"""
-    from continuum_sdk import Config
     from pathlib import Path
+
+    from continuum_sdk import Config
     template_path = Path(__file__).parent.parent.parent / "templates" / "config.toml"
     if template_path.exists():
         return Config.from_file(str(template_path))
@@ -152,7 +154,7 @@ def run_config_benchmarks():
     print("=" * 50)
     print("Config Performance Benchmarks")
     print("=" * 50)
-    
+
     tests = [
         ("Config Creation", bench_config_creation, 1000),
         ("Config from env", bench_config_from_env, 500),
@@ -165,7 +167,7 @@ def run_config_benchmarks():
         ("Config add provider", bench_config_add_provider, 1000),
         ("List providers", bench_config_list_providers, 1000),
     ]
-    
+
     results = []
     for name, func, iterations in tests:
         print(f"\nRunning: {name}...")
@@ -173,7 +175,7 @@ def run_config_benchmarks():
         result = bench(func, iterations)
         results.append(result)
         print(format_result(result))
-    
+
     return results
 
 

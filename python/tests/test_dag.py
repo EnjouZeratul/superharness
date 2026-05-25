@@ -9,14 +9,16 @@ Covers:
 - Result handling
 """
 
-import pytest
 import asyncio
+
+import pytest
+
 from continuum_sdk.workflow.dag import (
     DAG,
-    Node,
-    NodeStatus,
-    NodeResult,
     DAGResult,
+    Node,
+    NodeResult,
+    NodeStatus,
 )
 
 

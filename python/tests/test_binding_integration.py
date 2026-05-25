@@ -3,14 +3,13 @@
 Validates that Python can correctly call all Rust tools.
 """
 
-import pytest
-import tempfile
 import os
-from pathlib import Path
+import tempfile
 
-from continuum_sdk.tools.builtin import BuiltinTools, HAS_RUST_BINDING
+import pytest
+
 from continuum_sdk.agent.checkpoint import CheckpointClient
-
+from continuum_sdk.tools.builtin import HAS_RUST_BINDING, BuiltinTools
 
 pytestmark = pytest.mark.skipif(
     not HAS_RUST_BINDING,
@@ -187,7 +186,7 @@ class TestAgentBinding:
 
     def test_agent_create_session(self):
         """Test Agent session creation."""
-        from sh_python import Agent, Session
+        from sh_python import Agent
         agent = Agent()
 
         session = agent.create_session()

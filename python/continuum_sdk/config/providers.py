@@ -9,7 +9,6 @@ Multi-provider management for LLM services with support for:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class ProviderType(Enum):
@@ -34,15 +33,15 @@ class ProviderInfo:
     name: str
     display_name: str
     default_model: str
-    default_small_model: Optional[str] = None
-    default_base_url: Optional[str] = None
-    env_key_name: Optional[str] = None
-    models: List[str] = field(default_factory=list)
+    default_small_model: str | None = None
+    default_base_url: str | None = None
+    env_key_name: str | None = None
+    models: list[str] = field(default_factory=list)
     api_format: ApiFormat = ApiFormat.OPENAI  # 默认使用 OpenAI 兼容格式
 
 
 # 内置提供商配置
-BUILTIN_PROVIDERS: Dict[str, ProviderInfo] = {
+BUILTIN_PROVIDERS: dict[str, ProviderInfo] = {
     # Anthropic 原生格式
     "anthropic": ProviderInfo(
         name="anthropic",
@@ -126,12 +125,12 @@ BUILTIN_PROVIDERS: Dict[str, ProviderInfo] = {
 }
 
 
-def get_provider_info(name: str) -> Optional[ProviderInfo]:
+def get_provider_info(name: str) -> ProviderInfo | None:
     """获取提供商信息"""
     return BUILTIN_PROVIDERS.get(name)
 
 
-def list_providers() -> List[str]:
+def list_providers() -> list[str]:
     """列出所有内置提供商"""
     return list(BUILTIN_PROVIDERS.keys())
 
@@ -144,7 +143,7 @@ def get_default_model(provider: str) -> str:
     return "claude-sonnet-4-6"
 
 
-def get_default_small_model(provider: str) -> Optional[str]:
+def get_default_small_model(provider: str) -> str | None:
     """获取提供商的默认小模型"""
     info = BUILTIN_PROVIDERS.get(provider)
     if info:
@@ -152,7 +151,7 @@ def get_default_small_model(provider: str) -> Optional[str]:
     return None
 
 
-def get_env_key_name(provider: str) -> Optional[str]:
+def get_env_key_name(provider: str) -> str | None:
     """获取提供商的环境变量密钥名"""
     info = BUILTIN_PROVIDERS.get(provider)
     if info:
@@ -160,7 +159,7 @@ def get_env_key_name(provider: str) -> Optional[str]:
     return None
 
 
-def get_default_base_url(provider: str) -> Optional[str]:
+def get_default_base_url(provider: str) -> str | None:
     """获取提供商的默认 API URL"""
     info = BUILTIN_PROVIDERS.get(provider)
     if info:
@@ -176,7 +175,7 @@ def get_api_format(provider: str) -> ApiFormat:
     return ApiFormat.OPENAI
 
 
-def list_models(provider: str) -> List[str]:
+def list_models(provider: str) -> list[str]:
     """列出提供商支持的模型"""
     info = BUILTIN_PROVIDERS.get(provider)
     if info:

@@ -6,30 +6,37 @@ Tests for ReadTool, WriteTool, EditTool, BashTool, GrepTool, GlobTool.
 Run: pytest python/tests/test_builtin.py -v --cov=continuum_sdk.tools --cov-report=term-missing
 """
 
+import asyncio
 import os
 import sys
-import pytest
 import tempfile
-import asyncio
+
+import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from continuum_sdk.tools.bash import (
+    BLOCKED_COMMANDS,
+    BashTool,
+    validate_command,
+)
+from continuum_sdk.tools.builtin import (
+    BuiltinTools,
+    ToolCategory,
+    ToolMeta,
+)
 from continuum_sdk.tools.file_ops import (
-    ReadTool, WriteTool, EditTool,
+    EditTool,
+    ReadTool,
+    WriteTool,
     detect_encoding,
 )
-from continuum_sdk.tools.bash import (
-    BashTool, validate_command, BLOCKED_COMMANDS,
-)
 from continuum_sdk.tools.search import (
-    GrepTool, GlobTool,
+    GlobTool,
+    GrepTool,
     grep,
 )
 from continuum_sdk.tools.types import ToolError, ToolResult
-from continuum_sdk.tools.builtin import (
-    ToolCategory, ToolMeta, BuiltinTools,
-)
-
 
 # ==============================================================================
 # ReadTool Tests
@@ -285,7 +292,7 @@ class TestWriteTool:
             assert os.path.exists(filepath)
 
             # 验证内容
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding='utf-8') as f:
                 content = f.read()
             assert "Hello, World!" in content
 
@@ -301,7 +308,7 @@ class TestWriteTool:
 
             assert result.is_error is False
 
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding='utf-8') as f:
                 content = f.read()
             assert "new content" in content
             assert "old content" not in content
@@ -320,7 +327,7 @@ class TestWriteTool:
 
             assert result.is_error is False
 
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding='utf-8') as f:
                 content = f.read()
             assert "line 1" in content
             assert "line 2" in content
@@ -354,7 +361,7 @@ class TestWriteTool:
             assert os.path.exists(backup_path)
 
             # 备份内容应为原始内容
-            with open(backup_path, 'r', encoding='utf-8') as f:
+            with open(backup_path, encoding='utf-8') as f:
                 backup_content = f.read()
             assert "original content" in backup_content
         finally:
@@ -395,7 +402,7 @@ class TestEditTool:
             assert result.is_error is False
             assert "Replaced 1 occurrence" in result.content
 
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding='utf-8') as f:
                 content = f.read()
             assert content == "QUX bar foo baz\n"
         finally:
@@ -413,7 +420,7 @@ class TestEditTool:
 
             assert result.is_error is False
 
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding='utf-8') as f:
                 content = f.read()
             assert content == "QUX bar QUX baz QUX\n"
         finally:
@@ -456,7 +463,7 @@ class TestEditTool:
             backup_path = filepath + '.bak'
             assert os.path.exists(backup_path)
 
-            with open(backup_path, 'r', encoding='utf-8') as f:
+            with open(backup_path, encoding='utf-8') as f:
                 assert "original" in f.read()
         finally:
             os.unlink(filepath)
@@ -476,7 +483,7 @@ class TestEditTool:
 
             assert result.is_error is False
 
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, encoding='utf-8') as f:
                 assert "modified test" in f.read()
         finally:
             os.unlink(filepath)

@@ -1,22 +1,23 @@
 """Tests for task completion detection module."""
 
-import sys
 import os
+import sys
 
 # Add python directory to path
 _python_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'python')
 sys.path.insert(0, _python_dir)
 
-import pytest
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
 from continuum_sdk.agent.task_completion import (
-    TaskCompletionDetector,
-    CompletionStatus,
     CompletionMarker,
+    CompletionStatus,
+    TaskCompletionDetector,
     TaskRecord,
 )
 

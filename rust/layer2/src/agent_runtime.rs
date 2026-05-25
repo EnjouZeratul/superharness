@@ -9,8 +9,7 @@ use tracing::{debug, info, warn};
 use crate::session_manager::{ConcurrentSessionManager, SessionConfig, SessionManagerTrait};
 use crate::tool_registry::{ToolRegistry, ToolRegistryTrait};
 use crate::types::{
-    AgentId, AgentState, Layer2Error, Layer2Result, Message, SessionId, ToolCall,
-    ToolResult,
+    AgentId, AgentState, Layer2Error, Layer2Result, Message, SessionId, ToolCall, ToolResult,
 };
 
 /// Agent 执行结果
@@ -362,9 +361,16 @@ impl AgentRuntime {
                 .collect();
 
             let response = if !should_continue {
-                format!("I've processed the tool results. Task '{}' is now complete.\n{}", task, summary.join("\n"))
+                format!(
+                    "I've processed the tool results. Task '{}' is now complete.\n{}",
+                    task,
+                    summary.join("\n")
+                )
             } else {
-                format!("Processing tool results, continuing...\n{}", summary.join("\n"))
+                format!(
+                    "Processing tool results, continuing...\n{}",
+                    summary.join("\n")
+                )
             };
 
             // Clear the tool results cache after processing
@@ -524,9 +530,7 @@ impl AgentRuntimeTrait for AgentRuntime {
 
             // Add the assistant message if any
             if let Some(msg) = step_result.message {
-                self.session_manager
-                    .add_message(&session_id, msg)
-                    .await?;
+                self.session_manager.add_message(&session_id, msg).await?;
             }
 
             // Handle tool calls
@@ -628,11 +632,11 @@ impl AgentRuntimeTrait for AgentRuntime {
     async fn pause(&self, session_id: &SessionId) -> Layer2Result<()> {
         self.require_session(session_id).await?;
 
-        let current_state: AgentState = self
-            .session_manager
-            .read(session_id, |s| s.state)
-            .await?
-            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+        let current_state: AgentState =
+            self.session_manager
+                .read(session_id, |s| s.state)
+                .await?
+                .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
 
         match current_state {
             AgentState::Running | AgentState::ToolCalling | AgentState::WaitingTool => {
@@ -662,11 +666,11 @@ impl AgentRuntimeTrait for AgentRuntime {
     async fn resume(&self, session_id: &SessionId) -> Layer2Result<()> {
         self.require_session(session_id).await?;
 
-        let current_state: AgentState = self
-            .session_manager
-            .read(session_id, |s| s.state)
-            .await?
-            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+        let current_state: AgentState =
+            self.session_manager
+                .read(session_id, |s| s.state)
+                .await?
+                .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
 
         match current_state {
             AgentState::Stopped => {
@@ -697,11 +701,11 @@ impl AgentRuntimeTrait for AgentRuntime {
     async fn stop(&self, session_id: &SessionId) -> Layer2Result<()> {
         self.require_session(session_id).await?;
 
-        let current_state: AgentState = self
-            .session_manager
-            .read(session_id, |s| s.state)
-            .await?
-            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+        let current_state: AgentState =
+            self.session_manager
+                .read(session_id, |s| s.state)
+                .await?
+                .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
 
         match current_state {
             AgentState::Running
@@ -740,11 +744,11 @@ impl AgentRuntimeTrait for AgentRuntime {
     async fn send_message(&self, session_id: &SessionId, message: &str) -> Layer2Result<()> {
         self.require_session(session_id).await?;
 
-        let current_state: AgentState = self
-            .session_manager
-            .read(session_id, |s| s.state)
-            .await?
-            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+        let current_state: AgentState =
+            self.session_manager
+                .read(session_id, |s| s.state)
+                .await?
+                .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
 
         // Allow sending messages in Running, WaitingTool, or Stopped states
         match current_state {
@@ -785,11 +789,11 @@ impl AgentRuntimeTrait for AgentRuntime {
     ) -> Layer2Result<()> {
         self.require_session(session_id).await?;
 
-        let current_state: AgentState = self
-            .session_manager
-            .read(session_id, |s| s.state)
-            .await?
-            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+        let current_state: AgentState =
+            self.session_manager
+                .read(session_id, |s| s.state)
+                .await?
+                .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
 
         match current_state {
             AgentState::WaitingTool | AgentState::ToolCalling | AgentState::Running => {
@@ -797,7 +801,10 @@ impl AgentRuntimeTrait for AgentRuntime {
                 let _pending_ids: Vec<String> = self
                     .session_manager
                     .read(session_id, |s| {
-                        s.tool_calls_pending.iter().map(|tc| tc.id.clone()).collect()
+                        s.tool_calls_pending
+                            .iter()
+                            .map(|tc| tc.id.clone())
+                            .collect()
                     })
                     .await?
                     .unwrap_or_default();
@@ -914,22 +921,39 @@ mod tests {
         assert_eq!(session_config.model, "custom-model");
         assert_eq!(session_config.temperature, 0.5);
         assert_eq!(session_config.max_iterations, 50);
-        assert_eq!(session_config.system_prompt, Some("Custom prompt".to_string()));
+        assert_eq!(
+            session_config.system_prompt,
+            Some("Custom prompt".to_string())
+        );
     }
 
     #[test]
     fn test_state_transition_validation() {
         // Valid transitions
         assert!(AgentRuntime::validate_transition(AgentState::Idle, AgentState::Running).is_ok());
-        assert!(AgentRuntime::validate_transition(AgentState::Running, AgentState::ToolCalling).is_ok());
-        assert!(AgentRuntime::validate_transition(AgentState::Running, AgentState::Stopped).is_ok());
-        assert!(AgentRuntime::validate_transition(AgentState::Stopped, AgentState::Running).is_ok());
-        assert!(AgentRuntime::validate_transition(AgentState::Running, AgentState::Completed).is_ok());
-        assert!(AgentRuntime::validate_transition(AgentState::Running, AgentState::Running).is_ok());
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Running, AgentState::ToolCalling).is_ok()
+        );
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Running, AgentState::Stopped).is_ok()
+        );
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Stopped, AgentState::Running).is_ok()
+        );
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Running, AgentState::Completed).is_ok()
+        );
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Running, AgentState::Running).is_ok()
+        );
 
         // Invalid transitions
-        assert!(AgentRuntime::validate_transition(AgentState::Idle, AgentState::ToolCalling).is_err());
-        assert!(AgentRuntime::validate_transition(AgentState::Completed, AgentState::Running).is_err());
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Idle, AgentState::ToolCalling).is_err()
+        );
+        assert!(
+            AgentRuntime::validate_transition(AgentState::Completed, AgentState::Running).is_err()
+        );
         assert!(AgentRuntime::validate_transition(AgentState::Error, AgentState::Running).is_err());
     }
 
@@ -1027,20 +1051,35 @@ mod tests {
         let pause_result = runtime.pause(&session_id).await;
         assert!(pause_result.is_ok());
 
-        let state = runtime.session_manager().get_state(&session_id).await.unwrap().unwrap();
+        let state = runtime
+            .session_manager()
+            .get_state(&session_id)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(state, AgentState::Stopped);
 
         // Resume the agent
         let resume_result = runtime.resume(&session_id).await;
         assert!(resume_result.is_ok());
 
-        let state = runtime.session_manager().get_state(&session_id).await.unwrap().unwrap();
+        let state = runtime
+            .session_manager()
+            .get_state(&session_id)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(state, AgentState::Running);
 
         // Pause again should be idempotent
         runtime.pause(&session_id).await.unwrap();
         runtime.pause(&session_id).await.unwrap();
-        let state = runtime.session_manager().get_state(&session_id).await.unwrap().unwrap();
+        let state = runtime
+            .session_manager()
+            .get_state(&session_id)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(state, AgentState::Stopped);
     }
 
@@ -1054,7 +1093,12 @@ mod tests {
         // Stop the agent
         runtime.stop(&session_id).await.unwrap();
 
-        let state = runtime.session_manager().get_state(&session_id).await.unwrap().unwrap();
+        let state = runtime
+            .session_manager()
+            .get_state(&session_id)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(state, AgentState::Stopped);
     }
 
@@ -1169,7 +1213,12 @@ mod tests {
         assert_eq!(cached_results[0].tool_call_id, "tc_123");
 
         // Verify state transitioned back to Running
-        let state = runtime.session_manager().get_state(&session_id).await.unwrap().unwrap();
+        let state = runtime
+            .session_manager()
+            .get_state(&session_id)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(state, AgentState::Running);
     }
 
@@ -1190,7 +1239,12 @@ mod tests {
         // Now try to run - it should handle the stopped state gracefully
         // Note: run() creates a new session, so this tests that the original
         // session is properly in stopped state
-        let state = runtime.session_manager().get_state(&session_id).await.unwrap().unwrap();
+        let state = runtime
+            .session_manager()
+            .get_state(&session_id)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(state, AgentState::Stopped);
     }
 

@@ -50,12 +50,9 @@ See Also:
 
 import json
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from typing import (
     Any,
-    AsyncIterator,
-    Dict,
-    List,
-    Optional,
 )
 
 import httpx
@@ -80,10 +77,10 @@ class BaseLlmClient(ABC):
     def __init__(
         self,
         api_key: str,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         timeout: float = 60.0,
         max_retries: int = 3,
-        proxy: Optional[str] = None,
+        proxy: str | None = None,
     ):
         self.api_key = api_key
         self.base_url = base_url
@@ -104,12 +101,12 @@ class BaseLlmClient(ABC):
     @abstractmethod
     async def chat(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> ChatResponse:
         """
@@ -132,12 +129,12 @@ class BaseLlmClient(ABC):
     @abstractmethod
     async def chat_stream(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> AsyncIterator[StreamChunk]:
         """
@@ -171,7 +168,7 @@ class AnthropicClient(BaseLlmClient):
     def __init__(
         self,
         api_key: str,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         default_model: str = "claude-sonnet-4-6",
         **kwargs,
     ):
@@ -179,7 +176,7 @@ class AnthropicClient(BaseLlmClient):
         self.default_model = default_model
         self.provider = "anthropic"
 
-    def _build_headers(self) -> Dict[str, str]:
+    def _build_headers(self) -> dict[str, str]:
         return {
             "x-api-key": self.api_key,
             "anthropic-version": "2023-06-01",
@@ -188,12 +185,12 @@ class AnthropicClient(BaseLlmClient):
 
     async def chat(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> ChatResponse:
         """Send chat request to Anthropic Claude API."""
@@ -204,7 +201,7 @@ class AnthropicClient(BaseLlmClient):
             url = f"{self.base_url.rstrip('/')}/v1/messages"
 
         # Build request body
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model or self.default_model,
             "max_tokens": max_tokens,
             "messages": [m.to_anthropic_format() for m in messages],
@@ -246,12 +243,12 @@ class AnthropicClient(BaseLlmClient):
 
     async def chat_stream(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> AsyncIterator[StreamChunk]:
         """Send streaming chat request to Anthropic Claude API."""
@@ -261,7 +258,7 @@ class AnthropicClient(BaseLlmClient):
         else:
             url = f"{self.base_url.rstrip('/')}/v1/messages"
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model or self.default_model,
             "max_tokens": max_tokens,
             "messages": [m.to_anthropic_format() for m in messages],
@@ -328,7 +325,7 @@ class OpenAIClient(BaseLlmClient):
     def __init__(
         self,
         api_key: str,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         default_model: str = "gpt-4",
         **kwargs,
     ):
@@ -336,7 +333,7 @@ class OpenAIClient(BaseLlmClient):
         self.default_model = default_model
         self.provider = "openai"
 
-    def _build_headers(self) -> Dict[str, str]:
+    def _build_headers(self) -> dict[str, str]:
         return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -344,12 +341,12 @@ class OpenAIClient(BaseLlmClient):
 
     async def chat(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> ChatResponse:
         """Send chat request to OpenAI API."""
@@ -361,7 +358,7 @@ class OpenAIClient(BaseLlmClient):
             api_messages.append({"role": "system", "content": system_prompt})
         api_messages.extend([m.to_openai_format() for m in messages])
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model or self.default_model,
             "messages": api_messages,
             "max_tokens": max_tokens,
@@ -398,12 +395,12 @@ class OpenAIClient(BaseLlmClient):
 
     async def chat_stream(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> AsyncIterator[StreamChunk]:
         """Send streaming chat request to OpenAI API."""
@@ -414,7 +411,7 @@ class OpenAIClient(BaseLlmClient):
             api_messages.append({"role": "system", "content": system_prompt})
         api_messages.extend([m.to_openai_format() for m in messages])
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model or self.default_model,
             "messages": api_messages,
             "max_tokens": max_tokens,
@@ -479,7 +476,7 @@ class GeminiClient(BaseLlmClient):
     def __init__(
         self,
         api_key: str,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         default_model: str = "gemini-1.5-pro",
         **kwargs,
     ):
@@ -492,12 +489,12 @@ class GeminiClient(BaseLlmClient):
 
     async def chat(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> ChatResponse:
         """Send chat request to Google Gemini API."""
@@ -507,7 +504,7 @@ class GeminiClient(BaseLlmClient):
         # Build contents
         contents = [m.to_gemini_format() for m in messages]
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "contents": contents,
             "generationConfig": {
                 "maxOutputTokens": max_tokens,
@@ -548,12 +545,12 @@ class GeminiClient(BaseLlmClient):
 
     async def chat_stream(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> AsyncIterator[StreamChunk]:
         """Send streaming chat request to Google Gemini API."""
@@ -562,7 +559,7 @@ class GeminiClient(BaseLlmClient):
 
         contents = [m.to_gemini_format() for m in messages]
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "contents": contents,
             "generationConfig": {
                 "maxOutputTokens": max_tokens,
@@ -638,7 +635,7 @@ class CustomClient(BaseLlmClient):
         self.default_model = default_model
         self.provider = "custom"
 
-    def _build_headers(self) -> Dict[str, str]:
+    def _build_headers(self) -> dict[str, str]:
         return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -646,12 +643,12 @@ class CustomClient(BaseLlmClient):
 
     async def chat(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> ChatResponse:
         """Send chat request to custom OpenAI-compatible API."""
@@ -662,7 +659,7 @@ class CustomClient(BaseLlmClient):
             api_messages.append({"role": "system", "content": system_prompt})
         api_messages.extend([m.to_openai_format() for m in messages])
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model or self.default_model,
             "messages": api_messages,
             "max_tokens": max_tokens,
@@ -696,12 +693,12 @@ class CustomClient(BaseLlmClient):
 
     async def chat_stream(
         self,
-        messages: List[Message],
-        model: Optional[str] = None,
+        messages: list[Message],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-        tools: Optional[List[ToolDefinition]] = None,
+        system_prompt: str | None = None,
+        tools: list[ToolDefinition] | None = None,
         **kwargs,
     ) -> AsyncIterator[StreamChunk]:
         """Send streaming chat request to custom API."""
@@ -712,7 +709,7 @@ class CustomClient(BaseLlmClient):
             api_messages.append({"role": "system", "content": system_prompt})
         api_messages.extend([m.to_openai_format() for m in messages])
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model or self.default_model,
             "messages": api_messages,
             "max_tokens": max_tokens,
@@ -776,9 +773,9 @@ class LlmClient:
     def for_provider(
         provider: str,
         api_key: str,
-        base_url: Optional[str] = None,
-        model: Optional[str] = None,
-        api_format: Optional[str] = None,
+        base_url: str | None = None,
+        model: str | None = None,
+        api_format: str | None = None,
         **kwargs,
     ) -> BaseLlmClient:
         """

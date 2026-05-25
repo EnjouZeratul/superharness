@@ -1,37 +1,38 @@
 """Session 性能基准测试"""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import time
 import statistics
+import time
 
 
 class BenchResult:
     def __init__(self, name: str):
         self.name = name
         self.times = []
-    
+
     def add(self, elapsed: float):
         self.times.append(elapsed)
-    
+
     @property
     def mean(self) -> float:
         return statistics.mean(self.times) if self.times else 0
-    
+
     @property
     def median(self) -> float:
         return statistics.median(self.times) if self.times else 0
-    
+
     @property
     def stdev(self) -> float:
         return statistics.stdev(self.times) if len(self.times) > 1 else 0
-    
+
     @property
     def min(self) -> float:
         return min(self.times) if self.times else 0
-    
+
     @property
     def max(self) -> float:
         return max(self.times) if self.times else 0
@@ -40,17 +41,17 @@ class BenchResult:
 def bench(func, iterations=100):
     """运行基准测试"""
     result = BenchResult(func.__name__)
-    
+
     # 预热
     func()
-    
+
     # 正式测试
     for _ in range(iterations):
         start = time.perf_counter()
         func()
         elapsed = time.perf_counter() - start
         result.add(elapsed)
-    
+
     return result
 
 
@@ -158,7 +159,7 @@ def run_session_benchmarks():
     print("=" * 50)
     print("Session Performance Benchmarks")
     print("=" * 50)
-    
+
     tests = [
         ("Session Creation", bench_session_creation, 1000),
         ("Session with ID", bench_session_with_id, 1000),
@@ -171,7 +172,7 @@ def run_session_benchmarks():
         ("Clear (100 msgs)", bench_session_clear, 100),
         ("Metadata (10 keys)", bench_session_metadata, 1000),
     ]
-    
+
     results = []
     for name, func, iterations in tests:
         print(f"\nRunning: {name}...")
@@ -179,7 +180,7 @@ def run_session_benchmarks():
         result = bench(func, iterations)
         results.append(result)
         print(format_result(result))
-    
+
     return results
 
 

@@ -4,12 +4,14 @@ Agent Unit Tests
 Tests for Agent and AgentConfig with mock LLM responses.
 """
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
 
 from continuum_sdk.agent import Agent, AgentConfig, AgentState
 from continuum_sdk.llm import ChatResponse, TokenUsage

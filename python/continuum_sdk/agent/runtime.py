@@ -88,9 +88,10 @@ See Also:
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterator, Callable
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .session import Session
@@ -152,15 +153,15 @@ class AgentConfig:
         name: str = "default",
         model: str = "claude-sonnet-4-6",
         provider: str = "anthropic",
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        api_format: Optional[str] = None,
-        budget: Optional[float] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        api_format: str | None = None,
+        budget: float | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         timeout: float = 60.0,
-        tools: Optional[list] = None,
+        tools: list | None = None,
     ):
         self.name = name
         self.model = model
@@ -175,7 +176,7 @@ class AgentConfig:
         self.timeout = timeout
         self.tools = tools or []
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "model": self.model,
@@ -192,7 +193,7 @@ class AgentConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AgentConfig":
+    def from_dict(cls, data: dict[str, Any]) -> AgentConfig:
         return cls(
             name=data.get("name", "default"),
             model=data.get("model", "claude-sonnet-4-6"),
@@ -208,7 +209,7 @@ class AgentConfig:
         )
 
     @classmethod
-    def from_config(cls, config: Config) -> "AgentConfig":
+    def from_config(cls, config: Config) -> AgentConfig:
         """Convert from SDK Config class."""
         return cls(
             name="default",
@@ -263,11 +264,11 @@ class Agent:
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        config: Optional[Union[AgentConfig, Config]] = None,
-        model: Optional[str] = None,
-        api_key: Optional[str] = None,
-        provider: Optional[str] = None,
+        name: str | None = None,
+        config: AgentConfig | Config | None = None,
+        model: str | None = None,
+        api_key: str | None = None,
+        provider: str | None = None,
     ):
         """
         Create a new Agent.
@@ -300,14 +301,14 @@ class Agent:
             self._config.provider = provider
 
         self._state = AgentState.IDLE
-        self._current_session: Optional["Session"] = None
-        self._sessions: Dict[str, "Session"] = {}
-        self._tools: Dict[str, Callable] = {}
-        self._tool_definitions: List[ToolDefinition] = []
+        self._current_session: Session | None = None
+        self._sessions: dict[str, Session] = {}
+        self._tools: dict[str, Callable] = {}
+        self._tool_definitions: list[ToolDefinition] = []
         self._created_at = datetime.now()
 
         # LLM client (initialized on first use)
-        self._llm_client: Optional[BaseLlmClient] = None
+        self._llm_client: BaseLlmClient | None = None
 
         # Rust bindings if available
         if HAS_RUST_BINDINGS:
@@ -437,7 +438,7 @@ class Agent:
             raise RuntimeError("Agent is not running")
 
         # Build messages
-        messages: List[Message] = []
+        messages: list[Message] = []
 
         # Add conversation history from current session
         if self._current_session:
@@ -499,7 +500,7 @@ class Agent:
             raise RuntimeError("Agent is not running")
 
         # Build messages
-        messages: List[Message] = []
+        messages: list[Message] = []
 
         if self._current_session:
             for msg in self._current_session.get_messages():
@@ -616,7 +617,7 @@ class Agent:
         async for chunk in self.run_stream(message):
             yield chunk
 
-    def create_session(self, session_id: Optional[str] = None) -> "Session":
+    def create_session(self, session_id: str | None = None) -> Session:
         """
         Create a new conversation session.
 
@@ -637,11 +638,11 @@ class Agent:
         self._sessions[sid] = session
         return session
 
-    def get_session(self, session_id: str) -> Optional["Session"]:
+    def get_session(self, session_id: str) -> Session | None:
         """Get a specific session by ID."""
         return self._sessions.get(session_id)
 
-    def set_session(self, session: "Session") -> None:
+    def set_session(self, session: Session) -> None:
         """Set the current active session."""
         self._current_session = session
         if session.id not in self._sessions:
@@ -655,8 +656,8 @@ class Agent:
         self,
         name: str,
         handler: Callable,
-        description: Optional[str] = None,
-        parameters: Optional[Dict[str, Any]] = None,
+        description: str | None = None,
+        parameters: dict[str, Any] | None = None,
     ) -> None:
         """
         Register a tool for function calling.
@@ -679,7 +680,7 @@ class Agent:
                 )
             )
 
-    def call_tool(self, name: str, args: Dict[str, Any]) -> Any:
+    def call_tool(self, name: str, args: dict[str, Any]) -> Any:
         """
         Execute a registered tool.
 

@@ -313,7 +313,10 @@ mod tests {
         let store = Arc::new(WorkingMemory::default());
 
         let save_tool = SaveMemoryTool::with_store(store.clone());
-        save_tool.execute(json!({"content": "important fact: the sky is blue"})).await.unwrap();
+        save_tool
+            .execute(json!({"content": "important fact: the sky is blue"}))
+            .await
+            .unwrap();
 
         let query_tool = QueryMemoryTool::with_store(store);
         let result = query_tool.execute(json!({"query": "sky"})).await.unwrap();

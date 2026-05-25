@@ -114,16 +114,28 @@ impl BuiltinTool for HttpRequestTool {
         };
 
         // Format result
-        let mut result = format!("Status: {} {}\n", status.as_u16(), status.canonical_reason().unwrap_or(""));
+        let mut result = format!(
+            "Status: {} {}\n",
+            status.as_u16(),
+            status.canonical_reason().unwrap_or("")
+        );
         result.push_str("Headers:\n");
         for (name, value) in headers.iter() {
-            result.push_str(&format!("  {}: {}\n", name, value.to_str().unwrap_or("<binary>")));
+            result.push_str(&format!(
+                "  {}: {}\n",
+                name,
+                value.to_str().unwrap_or("<binary>")
+            ));
         }
         if !body.is_empty() {
             result.push_str("\nBody:\n");
             // Limit body display
             if body.len() > 5000 {
-                result.push_str(&format!("{}...\n(truncated, {} bytes total)", &body[..5000], body.len()));
+                result.push_str(&format!(
+                    "{}...\n(truncated, {} bytes total)",
+                    &body[..5000],
+                    body.len()
+                ));
             } else {
                 result.push_str(&body);
             }
@@ -198,7 +210,11 @@ impl BuiltinTool for WebFetchTool {
 
         // Limit output
         if text.len() > 10000 {
-            Ok(format!("{}...\n\n(truncated, {} chars total)", &text[..10000], text.len()))
+            Ok(format!(
+                "{}...\n\n(truncated, {} chars total)",
+                &text[..10000],
+                text.len()
+            ))
         } else {
             Ok(text)
         }

@@ -83,7 +83,7 @@ Requirements:
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Import Rust binding
 try:
@@ -91,6 +91,9 @@ try:
     HAS_RUST_BINDING = True
 except ImportError:
     HAS_RUST_BINDING = False
+    # Define placeholder for type annotation
+    class RustToolExecutor:
+        pass
 
 
 class ToolCategory(Enum):
@@ -114,7 +117,7 @@ class ToolMeta:
     category: ToolCategory
     requires_confirmation: bool = False
     is_dangerous: bool = False
-    parameters: Dict[str, Any] = None
+    parameters: dict[str, Any] = None
 
     def __post_init__(self):
         if self.parameters is None:
@@ -142,8 +145,8 @@ class BuiltinTools:
         >>> print(content[:100])
     """
 
-    _tools_cache: Dict[str, ToolMeta] = None
-    _executor: Optional[RustToolExecutor] = None
+    _tools_cache: dict[str, ToolMeta] = None
+    _executor: RustToolExecutor | None = None
 
     def __init__(self):
         """Initialize built-in tools."""
@@ -203,8 +206,8 @@ class BuiltinTools:
     def read_file(
         self,
         path: str,
-        offset: Optional[int] = None,
-        limit: Optional[int] = None
+        offset: int | None = None,
+        limit: int | None = None
     ) -> str:
         """Read file contents.
 
@@ -247,7 +250,7 @@ class BuiltinTools:
         args = json.dumps({"path": path, "old_string": old, "new_string": new})
         return self._executor.execute("edit_file", args)
 
-    def list_directory(self, path: str) -> List[Dict[str, Any]]:
+    def list_directory(self, path: str) -> list[dict[str, Any]]:
         """List directory contents.
 
         Args:
@@ -268,8 +271,8 @@ class BuiltinTools:
     def grep(
         self,
         pattern: str,
-        path: Optional[str] = None,
-        glob: Optional[str] = None
+        path: str | None = None,
+        glob: str | None = None
     ) -> str:
         """Search file contents.
 
@@ -284,7 +287,7 @@ class BuiltinTools:
         self._check_binding("grep")
         return self._executor.grep(pattern, path, glob)
 
-    def glob(self, pattern: str, path: Optional[str] = None) -> str:
+    def glob(self, pattern: str, path: str | None = None) -> str:
         """Find files matching pattern.
 
         Args:
@@ -302,8 +305,8 @@ class BuiltinTools:
     def bash(
         self,
         command: str,
-        timeout_ms: Optional[int] = None,
-        working_dir: Optional[str] = None
+        timeout_ms: int | None = None,
+        working_dir: str | None = None
     ) -> str:
         """Execute shell command.
 
@@ -320,7 +323,7 @@ class BuiltinTools:
 
     # ==================== Tool Discovery ====================
 
-    def list_tools(self) -> List[ToolMeta]:
+    def list_tools(self) -> list[ToolMeta]:
         """List all available tools."""
         return list(self._tools_cache.values())
 
@@ -330,7 +333,7 @@ class BuiltinTools:
             return self._executor.is_available(name)
         return name in self._tools_cache
 
-    def get_tool_meta(self, name: str) -> Optional[ToolMeta]:
+    def get_tool_meta(self, name: str) -> ToolMeta | None:
         """Get tool metadata by name.
 
         Args:
@@ -341,7 +344,7 @@ class BuiltinTools:
         """
         return self._tools_cache.get(name)
 
-    def execute(self, name: str, args: Dict[str, Any]) -> str:
+    def execute(self, name: str, args: dict[str, Any]) -> str:
         """Execute tool by name.
 
         Args:
@@ -356,7 +359,7 @@ class BuiltinTools:
 
 
 # Module-level singleton for convenience
-_builtin_tools: Optional[BuiltinTools] = None
+_builtin_tools: BuiltinTools | None = None
 
 
 def get_builtin_tools() -> BuiltinTools:

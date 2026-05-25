@@ -4,7 +4,6 @@ LLM Errors
 Error types for LLM client operations.
 """
 
-from typing import Optional
 
 
 class LlmError(Exception):
@@ -14,7 +13,7 @@ class LlmError(Exception):
     All LLM-related errors inherit from this class.
     """
 
-    def __init__(self, message: str, provider: Optional[str] = None):
+    def __init__(self, message: str, provider: str | None = None):
         super().__init__(message)
         self.provider = provider
 
@@ -47,8 +46,8 @@ class RateLimitError(LlmError):
     def __init__(
         self,
         message: str,
-        provider: Optional[str] = None,
-        retry_after: Optional[float] = None,
+        provider: str | None = None,
+        retry_after: float | None = None,
     ):
         super().__init__(message, provider)
         self.retry_after = retry_after
@@ -77,8 +76,8 @@ class TimeoutError(LlmError):
     def __init__(
         self,
         message: str,
-        provider: Optional[str] = None,
-        timeout: Optional[float] = None,
+        provider: str | None = None,
+        timeout: float | None = None,
     ):
         super().__init__(message, provider)
         self.timeout = timeout
@@ -97,8 +96,8 @@ class InvalidResponseError(LlmError):
     def __init__(
         self,
         message: str,
-        provider: Optional[str] = None,
-        response_data: Optional[dict] = None,
+        provider: str | None = None,
+        response_data: dict | None = None,
     ):
         super().__init__(message, provider)
         self.response_data = response_data
@@ -116,8 +115,8 @@ class ContentFilterError(LlmError):
     def __init__(
         self,
         message: str,
-        provider: Optional[str] = None,
-        filter_reason: Optional[str] = None,
+        provider: str | None = None,
+        filter_reason: str | None = None,
     ):
         super().__init__(message, provider)
         self.filter_reason = filter_reason

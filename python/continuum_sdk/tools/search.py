@@ -13,7 +13,8 @@ import re
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Pattern
+from re import Pattern
+from typing import Any
 
 from .file_ops import detect_encoding
 from .types import ToolError, ToolResult
@@ -21,8 +22,8 @@ from .types import ToolError, ToolResult
 
 def grep(
     pattern: str,
-    path: Optional[str] = None,
-    glob_pattern: Optional[str] = None,
+    path: str | None = None,
+    glob_pattern: str | None = None,
     case_sensitive: bool = False,
     output_mode: str = "content",
     head_limit: int = 250,
@@ -73,7 +74,7 @@ def grep(
         )
 
     # Find files to search
-    files: List[Path] = []
+    files: list[Path] = []
     if search_path.is_file():
         files = [search_path]
     elif search_path.is_dir():
@@ -87,14 +88,14 @@ def grep(
             ]
 
     # Search files
-    results: List[Dict[str, Any]] = []
-    matched_files: List[str] = []
+    results: list[dict[str, Any]] = []
+    matched_files: list[str] = []
     total_matches = 0
 
     for file_path in files[:1000]:  # Limit to 1000 files
         try:
             encoding = detect_encoding(file_path)
-            with open(file_path, 'r', encoding=encoding, errors='replace') as f:
+            with open(file_path, encoding=encoding, errors='replace') as f:
                 content = f.read()
 
             matches = list(regex.finditer(content))
@@ -171,7 +172,7 @@ def grep(
 
 def glob(
     pattern: str,
-    path: Optional[str] = None,
+    path: str | None = None,
 ) -> ToolResult:
     """
     Find files matching glob pattern.
@@ -252,8 +253,8 @@ class GrepTool:
     def search(
         self,
         pattern: str,
-        path: Optional[str] = None,
-        glob_pattern: Optional[str] = None,
+        path: str | None = None,
+        glob_pattern: str | None = None,
         **kwargs,
     ) -> ToolResult:
         """Search files for pattern."""
@@ -277,7 +278,7 @@ class GlobTool:
     def find(
         self,
         pattern: str,
-        path: Optional[str] = None,
+        path: str | None = None,
     ) -> ToolResult:
         """Find files matching pattern."""
         return glob(pattern, path)

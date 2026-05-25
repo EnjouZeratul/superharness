@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # TOML support (Python 3.11+ has built-in, otherwise use tomllib)
 try:
@@ -39,13 +39,13 @@ class Provider(Enum):
 class ProviderConfig:
     """提供商配置"""
     name: str
-    api_key: Optional[str] = None
-    base_url: Optional[str] = None
-    model: Optional[str] = None
-    small_model: Optional[str] = None
-    default_model: Optional[str] = None
+    api_key: str | None = None
+    base_url: str | None = None
+    model: str | None = None
+    small_model: str | None = None
+    default_model: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "api_key": self.api_key,
@@ -98,18 +98,18 @@ class Config:
     def __init__(
         self,
         provider: str = "anthropic",
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        api_format: Optional[str] = None,
-        model: Optional[str] = None,
-        small_model: Optional[str] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        api_format: str | None = None,
+        model: str | None = None,
+        small_model: str | None = None,
         effort_level: str = "medium",
         disable_traffic: bool = False,
-        budget: Optional[float] = None,
+        budget: float | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        worktrees_dir: Optional[str] = None,
-        plugins_dir: Optional[str] = None,
+        worktrees_dir: str | None = None,
+        plugins_dir: str | None = None,
         log_level: str = "info",
         audit_enabled: bool = True,
         audit_retention_days: int = 90,
@@ -137,7 +137,7 @@ class Config:
             audit_retention_days: 审计日志保留天数
             **kwargs: 其他配置项
         """
-        self._data: Dict[str, Any] = {
+        self._data: dict[str, Any] = {
             "provider": provider,
             "api_key": api_key,
             "base_url": base_url,
@@ -158,8 +158,8 @@ class Config:
         self._data.update(kwargs)
 
         # 提供商配置存储
-        self._providers: Dict[str, ProviderConfig] = {}
-        self._current_provider: Optional[str] = None
+        self._providers: dict[str, ProviderConfig] = {}
+        self._current_provider: str | None = None
 
     # ==================== 属性访问 ====================
 
@@ -169,7 +169,7 @@ class Config:
         return self._data.get("provider", "anthropic")
 
     @property
-    def api_key(self) -> Optional[str]:
+    def api_key(self) -> str | None:
         """API 密钥"""
         return self._data.get("api_key")
 
@@ -179,17 +179,17 @@ class Config:
         return self._data.get("model") or self._get_default_model()
 
     @property
-    def small_model(self) -> Optional[str]:
+    def small_model(self) -> str | None:
         """小模型名称"""
         return self._data.get("small_model")
 
     @property
-    def base_url(self) -> Optional[str]:
+    def base_url(self) -> str | None:
         """API 基础 URL"""
         return self._data.get("base_url")
 
     @property
-    def api_format(self) -> Optional[str]:
+    def api_format(self) -> str | None:
         """API 请求格式 (anthropic|openai|google)"""
         return self._data.get("api_format")
 
@@ -204,7 +204,7 @@ class Config:
         return self._data.get("disable_traffic", False)
 
     @property
-    def budget(self) -> Optional[float]:
+    def budget(self) -> float | None:
         """预算上限"""
         return self._data.get("budget")
 
@@ -231,16 +231,16 @@ class Config:
         """设置配置项"""
         self._data[key] = value
 
-    def update(self, data: Dict[str, Any]) -> None:
+    def update(self, data: dict[str, Any]) -> None:
         """批量更新配置"""
         self._data.update(data)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return self._data.copy()
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Config":
+    def from_dict(cls, data: dict[str, Any]) -> "Config":
         """从字典创建配置"""
         return cls(**data)
 
@@ -392,9 +392,9 @@ class Config:
 
         return self
 
-    def add_provider(self, name: str, api_key: Optional[str] = None,
-                     base_url: Optional[str] = None, model: Optional[str] = None,
-                     small_model: Optional[str] = None) -> None:
+    def add_provider(self, name: str, api_key: str | None = None,
+                     base_url: str | None = None, model: str | None = None,
+                     small_model: str | None = None) -> None:
         """
         添加提供商配置
 
@@ -413,7 +413,7 @@ class Config:
             small_model=small_model,
         )
 
-    def list_providers(self) -> List[str]:
+    def list_providers(self) -> list[str]:
         """列出所有配置的提供商"""
         return list(self._providers.keys())
 
@@ -431,7 +431,7 @@ class Config:
         return defaults.get(provider, "claude-sonnet-4-6")
 
     @classmethod
-    def _find_config_file(cls) -> Optional[Path]:
+    def _find_config_file(cls) -> Path | None:
         """查找配置文件"""
         for dir_path in cls.DEFAULT_CONFIG_DIRS:
             dir_expanded = Path(dir_path).expanduser()
@@ -442,7 +442,7 @@ class Config:
         return None
 
     @classmethod
-    def _load_file(cls, path: Path) -> Dict[str, Any]:
+    def _load_file(cls, path: Path) -> dict[str, Any]:
         """从文件加载配置"""
         suffix = path.suffix.lower()
 
@@ -454,7 +454,7 @@ class Config:
                 with open(path, "rb") as f:
                     return tomllib.load(f)
             elif suffix == ".json":
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     return json.load(f)
             else:
                 # 尝试自动检测
@@ -470,7 +470,7 @@ class Config:
         return {}
 
     @classmethod
-    def _expand_env_vars(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _expand_env_vars(cls, data: dict[str, Any]) -> dict[str, Any]:
         """
         展开配置中的环境变量引用
 
@@ -497,7 +497,7 @@ class Config:
 
 
 # 便捷函数
-def load_config(path: Optional[str] = None) -> Config:
+def load_config(path: str | None = None) -> Config:
     """
     加载配置
 
@@ -530,9 +530,9 @@ class ConfigLoader:
         Config.from_default()
     """
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         self._config_path = config_path
-        self._config: Optional[Config] = None
+        self._config: Config | None = None
 
     def load(self) -> Config:
         """加载配置"""
@@ -542,11 +542,11 @@ class ConfigLoader:
             self._config = Config.from_default()
         return self._config
 
-    def get_config(self) -> Optional[Config]:
+    def get_config(self) -> Config | None:
         """获取已加载的配置"""
         return self._config
 
-    def save(self, path: Optional[str] = None) -> None:
+    def save(self, path: str | None = None) -> None:
         """保存配置到文件"""
         if not self._config:
             raise ValueError("No config loaded")

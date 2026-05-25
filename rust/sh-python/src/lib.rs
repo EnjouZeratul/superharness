@@ -35,8 +35,8 @@ fn sh_python(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 mod bindings {
     use super::*;
-    use sh_layer3::ToolExecutor;
     use sh_layer2::CheckpointSystemTrait;
+    use sh_layer3::ToolExecutor;
 
     // ========================================================================
     // Layer 0: SecurityGateway
@@ -184,7 +184,9 @@ mod bindings {
                 created_at: chrono::Utc::now(),
                 trigger: "manual".to_string(),
                 iteration: 0,
-                messages: vec![serde_json::from_str(&data).unwrap_or(serde_json::json!({"content": data}))],
+                messages: vec![
+                    serde_json::from_str(&data).unwrap_or(serde_json::json!({"content": data}))
+                ],
                 tool_calls_pending: Vec::new(),
                 tool_results: serde_json::Value::Null,
                 tokens_used: 0,
@@ -203,7 +205,12 @@ mod bindings {
         }
 
         /// 加载检查点
-        fn load<'py>(&self, py: Python<'py>, session_id: &str, checkpoint_id: Option<&str>) -> PyResult<Option<String>> {
+        fn load<'py>(
+            &self,
+            py: Python<'py>,
+            session_id: &str,
+            checkpoint_id: Option<&str>,
+        ) -> PyResult<Option<String>> {
             let inner = self.inner.clone();
             let sid = sh_layer2::SessionId::from(session_id);
             let cid = checkpoint_id.map(|s| sh_layer2::CheckpointId(s.to_string()));
@@ -212,8 +219,9 @@ mod bindings {
                 let writer = inner.lock().await;
                 match writer.load(&sid, cid.as_ref()).await {
                     Ok(Some(data)) => {
-                        let json = serde_json::to_string(&data.messages)
-                            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+                        let json = serde_json::to_string(&data.messages).map_err(|e| {
+                            pyo3::exceptions::PyRuntimeError::new_err(e.to_string())
+                        })?;
                         Ok(Some(json))
                     }
                     Ok(None) => Ok(None),
@@ -238,7 +246,12 @@ mod bindings {
         }
 
         /// 删除检查点
-        fn delete<'py>(&self, py: Python<'py>, session_id: &str, checkpoint_id: &str) -> PyResult<bool> {
+        fn delete<'py>(
+            &self,
+            py: Python<'py>,
+            session_id: &str,
+            checkpoint_id: &str,
+        ) -> PyResult<bool> {
             let inner = self.inner.clone();
             let sid = sh_layer2::SessionId::from(session_id);
             let cid = sh_layer2::CheckpointId(checkpoint_id.to_string());
@@ -253,7 +266,7 @@ mod bindings {
         }
     }
 
-/// Agent Python 绑定
+    /// Agent Python 绑定
     #[pyclass(name = "Agent")]
     pub struct PyAgent {
         id: String,
@@ -456,8 +469,9 @@ mod bindings {
         fn execute<'py>(&self, py: Python<'py>, name: &str, args_json: String) -> PyResult<String> {
             let inner = self.inner.clone();
             let tool_name = name.to_string();
-            let args: serde_json::Value = serde_json::from_str(&args_json)
-                .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Invalid JSON: {}", e)))?;
+            let args: serde_json::Value = serde_json::from_str(&args_json).map_err(|e| {
+                pyo3::exceptions::PyValueError::new_err(format!("Invalid JSON: {}", e))
+            })?;
 
             let request = sh_layer3::ToolRequest {
                 call_id: uuid::Uuid::new_v4().to_string()[..8].to_string(),
@@ -477,7 +491,12 @@ mod bindings {
 
         /// 读取文件
         #[pyo3(signature = (path, offset=None, limit=None))]
-        fn read_file(&self, path: &str, offset: Option<usize>, limit: Option<usize>) -> PyResult<String> {
+        fn read_file(
+            &self,
+            path: &str,
+            offset: Option<usize>,
+            limit: Option<usize>,
+        ) -> PyResult<String> {
             let args = serde_json::json!({
                 "path": path,
                 "offset": offset,
@@ -531,7 +550,12 @@ mod bindings {
 
         /// 执行 Bash 命令
         #[pyo3(signature = (command, timeout_ms=None, working_dir=None))]
-        fn bash(&self, command: &str, timeout_ms: Option<u64>, working_dir: Option<&str>) -> PyResult<String> {
+        fn bash(
+            &self,
+            command: &str,
+            timeout_ms: Option<u64>,
+            working_dir: Option<&str>,
+        ) -> PyResult<String> {
             let mut args = serde_json::json!({
                 "command": command,
             });

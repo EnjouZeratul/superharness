@@ -44,8 +44,9 @@ impl EmbeddingsConfig {
     /// - `OPENAI_BASE_URL`: API 基础 URL（可选）
     /// - `OPENAI_EMBEDDING_MODEL`: 嵌入模型名称（可选）
     pub fn from_env() -> Result<Self> {
-        let api_key = std::env::var("OPENAI_API_KEY")
-            .map_err(|_| anyhow!("OPENAI_API_KEY environment variable not set. Please set it to use embeddings."))?;
+        let api_key = std::env::var("OPENAI_API_KEY").map_err(|_| {
+            anyhow!("OPENAI_API_KEY environment variable not set. Please set it to use embeddings.")
+        })?;
 
         let base_url = std::env::var("OPENAI_BASE_URL")
             .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
@@ -156,8 +157,14 @@ impl Embeddings {
             ));
         }
 
-        let response_body: OpenAiEmbeddingResponse = serde_json::from_str(&response_text)
-            .map_err(|e| anyhow!("Failed to parse embedding response: {} - {}", e, response_text))?;
+        let response_body: OpenAiEmbeddingResponse =
+            serde_json::from_str(&response_text).map_err(|e| {
+                anyhow!(
+                    "Failed to parse embedding response: {} - {}",
+                    e,
+                    response_text
+                )
+            })?;
 
         // 按 index 排序并提取向量
         let mut embeddings: Vec<(usize, Vec<f32>)> = response_body
@@ -295,7 +302,10 @@ mod tests {
         let config = EmbeddingsConfig::default();
         let result = Embeddings::with_config(config);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Embeddings API not configured"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Embeddings API not configured"));
     }
 
     #[test]

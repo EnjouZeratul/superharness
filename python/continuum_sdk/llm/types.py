@@ -6,7 +6,7 @@ Type definitions for LLM client interactions.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class MessageRole(Enum):
@@ -30,17 +30,17 @@ class Message:
     """
     role: MessageRole
     content: str
-    name: Optional[str] = None
-    tool_call_id: Optional[str] = None
+    name: str | None = None
+    tool_call_id: str | None = None
 
-    def to_anthropic_format(self) -> Dict[str, Any]:
+    def to_anthropic_format(self) -> dict[str, Any]:
         """Convert to Anthropic API format."""
         return {
             "role": self.role.value,
             "content": self.content,
         }
 
-    def to_openai_format(self) -> Dict[str, Any]:
+    def to_openai_format(self) -> dict[str, Any]:
         """Convert to OpenAI API format."""
         msg = {"role": self.role.value, "content": self.content}
         if self.name:
@@ -49,7 +49,7 @@ class Message:
             msg["tool_call_id"] = self.tool_call_id
         return msg
 
-    def to_gemini_format(self) -> Dict[str, Any]:
+    def to_gemini_format(self) -> dict[str, Any]:
         """Convert to Google Gemini API format."""
         # Gemini uses "model" instead of "assistant"
         role = "model" if self.role == MessageRole.ASSISTANT else self.role.value
@@ -104,10 +104,10 @@ class ChatResponse:
     usage: TokenUsage
     finish_reason: str = "stop"
     response_id: str = ""
-    tool_calls: List[Dict[str, Any]] = field(default_factory=list)
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)
 
     @classmethod
-    def from_anthropic(cls, data: Dict[str, Any]) -> "ChatResponse":
+    def from_anthropic(cls, data: dict[str, Any]) -> "ChatResponse":
         """Create from Anthropic API response."""
         content = ""
         if data.get("content"):
@@ -128,7 +128,7 @@ class ChatResponse:
         )
 
     @classmethod
-    def from_openai(cls, data: Dict[str, Any]) -> "ChatResponse":
+    def from_openai(cls, data: dict[str, Any]) -> "ChatResponse":
         """Create from OpenAI API response."""
         choice = data.get("choices", [{}])[0]
         message = choice.get("message", {})
@@ -147,7 +147,7 @@ class ChatResponse:
         )
 
     @classmethod
-    def from_gemini(cls, data: Dict[str, Any], model: str) -> "ChatResponse":
+    def from_gemini(cls, data: dict[str, Any], model: str) -> "ChatResponse":
         """Create from Google Gemini API response."""
         candidate = data.get("candidates", [{}])[0]
         content = ""
@@ -177,8 +177,8 @@ class StreamChunk:
         tool_calls: Tool call deltas if any
     """
     content: str = ""
-    finish_reason: Optional[str] = None
-    tool_calls: List[Dict[str, Any]] = field(default_factory=list)
+    finish_reason: str | None = None
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -193,9 +193,9 @@ class ToolDefinition:
     """
     name: str
     description: str
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
 
-    def to_anthropic_format(self) -> Dict[str, Any]:
+    def to_anthropic_format(self) -> dict[str, Any]:
         """Convert to Anthropic tool format."""
         return {
             "name": self.name,
@@ -203,7 +203,7 @@ class ToolDefinition:
             "input_schema": self.parameters,
         }
 
-    def to_openai_format(self) -> Dict[str, Any]:
+    def to_openai_format(self) -> dict[str, Any]:
         """Convert to OpenAI tool format."""
         return {
             "type": "function",
@@ -214,7 +214,7 @@ class ToolDefinition:
             },
         }
 
-    def to_gemini_format(self) -> Dict[str, Any]:
+    def to_gemini_format(self) -> dict[str, Any]:
         """Convert to Gemini function declaration format."""
         return {
             "name": self.name,

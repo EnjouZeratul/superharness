@@ -1,7 +1,7 @@
 # Continuum 快速入门指南
 
 > 适用版本: v1.0.0+
-> 更新时间: 2026-05-21
+> 更新时间: 2026-05-24
 
 ---
 
@@ -11,7 +11,8 @@
 2. [安装步骤](#安装步骤)
 3. [首次配置](#首次配置)
 4. [基本使用](#基本使用)
-5. [下一步学习](#下一步学习)
+5. [智能 Agent 进阶](#智能-agent-进阶)
+6. [下一步学习](#下一步学习)
 
 ---
 
@@ -21,7 +22,7 @@
 
 | 组件 | 最低版本 | 推荐版本 |
 |------|----------|----------|
-| Python | 3.8 | 3.11+ |
+| Python | 3.10 | 3.11+ |
 | pip | 21.0 | 最新 |
 | 操作系统 | Windows 10 / macOS 10.15 / Linux | 最新稳定版 |
 
@@ -48,12 +49,12 @@
 # 1. 升级 pip
 pip install --upgrade pip
 
-# 2. 安装 Continuum
-pip install continuum
+# 2. 安装 Continuum SDK
+pip install continuum-agent-sdk
 
 # 3. 验证安装
-continuum --version
-# 输出: Continuum v1.0.0
+python -c "from continuum import Agent; print('OK')"
+# 输出: OK
 ```
 
 ### 方式二：从源码安装
@@ -242,19 +243,86 @@ continuum session delete <session-id>
 
 ### 使用 Python SDK
 
-```python
-from continuum_sdk import Agent
+**基础 Agent（3步上手）：**
 
-# 创建 Agent
+```python
+from continuum import Agent
+
+# 创建 Agent（自动从环境变量配置）
 agent = Agent()
 
 # 执行任务
 result = agent.run("分析当前目录的项目结构")
 print(result)
+```
 
-# 多轮对话
+**会话管理：**
+
+```python
+from continuum import Agent, Session
+
+# 创建带会话的 Agent
+agent = Agent()
+session = agent.create_session()
+
+# 多轮对话（上下文保持）
 agent.run("记住：我的项目使用 Python 3.11")
 agent.run("我之前说使用的什么版本？")  # 会记住上下文
+
+# 保存会话
+session.save()
+
+# 恢复会话
+agent.resume_session(session.id)
+```
+
+---
+
+## 智能 Agent 进阶
+
+IntelligentAgent 提供任务规划、自校正和进度跟踪功能：
+
+```python
+from continuum_sdk.agent import IntelligentAgent, AgentMode
+
+# 创建智能 Agent（自主模式）
+agent = IntelligentAgent(
+    api_key="your-api-key",  # 或使用环境变量
+    mode=AgentMode.AUTONOMOUS
+)
+
+# 规划任务
+plan = await agent.plan("修复 auth.py 中的 bug")
+print(plan.to_dict())  # 查看规划
+
+# 执行规划
+result = await agent.execute(plan)
+print(f"完成 {result.completed_steps}/{result.total_steps} 步")
+```
+
+**执行模式：**
+
+| 模式 | 说明 |
+|------|------|
+| `AUTONOMOUS` | 自动执行，无需确认 |
+| `INTERACTIVE` | 每步询问确认 |
+| `STEP_BY_STEP` | 每步暂停等待 |
+
+**进度跟踪：**
+
+```python
+# 查看执行进度
+agent.get_progress_text()
+# 输出: [2/5] 40% in 5s ETA: 7s
+
+# 查看规划摘要
+agent.get_plan_summary()
+# 输出: 
+# Plan: 修复 auth.py 中的 bug
+#   ○ [s1] 搜索相关代码
+#   ○ [s2] 分析 bug 原因
+#   ○ [s3] 应用修复
+#   ...
 ```
 
 ---

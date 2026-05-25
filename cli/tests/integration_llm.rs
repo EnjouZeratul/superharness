@@ -425,15 +425,20 @@ mod mcp_tests {
         let list_response = handler.handle(&list_request).await.unwrap();
         assert!(list_response.error.is_none(), "tools/list should not error");
         let result = list_response.result.unwrap();
-        let tools: Vec<serde_json::Value> = result.get("tools")
+        let tools: Vec<serde_json::Value> = result
+            .get("tools")
             .and_then(|t| t.as_array())
             .cloned()
             .unwrap_or_default();
         assert!(tools.len() >= 2, "Should have at least 2 tools registered");
-        let tool_names: Vec<&str> = tools.iter()
+        let tool_names: Vec<&str> = tools
+            .iter()
             .filter_map(|t| t.get("name").and_then(|n| n.as_str()))
             .collect();
-        assert!(tool_names.contains(&"echo"), "echo tool should be registered");
+        assert!(
+            tool_names.contains(&"echo"),
+            "echo tool should be registered"
+        );
         assert!(tool_names.contains(&"add"), "add tool should be registered");
 
         // 实际调用 echo 工具

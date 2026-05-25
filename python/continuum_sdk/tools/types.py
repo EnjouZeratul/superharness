@@ -6,7 +6,7 @@ Shared type definitions for all tools.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict
+from typing import Any
 
 
 class ToolCategory(Enum):
@@ -40,7 +40,7 @@ class ToolResult:
     content: str
     is_error: bool = False
     duration_ms: int = 0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __str__(self) -> str:
         status = "ERROR" if self.is_error else "OK"
@@ -82,4 +82,4 @@ class ToolMeta:
     category: ToolCategory
     requires_confirmation: bool = False
     is_dangerous: bool = False
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)

@@ -10,41 +10,41 @@ LLM Client Mock 测试
 - 错误处理 (认证、速率限制、超时、无效响应)
 """
 
-import sys
-import os
-import pytest
 import json
-from unittest.mock import AsyncMock, patch, Mock
+import os
+import sys
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from continuum_sdk.llm.client import (
-    LlmClient,
     AnthropicClient,
-    OpenAIClient,
-    GeminiClient,
     CustomClient,
-)
-from continuum_sdk.llm.types import (
-    Message,
-    MessageRole,
-    ChatResponse,
-    TokenUsage,
-    StreamChunk,
-    ToolDefinition,
+    GeminiClient,
+    LlmClient,
+    OpenAIClient,
 )
 from continuum_sdk.llm.errors import (
-    LlmError,
     AuthenticationError,
-    RateLimitError,
-    NetworkError,
-    TimeoutError,
-    InvalidResponseError,
-    ModelNotFoundError,
     ContentFilterError,
+    InvalidResponseError,
+    LlmError,
+    ModelNotFoundError,
+    NetworkError,
+    RateLimitError,
+    TimeoutError,
     classify_http_error,
 )
-
+from continuum_sdk.llm.types import (
+    ChatResponse,
+    Message,
+    MessageRole,
+    StreamChunk,
+    TokenUsage,
+    ToolDefinition,
+)
 
 # ==================== 客户端创建测试 ====================
 
@@ -1024,7 +1024,7 @@ class TestOpenAIStreaming:
 
 
 class TestGeminiStreaming:
-    """Gemini streaming tests""" 
+    """Gemini streaming tests"""
 
     @pytest.mark.asyncio
     async def test_stream_invocation(self):
@@ -1048,7 +1048,7 @@ class TestGeminiStreaming:
 
     @pytest.mark.asyncio
     async def test_stream_error(self):
-        """Test Gemini stream error handling""" 
+        """Test Gemini stream error handling"""
         client = GeminiClient(api_key="test-key")
 
         mock_response = Mock()

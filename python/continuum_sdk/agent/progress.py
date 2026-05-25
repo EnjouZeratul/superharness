@@ -64,10 +64,11 @@ See Also:
 """
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 
 class ProgressState(Enum):
@@ -87,8 +88,8 @@ class ProgressEvent:
     status: str
     progress_percent: float
     elapsed_time: float
-    estimated_remaining: Optional[float]
-    message: Optional[str] = None
+    estimated_remaining: float | None
+    message: str | None = None
     timestamp: datetime = field(default_factory=datetime.now)
 
 
@@ -111,13 +112,13 @@ class ProgressTracker:
         self.completed_steps: int = 0
         self.failed_steps: int = 0
         self.skipped_steps: int = 0
-        self.current_step: Optional[str] = None
+        self.current_step: str | None = None
         self.state: ProgressState = ProgressState.IDLE
-        self.start_time: Optional[datetime] = None
-        self.end_time: Optional[datetime] = None
-        self.step_times: Dict[str, float] = {}
-        self.callbacks: List[Callable[[ProgressEvent], None]] = []
-        self.events: List[ProgressEvent] = []
+        self.start_time: datetime | None = None
+        self.end_time: datetime | None = None
+        self.step_times: dict[str, float] = {}
+        self.callbacks: list[Callable[[ProgressEvent], None]] = []
+        self.events: list[ProgressEvent] = []
 
     def start(self, total_steps: int) -> None:
         """Start tracking."""
@@ -143,8 +144,8 @@ class ProgressTracker:
         self,
         step_id: str,
         status: str,
-        description: Optional[str] = None,
-        message: Optional[str] = None,
+        description: str | None = None,
+        message: str | None = None,
     ) -> None:
         """Update step status."""
         self.current_step = step_id
@@ -189,7 +190,7 @@ class ProgressTracker:
         if self.state == ProgressState.PAUSED:
             self.state = ProgressState.RUNNING
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Get current progress details."""
         done = self.completed_steps + self.skipped_steps
         total = self.total_steps
@@ -213,7 +214,7 @@ class ProgressTracker:
         end = self.end_time or datetime.now()
         return (end - self.start_time).total_seconds()
 
-    def estimate_remaining(self) -> Optional[float]:
+    def estimate_remaining(self) -> float | None:
         """Estimate remaining time in seconds."""
         if self.completed_steps == 0:
             return None
@@ -277,7 +278,7 @@ class ProgressTracker:
             except Exception:
                 pass
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export progress as dict."""
         return {
             "state": self.state.value,
@@ -312,14 +313,14 @@ class StepLogger:
     """
 
     def __init__(self):
-        self.logs: List[Dict[str, Any]] = []
+        self.logs: list[dict[str, Any]] = []
 
     def log(
         self,
         step_id: str,
         status: str,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """Log step event."""
         entry = {
@@ -331,14 +332,14 @@ class StepLogger:
         }
         self.logs.append(entry)
 
-    def get_step_logs(self, step_id: str) -> List[Dict[str, Any]]:
+    def get_step_logs(self, step_id: str) -> list[dict[str, Any]]:
         """Get all logs for a step."""
         return [log for log in self.logs if log["step_id"] == step_id]
 
-    def get_recent_logs(self, count: int = 10) -> List[Dict[str, Any]]:
+    def get_recent_logs(self, count: int = 10) -> list[dict[str, Any]]:
         """Get most recent logs."""
         return self.logs[-count:]
 
-    def to_dict(self) -> List[Dict[str, Any]]:
+    def to_dict(self) -> list[dict[str, Any]]:
         """Export logs."""
         return self.logs.copy()

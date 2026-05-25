@@ -64,7 +64,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from ..llm import BaseLlmClient
@@ -117,17 +117,17 @@ class Step:
     type: StepType
     description: str
     action: str
-    target: Optional[str] = None
-    dependencies: List[str] = field(default_factory=list)
+    target: str | None = None
+    dependencies: list[str] = field(default_factory=list)
     status: StepStatus = StepStatus.PENDING
-    result: Optional[str] = None
-    error: Optional[str] = None
+    result: str | None = None
+    error: str | None = None
     retry_count: int = 0
     max_retries: int = 3
     estimated_time: float = 5.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "type": self.type.value,
@@ -159,20 +159,20 @@ class Plan:
     """
     id: str
     task: str
-    steps: List[Step] = field(default_factory=list)
+    steps: list[Step] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.now)
-    current_step: Optional[str] = None
+    current_step: str | None = None
     status: str = "pending"
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
-    def get_step(self, step_id: str) -> Optional[Step]:
+    def get_step(self, step_id: str) -> Step | None:
         """Get step by ID."""
         for step in self.steps:
             if step.id == step_id:
                 return step
         return None
 
-    def get_pending_steps(self) -> List[Step]:
+    def get_pending_steps(self) -> list[Step]:
         """Get all pending steps with satisfied dependencies."""
         completed_ids = {
             s.id for s in self.steps
@@ -187,7 +187,7 @@ class Plan:
                 pending.append(step)
         return pending
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Calculate execution progress."""
         total = len(self.steps)
         completed = sum(1 for s in self.steps if s.status == StepStatus.COMPLETED)
@@ -206,7 +206,7 @@ class Plan:
             "progress_percent": (completed + skipped) / total * 100 if total > 0 else 0,
         }
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "task": self.task,
@@ -282,7 +282,7 @@ class Planner:
     def __init__(self, llm_client: Optional["BaseLlmClient"] = None):
         self.llm_client = llm_client
 
-    async def plan(self, task: str, context: Optional[Dict[str, Any]] = None) -> Plan:
+    async def plan(self, task: str, context: dict[str, Any] | None = None) -> Plan:
         """
         Create execution plan for task.
 
@@ -317,8 +317,8 @@ class Planner:
     async def _plan_with_llm(
         self,
         task: str,
-        context: Optional[Dict[str, Any]] = None
-    ) -> List[Step]:
+        context: dict[str, Any] | None = None
+    ) -> list[Step]:
         """Use LLM to analyze task and generate steps."""
         if not self.llm_client:
             return []
@@ -371,8 +371,8 @@ Example output:
     def _plan_with_patterns(
         self,
         task: str,
-        context: Optional[Dict[str, Any]] = None
-    ) -> List[Step]:
+        context: dict[str, Any] | None = None
+    ) -> list[Step]:
         """Pattern-based task decomposition."""
 
         # Detect task type
@@ -414,7 +414,7 @@ Example output:
         step_id: str,
         step_type: StepType,
         task: str,
-        prev_step_id: Optional[str],
+        prev_step_id: str | None,
     ) -> Step:
         """Create step from type template."""
         step_descriptions = {
@@ -449,7 +449,7 @@ Example output:
             dependencies=dependencies,
         )
 
-    def _parse_steps(self, steps_data: List[Dict]) -> List[Step]:
+    def _parse_steps(self, steps_data: list[dict]) -> list[Step]:
         """Parse steps from LLM response."""
         steps = []
         type_map = {t.value: t for t in StepType}
@@ -474,8 +474,8 @@ Example output:
         step_type: StepType,
         description: str,
         action: str,
-        target: Optional[str] = None,
-        dependencies: Optional[List[str]] = None,
+        target: str | None = None,
+        dependencies: list[str] | None = None,
     ) -> Step:
         """Add new step to plan."""
         step_id = f"s{len(plan.steps)+1}"

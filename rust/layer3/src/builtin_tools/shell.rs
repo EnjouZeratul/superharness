@@ -156,9 +156,13 @@ mod tests {
         let tool = BashTool;
 
         #[cfg(windows)]
-        let result = tool.execute(json!({"command": "ping -n 10 localhost", "timeout": 100})).await;
+        let result = tool
+            .execute(json!({"command": "ping -n 10 localhost", "timeout": 100}))
+            .await;
         #[cfg(not(windows))]
-        let result = tool.execute(json!({"command": "sleep 10", "timeout": 100})).await;
+        let result = tool
+            .execute(json!({"command": "sleep 10", "timeout": 100}))
+            .await;
 
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -171,14 +175,18 @@ mod tests {
         let temp_dir = std::env::temp_dir();
 
         #[cfg(windows)]
-        let result = tool.execute(json!({"command": "cd", "working_dir": temp_dir.to_str()})).await;
+        let result = tool
+            .execute(json!({"command": "cd", "working_dir": temp_dir.to_str()}))
+            .await;
         #[cfg(not(windows))]
-        let result = tool.execute(json!({"command": "pwd", "working_dir": temp_dir.to_str()})).await;
+        let result = tool
+            .execute(json!({"command": "pwd", "working_dir": temp_dir.to_str()}))
+            .await;
 
         assert!(result.is_ok());
         let output = result.unwrap();
         let temp_str = temp_dir.to_string_lossy().to_string();
-assert!(output.contains(&temp_str) || output.contains("Temp"));
+        assert!(output.contains(&temp_str) || output.contains("Temp"));
     }
 
     #[tokio::test]

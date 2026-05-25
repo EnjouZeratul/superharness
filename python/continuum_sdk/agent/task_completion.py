@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..llm import BaseLlmClient, Message
 
@@ -56,10 +56,10 @@ class CompletionStatus:
     is_completed: bool
     confidence: float = 0.0
     reason: str = ""
-    suggestions: List[str] = field(default_factory=list)
+    suggestions: list[str] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.now)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "marker": self.marker.value,
@@ -71,7 +71,7 @@ class CompletionStatus:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CompletionStatus":
+    def from_dict(cls, data: dict[str, Any]) -> "CompletionStatus":
         """Deserialize from dictionary."""
         return cls(
             marker=CompletionMarker(data["marker"]),
@@ -102,11 +102,11 @@ class TaskRecord:
     status: CompletionStatus
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
-    session_id: Optional[str] = None
+    session_id: str | None = None
     attempts: int = 0
-    result: Optional[str] = None
+    result: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "task_id": self.task_id,
@@ -120,7 +120,7 @@ class TaskRecord:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskRecord":
+    def from_dict(cls, data: dict[str, Any]) -> "TaskRecord":
         """Deserialize from dictionary."""
         return cls(
             task_id=data["task_id"],
@@ -178,9 +178,9 @@ Respond in this exact JSON format:
 
     def __init__(
         self,
-        llm_client: Optional[BaseLlmClient] = None,
+        llm_client: BaseLlmClient | None = None,
         confidence_threshold: float = 0.8,
-        persistence_path: Optional[Path] = None,
+        persistence_path: Path | None = None,
     ):
         """Initialize the detector.
 
@@ -192,7 +192,7 @@ Respond in this exact JSON format:
         self._llm = llm_client
         self.confidence_threshold = confidence_threshold
         self._persistence_path = persistence_path or Path.home() / ".continuum" / "tasks"
-        self._tasks: Dict[str, TaskRecord] = {}
+        self._tasks: dict[str, TaskRecord] = {}
 
         self._ensure_persistence_dir()
 
@@ -204,7 +204,7 @@ Respond in this exact JSON format:
         self,
         task: str,
         result: str,
-        task_id: Optional[str] = None,
+        task_id: str | None = None,
     ) -> CompletionStatus:
         """Check if a task has been completed.
 
@@ -379,7 +379,7 @@ Respond in this exact JSON format:
             record.updated_at = datetime.now()
             self._persist_task(record)
 
-    def get_task(self, task_id: str) -> Optional[TaskRecord]:
+    def get_task(self, task_id: str) -> TaskRecord | None:
         """Get a task record by ID.
 
         Args:
@@ -390,7 +390,7 @@ Respond in this exact JSON format:
         """
         return self._tasks.get(task_id) or self._load_task(task_id)
 
-    def get_pending_tasks(self) -> List[TaskRecord]:
+    def get_pending_tasks(self) -> list[TaskRecord]:
         """Get all pending (in-progress) tasks.
 
         Returns:
@@ -428,11 +428,11 @@ Respond in this exact JSON format:
         with open(task_file, "w", encoding="utf-8") as f:
             json.dump(record.to_dict(), f, indent=2)
 
-    def _load_task(self, task_id: str) -> Optional[TaskRecord]:
+    def _load_task(self, task_id: str) -> TaskRecord | None:
         """Load task record from disk."""
         task_file = self._persistence_path / f"{task_id}.json"
         if task_file.exists():
-            with open(task_file, "r", encoding="utf-8") as f:
+            with open(task_file, encoding="utf-8") as f:
                 return TaskRecord.from_dict(json.load(f))
         return None
 
@@ -440,7 +440,7 @@ Respond in this exact JSON format:
         """Load all persisted tasks into memory."""
         for task_file in self._persistence_path.glob("*.json"):
             try:
-                with open(task_file, "r", encoding="utf-8") as f:
+                with open(task_file, encoding="utf-8") as f:
                     record = TaskRecord.from_dict(json.load(f))
                     self._tasks[record.task_id] = record
             except (json.JSONDecodeError, KeyError):

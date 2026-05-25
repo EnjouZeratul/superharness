@@ -192,7 +192,11 @@ mod tests {
         let tools = executor.list_tools();
         assert!(!tools.is_empty(), "Expected tools to be registered");
         // 至少包含基础工具：read_file, write_file, bash, grep, glob
-        assert!(tools.len() >= 5, "Expected at least 5 basic tools, got {}", tools.len());
+        assert!(
+            tools.len() >= 5,
+            "Expected at least 5 basic tools, got {}",
+            tools.len()
+        );
     }
 
     #[test]

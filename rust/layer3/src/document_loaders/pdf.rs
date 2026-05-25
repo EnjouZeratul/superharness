@@ -51,8 +51,10 @@ impl DocumentLoader for PdfLoader {
     async fn load(&self, path: PathBuf) -> Layer3Result<Document> {
         // 实验性实现：返回占位文本
         // 未来版本将使用 pdf-extract 或类似库解析 PDF
-        Ok(Document::new("[PDF content extraction - experimental implementation]")
-            .with_source(path.to_string_lossy().to_string()))
+        Ok(
+            Document::new("[PDF content extraction - experimental implementation]")
+                .with_source(path.to_string_lossy().to_string()),
+        )
     }
 
     async fn load_and_split(&self, path: PathBuf) -> Layer3Result<Vec<Document>> {

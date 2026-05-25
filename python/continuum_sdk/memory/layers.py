@@ -10,7 +10,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class MemoryTier(Enum):
@@ -27,7 +27,7 @@ class MemoryEntry:
     id: str
     tier: MemoryTier
     content: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
     last_accessed: datetime = field(default_factory=datetime.utcnow)
     access_count: int = 0
@@ -43,9 +43,9 @@ class MemoryEntry:
 class MemoryQuery:
     """记忆查询"""
     query: str
-    tier: Optional[MemoryTier] = None
+    tier: MemoryTier | None = None
     limit: int = 10
-    time_range: Optional[tuple] = None
+    time_range: tuple | None = None
 
 
 class TierProxy:
@@ -61,15 +61,15 @@ class TierProxy:
         self._memory = memory
         self._tier = tier
 
-    def add(self, content: str, metadata: Optional[Dict[str, Any]] = None, importance: float = 0.5) -> str:
+    def add(self, content: str, metadata: dict[str, Any] | None = None, importance: float = 0.5) -> str:
         """添加记忆"""
         return self._memory.remember(content, tier=self._tier, metadata=metadata, importance=importance)
 
-    def search(self, query: str, limit: int = 10) -> List[MemoryEntry]:
+    def search(self, query: str, limit: int = 10) -> list[MemoryEntry]:
         """搜索记忆"""
         return self._memory.recall(query, tier=self._tier, limit=limit)
 
-    def get(self, memory_id: str) -> Optional[MemoryEntry]:
+    def get(self, memory_id: str) -> MemoryEntry | None:
         """获取记忆"""
         return self._memory.get(self._tier, memory_id)
 
@@ -122,10 +122,10 @@ class Memory:
         self._session_id = session_id
 
         # 各层级存储（占位实现，实际应调用 sh-core）
-        self._working: List[MemoryEntry] = []
-        self._session: List[MemoryEntry] = []
-        self._project: List[MemoryEntry] = []
-        self._long_term: List[MemoryEntry] = []
+        self._working: list[MemoryEntry] = []
+        self._session: list[MemoryEntry] = []
+        self._project: list[MemoryEntry] = []
+        self._long_term: list[MemoryEntry] = []
 
         # 层级映射
         self._storage = {
@@ -144,7 +144,7 @@ class Memory:
         self,
         content: str,
         tier: MemoryTier = MemoryTier.WORKING,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
         importance: float = 0.5
     ) -> str:
         """存储记忆
@@ -179,9 +179,9 @@ class Memory:
     def recall(
         self,
         query: str,
-        tier: Optional[MemoryTier] = None,
+        tier: MemoryTier | None = None,
         limit: int = 10
-    ) -> List[MemoryEntry]:
+    ) -> list[MemoryEntry]:
         """查询记忆
 
         Args:
@@ -213,7 +213,7 @@ class Memory:
 
         return results
 
-    def get(self, tier: MemoryTier, memory_id: str) -> Optional[MemoryEntry]:
+    def get(self, tier: MemoryTier, memory_id: str) -> MemoryEntry | None:
         """获取特定记忆
 
         Args:
@@ -261,7 +261,7 @@ class Memory:
         storage.clear()
         return count
 
-    def stats(self) -> Dict[MemoryTier, int]:
+    def stats(self) -> dict[MemoryTier, int]:
         """获取各层级统计
 
         Returns:
@@ -292,7 +292,7 @@ class Memory:
 
     # ==================== 序列化 ====================
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """导出为字典"""
         return {
             "session_id": self._session_id,
@@ -300,6 +300,6 @@ class Memory:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Memory':
+    def from_dict(cls, data: dict[str, Any]) -> 'Memory':
         """从字典创建"""
         return cls(session_id=data.get("session_id", ""))

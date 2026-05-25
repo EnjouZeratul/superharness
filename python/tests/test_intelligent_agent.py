@@ -4,34 +4,35 @@ Intelligent Agent Tests
 Tests for task planning, self-correction, and progress tracking.
 """
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 from continuum_sdk.agent import (
-    Planner,
-    Plan,
-    Step,
-    StepType,
-    StepStatus,
-    SelfCorrection,
+    AgentMode,
+    Correction,
     ErrorContext,
     ErrorType,
-    RecoveryStrategy,
-    Correction,
-    ProgressTracker,
-    ProgressState,
-    ProgressEvent,
-    StepLogger,
-    IntelligentAgent,
-    AgentMode,
     ExecutionResult,
+    IntelligentAgent,
+    Plan,
+    Planner,
+    ProgressEvent,
+    ProgressState,
+    ProgressTracker,
+    RecoveryStrategy,
+    SelfCorrection,
+    Step,
+    StepLogger,
+    StepStatus,
+    StepType,
 )
-
 
 # ==================== Planner Tests ====================
 

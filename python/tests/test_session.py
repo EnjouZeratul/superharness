@@ -1,12 +1,15 @@
 """Session 单元测试"""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
 from datetime import datetime
-from continuum_sdk.agent.session import Session, Message, MessageRole
+
+import pytest
+
+from continuum_sdk.agent.session import Message, MessageRole, Session
 
 
 class TestMessage:
@@ -125,7 +128,7 @@ class TestSession:
         session = Session(id="export-test")
         session.add_user_message("Test message")
         exported = session.export()
-        
+
         restored = Session.from_export(exported)
         assert restored.id == "export-test"
         assert restored.message_count == 1

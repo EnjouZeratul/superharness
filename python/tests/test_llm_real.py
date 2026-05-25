@@ -11,15 +11,16 @@ LLM 真实 API 调用测试
 运行: pytest python/tests/test_llm_real.py -v -s
 """
 
-import sys
 import os
+import sys
+
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from test_config import get_api_key, get_base_url, get_model, is_api_available, load_env
-from continuum_sdk.llm import LlmClient, Message
 
+from continuum_sdk.llm import LlmClient, Message
 
 # 跳过条件：API 不可用
 requires_api = pytest.mark.skipif(
@@ -218,7 +219,7 @@ class TestRealAgentPlanning:
     def agent(self):
         """创建智能 Agent"""
         load_env()
-        from continuum_sdk.agent import IntelligentAgent, AgentMode
+        from continuum_sdk.agent import AgentMode, IntelligentAgent
         return IntelligentAgent(
             api_key=get_api_key(),
             base_url=get_base_url(),
@@ -297,8 +298,9 @@ class TestRealToolExecution:
 
     def test_read_tool_sync(self):
         """测试文件读取"""
-        from continuum_sdk.tools import ReadTool
         import tempfile
+
+        from continuum_sdk.tools import ReadTool
 
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
             f.write("test content for real read")
@@ -319,7 +321,7 @@ class TestRealToolExecution:
     @pytest.mark.asyncio
     async def test_agent_with_bash(self):
         """测试 Agent 使用 Bash 工具 - 验证工具实际执行"""
-        from continuum_sdk.agent import IntelligentAgent, AgentMode
+        from continuum_sdk.agent import AgentMode, IntelligentAgent
         from continuum_sdk.tools import BashTool
 
         # 直接测试 Bash 工具执行能力
@@ -347,9 +349,10 @@ class TestRealToolExecution:
     @pytest.mark.asyncio
     async def test_agent_with_file_ops(self):
         """测试 Agent 使用文件工具 - 验证文件读写实际工作"""
-        from continuum_sdk.agent import IntelligentAgent, AgentMode
-        from continuum_sdk.tools import ReadTool, WriteTool
         import tempfile
+
+        from continuum_sdk.agent import AgentMode, IntelligentAgent
+        from continuum_sdk.tools import ReadTool, WriteTool
 
         # 直接测试文件读写能力
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -386,7 +389,7 @@ class TestRealToolExecution:
     @pytest.mark.asyncio
     async def test_agent_error_recovery(self):
         """测试 Agent 错误恢复 - 验证 SelfCorrection 实际分析错误"""
-        from continuum_sdk.agent.self_correction import SelfCorrection, ErrorType, RecoveryStrategy
+        from continuum_sdk.agent.self_correction import ErrorType, RecoveryStrategy, SelfCorrection
 
         # 直接测试 SelfCorrection 错误分类能力
         correction = SelfCorrection()

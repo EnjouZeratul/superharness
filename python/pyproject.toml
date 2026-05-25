@@ -74,3 +74,19 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "UP"]
+ignore = [
+    "B904",  # raise from err - good practice but not critical
+    "E402",  # module import not at top - intentional in tests for sys.path
+    "B017",  # blind exception assertion - acceptable in tests
+    "E501",  # line too long - existing code style
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402", "B017", "E501"]

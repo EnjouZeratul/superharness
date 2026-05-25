@@ -89,8 +89,8 @@ impl BuiltinTool for GoToDefinitionTool {
 
         // 搜索定义
         for pattern_str in definition_patterns {
-            let pattern = Regex::new(&pattern_str)
-                .map_err(|e| anyhow::anyhow!("Invalid regex: {}", e))?;
+            let pattern =
+                Regex::new(&pattern_str).map_err(|e| anyhow::anyhow!("Invalid regex: {}", e))?;
 
             // 先在当前文件中搜索
             for (line_num, line_content) in lines.iter().enumerate() {
@@ -112,7 +112,10 @@ impl BuiltinTool for GoToDefinitionTool {
                 for entry in entries.flatten() {
                     let entry_path = entry.path();
                     if entry_path.is_file() && entry_path != Path::new(file_path) {
-                        let ext = entry_path.extension().and_then(|e| e.to_str()).unwrap_or("");
+                        let ext = entry_path
+                            .extension()
+                            .and_then(|e| e.to_str())
+                            .unwrap_or("");
                         if ext == file_ext {
                             if let Ok(other_content) = fs::read_to_string(&entry_path) {
                                 for (line_num, line_content) in other_content.lines().enumerate() {
@@ -202,7 +205,9 @@ impl BuiltinTool for FindReferencesTool {
         let current_line = lines.get(line - 1).copied().unwrap_or("");
 
         // 提取符号
-        let target_symbol = symbol.map(|s| s.to_string()).unwrap_or_else(|| extract_symbol_at_position(current_line, column));
+        let target_symbol = symbol
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| extract_symbol_at_position(current_line, column));
 
         if target_symbol.is_empty() {
             return Ok("No symbol found at specified location".to_string());
@@ -245,14 +250,18 @@ impl BuiltinTool for FindReferencesTool {
             for entry in entries.flatten() {
                 let entry_path = entry.path();
                 if entry_path.is_file() && entry_path != Path::new(file_path) {
-                    let ext = entry_path.extension().and_then(|e| e.to_str()).unwrap_or("");
+                    let ext = entry_path
+                        .extension()
+                        .and_then(|e| e.to_str())
+                        .unwrap_or("");
                     if ext == file_ext {
                         if let Ok(other_content) = fs::read_to_string(&entry_path) {
                             for (line_num, line_content) in other_content.lines().enumerate() {
                                 if reference_pattern.is_match(line_content) {
                                     let is_decl = is_definition_line(line_content, &target_symbol);
                                     if include_declaration || !is_decl {
-                                        let matches: Vec<_> = reference_pattern.find_iter(line_content).collect();
+                                        let matches: Vec<_> =
+                                            reference_pattern.find_iter(line_content).collect();
                                         for m in matches {
                                             results.push(format!(
                                                 "{}:{}:{} - {}",
@@ -274,7 +283,11 @@ impl BuiltinTool for FindReferencesTool {
         if results.is_empty() {
             Ok(format!("No references found for symbol: {}", target_symbol))
         } else {
-            Ok(format!("Found {} references:\n{}", results.len(), results.join("\n")))
+            Ok(format!(
+                "Found {} references:\n{}",
+                results.len(),
+                results.join("\n")
+            ))
         }
     }
 }
@@ -327,7 +340,9 @@ fn is_definition_line(line: &str, symbol: &str) -> bool {
         Regex::new(&format!(r"\bprivate\s+{}\s*\(", symbol)).ok(),
     ];
 
-    patterns.iter().any(|p| p.as_ref().map_or(false, |r| r.is_match(line)))
+    patterns
+        .iter()
+        .any(|p| p.as_ref().map_or(false, |r| r.is_match(line)))
 }
 
 /// 根据文件类型获取定义匹配模式
@@ -362,7 +377,10 @@ fn get_definition_patterns(file_ext: &str, symbol: &str) -> Vec<String> {
         "java" | "kt" => vec![
             format!(r"\bclass\s+{}\s*[{{extends\s]", symbol),
             format!(r"\binterface\s+{}\s*[{{extends\s]", symbol),
-            format!(r"\b(?:public|private|protected)\s+(?:static\s+)?(?:\w+\s+)?{}\s*\(", symbol),
+            format!(
+                r"\b(?:public|private|protected)\s+(?:static\s+)?(?:\w+\s+)?{}\s*\(",
+                symbol
+            ),
             format!(r"\benum\s+{}\s*[{{]", symbol),
         ],
         "go" => vec![
@@ -374,7 +392,10 @@ fn get_definition_patterns(file_ext: &str, symbol: &str) -> Vec<String> {
             format!(r"\bconst\s+{}\s*=", symbol),
         ],
         "c" | "cpp" | "h" | "hpp" => vec![
-            format!(r"\b(?:void|int|char|float|double|auto|struct|class)\s+{}\s*\(", symbol),
+            format!(
+                r"\b(?:void|int|char|float|double|auto|struct|class)\s+{}\s*\(",
+                symbol
+            ),
             format!(r"\bstruct\s+{}\s*[{{]", symbol),
             format!(r"\bclass\s+{}\s*[{{:]", symbol),
             format!(r"\btypedef\s+.*\s+{}\s*;", symbol),
@@ -434,7 +455,9 @@ mod tests {
     #[tokio::test]
     async fn test_goto_definition_missing_file() {
         let tool = GoToDefinitionTool;
-        let result = tool.execute(json!({"file": "nonexistent.rs", "line": 1, "column": 1})).await;
+        let result = tool
+            .execute(json!({"file": "nonexistent.rs", "line": 1, "column": 1}))
+            .await;
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Failed to read"));
     }
@@ -442,7 +465,9 @@ mod tests {
     #[tokio::test]
     async fn test_find_references_missing_file() {
         let tool = FindReferencesTool;
-        let result = tool.execute(json!({"file": "nonexistent.rs", "line": 1, "column": 1})).await;
+        let result = tool
+            .execute(json!({"file": "nonexistent.rs", "line": 1, "column": 1}))
+            .await;
         assert!(result.is_err());
     }
 }

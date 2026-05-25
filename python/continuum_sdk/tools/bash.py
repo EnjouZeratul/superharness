@@ -17,7 +17,6 @@ import shlex
 import time
 import uuid
 from pathlib import Path
-from typing import Dict, Optional
 
 from .types import ToolError, ToolResult
 
@@ -39,7 +38,7 @@ BLOCKED_COMMANDS = {
 }
 
 
-def validate_command(command: str) -> Optional[str]:
+def validate_command(command: str) -> str | None:
     """
     Validate command for security.
 
@@ -63,8 +62,8 @@ def validate_command(command: str) -> Optional[str]:
 async def bash_execute(
     command: str,
     timeout: float = 120.0,
-    working_dir: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
+    working_dir: str | None = None,
+    env: dict[str, str] | None = None,
     shell: bool = True,
 ) -> ToolResult:
     """
@@ -192,8 +191,8 @@ async def bash_execute(
 def bash_execute_sync(
     command: str,
     timeout: float = 120.0,
-    working_dir: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
+    working_dir: str | None = None,
+    env: dict[str, str] | None = None,
 ) -> ToolResult:
     """
     Execute a bash command synchronously.
@@ -225,7 +224,7 @@ class BashTool:
     def __init__(
         self,
         default_timeout: float = 120.0,
-        default_working_dir: Optional[str] = None,
+        default_working_dir: str | None = None,
     ):
         self.default_timeout = default_timeout
         self.default_working_dir = default_working_dir
@@ -233,9 +232,9 @@ class BashTool:
     async def run_async(
         self,
         command: str,
-        timeout: Optional[float] = None,
-        working_dir: Optional[str] = None,
-        env: Optional[Dict[str, str]] = None,
+        timeout: float | None = None,
+        working_dir: str | None = None,
+        env: dict[str, str] | None = None,
     ) -> ToolResult:
         """Run command asynchronously."""
         return await bash_execute(
@@ -248,9 +247,9 @@ class BashTool:
     def run(
         self,
         command: str,
-        timeout: Optional[float] = None,
-        working_dir: Optional[str] = None,
-        env: Optional[Dict[str, str]] = None,
+        timeout: float | None = None,
+        working_dir: str | None = None,
+        env: dict[str, str] | None = None,
     ) -> ToolResult:
         """Run command synchronously."""
         return bash_execute_sync(

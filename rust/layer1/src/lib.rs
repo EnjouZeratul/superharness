@@ -16,7 +16,9 @@ pub mod streaming;
 pub use cache_manager::CacheManager;
 pub use config_manager::{ConfigManager, GlobalSettings, ProviderConfig};
 pub use cost_tracker::CostTracker;
-pub use embeddings::{Embeddings, EmbeddingsConfig, DEFAULT_EMBEDDING_DIMENSION, DEFAULT_EMBEDDING_MODEL};
+pub use embeddings::{
+    Embeddings, EmbeddingsConfig, DEFAULT_EMBEDDING_DIMENSION, DEFAULT_EMBEDDING_MODEL,
+};
 pub use error_handler::{ErrorHandler, ShError, ShResult};
 pub use event_bus::EventBus;
 pub use llm_client::LlmClient;

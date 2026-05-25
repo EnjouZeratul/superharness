@@ -1,39 +1,41 @@
 """Agent 性能基准测试"""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import time
 import statistics
-from typing import List, Callable
+import time
+from collections.abc import Callable
+
 
 # 简单基准测试框架（避免pytest-benchmark依赖）
 class BenchResult:
     def __init__(self, name: str):
         self.name = name
-        self.times: List[float] = []
+        self.times: list[float] = []
         self.result = None
-    
+
     def add(self, elapsed: float):
         self.times.append(elapsed)
-    
+
     @property
     def mean(self) -> float:
         return statistics.mean(self.times) if self.times else 0
-    
+
     @property
     def median(self) -> float:
         return statistics.median(self.times) if self.times else 0
-    
+
     @property
     def stdev(self) -> float:
         return statistics.stdev(self.times) if len(self.times) > 1 else 0
-    
+
     @property
     def min(self) -> float:
         return min(self.times) if self.times else 0
-    
+
     @property
     def max(self) -> float:
         return max(self.times) if self.times else 0
@@ -42,17 +44,17 @@ class BenchResult:
 def bench(func: Callable, iterations: int = 100) -> BenchResult:
     """运行基准测试"""
     result = BenchResult(func.__name__)
-    
+
     # 预热
     func()
-    
+
     # 正式测试
     for _ in range(iterations):
         start = time.perf_counter()
         func()
         elapsed = time.perf_counter() - start
         result.add(elapsed)
-    
+
     return result
 
 
@@ -131,7 +133,7 @@ def run_agent_benchmarks():
     print("=" * 50)
     print("Agent Performance Benchmarks")
     print("=" * 50)
-    
+
     tests = [
         ("Agent Creation", bench_agent_creation, 1000),
         ("Agent with Config", bench_agent_with_config, 1000),
@@ -141,7 +143,7 @@ def run_agent_benchmarks():
         ("Create Session", bench_agent_create_session, 1000),
         ("Register 10 Tools", bench_agent_register_tool, 100),
     ]
-    
+
     results = []
     for name, func, iterations in tests:
         print(f"\nRunning: {name}...")
@@ -149,7 +151,7 @@ def run_agent_benchmarks():
         result = bench(func, iterations)
         results.append(result)
         print(format_result(result))
-    
+
     return results
 
 

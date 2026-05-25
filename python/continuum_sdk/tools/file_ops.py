@@ -15,7 +15,6 @@ import shutil
 import time
 import uuid
 from pathlib import Path
-from typing import Optional
 
 from .types import ToolError, ToolResult
 
@@ -58,8 +57,8 @@ def detect_encoding(file_path: Path) -> str:
 
 def read_file(
     path: str,
-    offset: Optional[int] = None,
-    limit: Optional[int] = None,
+    offset: int | None = None,
+    limit: int | None = None,
     show_line_numbers: bool = False,
 ) -> ToolResult:
     """
@@ -103,7 +102,7 @@ def read_file(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding=encoding, errors='replace') as f:
+        with open(file_path, encoding=encoding, errors='replace') as f:
             lines = f.readlines()
 
         # Calculate line range
@@ -179,8 +178,8 @@ class ReadTool:
     def read(
         self,
         path: str,
-        offset: Optional[int] = None,
-        limit: Optional[int] = None,
+        offset: int | None = None,
+        limit: int | None = None,
     ) -> ToolResult:
         """Read file content."""
         return read_file(path, offset, limit, self.show_line_numbers)
@@ -370,7 +369,7 @@ def edit_file(
     # Read file
     encoding = detect_encoding(file_path)
     try:
-        with open(file_path, 'r', encoding=encoding, errors='replace') as f:
+        with open(file_path, encoding=encoding, errors='replace') as f:
             content = f.read()
     except Exception as e:
         raise ToolError(

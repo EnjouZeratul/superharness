@@ -85,7 +85,7 @@ import traceback
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from ..llm import BaseLlmClient
@@ -135,15 +135,15 @@ class ErrorContext:
     """
     error_type: ErrorType
     message: str
-    traceback: Optional[str] = None
-    step_id: Optional[str] = None
-    action: Optional[str] = None
-    target: Optional[str] = None
+    traceback: str | None = None
+    step_id: str | None = None
+    action: str | None = None
+    target: str | None = None
     attempt: int = 1
     timestamp: datetime = field(default_factory=datetime.now)
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "error_type": self.error_type.value,
             "message": self.message,
@@ -170,8 +170,8 @@ class Correction:
     """
     strategy: RecoveryStrategy
     description: str
-    modified_action: Optional[str] = None
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    modified_action: str | None = None
+    parameters: dict[str, Any] = field(default_factory=dict)
     confidence: float = 0.5
 
 
@@ -257,16 +257,16 @@ class SelfCorrection:
 
     def __init__(self, llm_client: Optional["BaseLlmClient"] = None):
         self.llm_client = llm_client
-        self.error_history: List[ErrorContext] = []
-        self.successful_corrections: Dict[str, Correction] = {}
+        self.error_history: list[ErrorContext] = []
+        self.successful_corrections: dict[str, Correction] = {}
 
     def analyze_error(
         self,
         error: Exception,
-        step_id: Optional[str] = None,
-        action: Optional[str] = None,
-        target: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        step_id: str | None = None,
+        action: str | None = None,
+        target: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> ErrorContext:
         """
         Analyze an error and classify it.
@@ -301,7 +301,7 @@ class SelfCorrection:
     def propose_correction(
         self,
         error_ctx: ErrorContext,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> Correction:
         """
         Propose a correction for the error.
@@ -340,8 +340,8 @@ class SelfCorrection:
     async def _llm_based_correction(
         self,
         error_ctx: ErrorContext,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Optional[Correction]:
+        context: dict[str, Any] | None = None,
+    ) -> Correction | None:
         """Use LLM to analyze error and propose fix."""
         if not self.llm_client:
             return None
@@ -416,7 +416,7 @@ Context: {json.dumps(context, indent=2) if context else 'None'}"""
 
         return ErrorType.UNKNOWN
 
-    def _pattern_based_correction(self, error_ctx: ErrorContext) -> Optional[Correction]:
+    def _pattern_based_correction(self, error_ctx: ErrorContext) -> Correction | None:
         """Apply pattern-based correction rules."""
         fix_rules = self.COMMON_FIXES.get(error_ctx.error_type)
         if not fix_rules:
@@ -488,6 +488,6 @@ Context: {json.dumps(context, indent=2) if context else 'None'}"""
         error_key = self._make_error_key(error_ctx)
         self.successful_corrections[error_key] = correction
 
-    def get_error_history(self) -> List[ErrorContext]:
+    def get_error_history(self) -> list[ErrorContext]:
         """Get error history."""
         return self.error_history.copy()

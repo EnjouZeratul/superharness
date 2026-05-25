@@ -18,16 +18,16 @@ LLM Integration Tests - 真实 API 调用测试
 """
 
 import os
-import pytest
-import asyncio
 
 # 跳过导入路径设置
 import sys
+
+import pytest
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from continuum_sdk.llm import LlmClient, Message, ChatResponse
 from continuum_sdk.agent import Agent
-
+from continuum_sdk.llm import ChatResponse, LlmClient, Message
 
 # ==================== Fixtures ====================
 
@@ -181,7 +181,7 @@ async def test_agent_fix_buggy_code(anthropic_key):
     if not os.path.exists(buggy_file):
         pytest.skip("buggy_program.py not found")
 
-    with open(buggy_file, 'r', encoding='utf-8') as f:
+    with open(buggy_file, encoding='utf-8') as f:
         buggy_code = f.read()
 
     config = AgentConfig(
