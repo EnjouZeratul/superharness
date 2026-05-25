@@ -244,7 +244,7 @@ impl CostTracker {
             min_tokens: estimated_input,
             max_tokens: estimated_input + estimated_output,
             estimated_cost_usd: estimated_cost,
-            confidence: "medium".to_string(), // TODO: 更智能的置信度估算
+            confidence: "medium".to_string(), // [NOTE] 置信度估算为基本启发式，未来可改进
         }
     }
 

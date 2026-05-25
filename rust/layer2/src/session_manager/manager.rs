@@ -48,6 +48,12 @@ impl ConcurrentSessionManager {
             lock: ReadWriteLock::new(), // 每次返回新的锁实例
         })
     }
+
+    /// 同步获取会话状态（用于 AgentRuntime::status 同步方法）
+    pub fn get_state_sync(&self, id: &SessionId) -> Option<AgentState> {
+        let guard = self.sessions.read();
+        guard.get(id).map(|s| s.session.state)
+    }
 }
 
 impl Default for ConcurrentSessionManager {
@@ -62,7 +68,7 @@ impl SessionManagerTrait for ConcurrentSessionManager {
         let mut sessions = self.sessions.write();
 
         if sessions.len() >= self.max_sessions {
-            return Err(Layer2Error::SessionNotFound(SessionId::new())) // TODO: 适当的错误
+            return Err(Layer2Error::SessionNotFound(SessionId::new())) // [NOTE] 应改为 MaxSessionsReached 错误
                 .map_err(|_| anyhow::anyhow!("Max sessions limit reached: {}", self.max_sessions));
         }
 

@@ -4,16 +4,74 @@ Intelligent Agent
 Agent with task planning, self-correction, and progress tracking.
 
 Features:
-    - Task decomposition: Break complex tasks into steps
+    - Task decomposition: Break complex tasks into executable steps
     - Execution planning: Generate visible, controllable plans
     - Self-correction: Analyze errors and auto-recover
-    - Progress tracking: Real-time progress display
+    - Progress tracking: Real-time progress display with ETA
+    - Multiple execution modes: autonomous, interactive, step-by-step
 
-Example:
-    >>> from continuum_sdk.agent import IntelligentAgent
-    >>> agent = IntelligentAgent()
-    >>> plan = await agent.plan("fix bug in auth.py")
-    >>> result = await agent.execute_plan(plan)
+Execution Modes:
+    - AUTONOMOUS: Execute without confirmation (fast, best for trusted tasks)
+    - INTERACTIVE: Ask for confirmation before critical steps
+    - STEP_BY_STEP: Pause after each step for review
+
+Error Recovery Strategies:
+    - RETRY: Retry the failed step
+    - RETRY_MODIFIED: Retry with modified parameters
+    - SKIP: Skip the step and continue
+    - ASK_USER: Request user intervention
+    - ABORT: Stop execution entirely
+    - ALTERNATIVE: Try alternative approach
+
+Quick Start:
+    >>> from continuum_sdk.agent import IntelligentAgent, AgentMode
+    >>> agent = IntelligentAgent(mode=AgentMode.AUTONOMOUS)
+    >>>
+    >>> # One-shot execution
+    >>> result = await agent.run("Fix the login bug in auth.py")
+    >>> print(f"Completed: {result.completed_steps}/{result.total_steps}")
+
+Plan-Execute Pattern:
+    >>> agent = IntelligentAgent(mode=AgentMode.INTERACTIVE)
+    >>>
+    >>> # Create plan first
+    >>> plan = await agent.plan("Refactor the database module")
+    >>> print(plan.to_dict())  # Review the plan
+    >>>
+    >>> # Execute with callbacks
+    >>> result = await agent.execute(
+    ...     plan,
+    ...     on_step_start=lambda step: True,  # Approve each step
+    ...     on_step_complete=lambda step: print(f"Done: {step.id}")
+    ... )
+
+Progress Tracking:
+    >>> # Register progress callback
+    >>> def on_progress(event):
+    ...     print(f"Progress: {event.progress_percent:.0f}%")
+    >>> agent.tracker.on_progress(on_progress)
+    >>>
+    >>> # Get progress summary
+    >>> result = await agent.run("Analyze codebase")
+    >>> print(agent.get_progress_text())
+    >>> print(agent.get_plan_summary())
+
+Error Handling:
+    >>> async def handle_error(step, error_ctx):
+    ...     print(f"Error in {step.id}: {error_ctx.error_type}")
+    ...     return True  # Continue execution
+    >>>
+    >>> result = await agent.execute(
+    ...     plan,
+    ...     on_error=handle_error
+    ... )
+    >>> print(f"Corrections applied: {result.corrections_applied}")
+
+Components:
+    - Planner: Task decomposition and plan generation
+    - SelfCorrection: Error analysis and recovery strategy
+    - ProgressTracker: Real-time progress tracking
+    - StepLogger: Execution history logging
 """
 
 from __future__ import annotations

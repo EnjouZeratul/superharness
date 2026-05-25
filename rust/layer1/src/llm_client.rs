@@ -1,6 +1,9 @@
 //! LLM 客户端模块
 //!
 //! 统一的 LLM API 客户端，支持多提供商。
+//!
+//! [STABLE] 基础请求功能完整
+//! [EXPERIMENTAL] 流式响应 (send_stream) 尚未实现
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -149,7 +152,7 @@ impl LlmClientTrait for LlmClient {
         _messages: Vec<Message>,
         _config: &LlmRequestConfig,
     ) -> Result<impl futures::Stream<Item = Result<String>>> {
-        // TODO: 实现流式响应
+        // [EXPERIMENTAL] 流式响应尚未实现
         Ok(futures::stream::empty())
     }
 }

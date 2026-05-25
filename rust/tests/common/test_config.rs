@@ -92,7 +92,31 @@ mod tests {
     #[test]
     fn test_config_functions() {
         load_env();
-        let _ = get_base_url();
-        let _ = get_model();
+        let url = get_base_url();
+        let model = get_model();
+        assert!(!url.is_empty(), "Base URL should not be empty");
+        assert!(!model.is_empty(), "Model name should not be empty");
+    }
+
+    #[test]
+    fn test_api_key_detection() {
+        // 测试 API key 验证逻辑
+        // 有效的 API key 格式
+        assert!(!is_valid_key("your-api-key"), "Should reject placeholder");
+        assert!(!is_valid_key("sk-test"), "Should reject test key");
+        assert!(!is_valid_key("placeholder"), "Should reject placeholder");
+
+        // 有效格式（仅检查不为空且非占位符）
+        assert!(is_valid_key("sk-proj-abc123def456"), "Should accept valid key format");
+        assert!(is_valid_key("anthropic-api-key-12345"), "Should accept valid key format");
+    }
+
+    /// 检查 key 是否为有效的 API key（非占位符）
+    fn is_valid_key(key: &str) -> bool {
+        let lower = key.to_lowercase();
+        !lower.contains("your-api-key")
+            && !lower.contains("sk-test")
+            && !lower.contains("placeholder")
+            && !key.is_empty()
     }
 }

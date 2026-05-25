@@ -1,6 +1,9 @@
 """分层记忆 API
 
 提供 Working -> Session -> Project -> LongTerm 四层记忆。
+
+[STABILITY: STABLE] Core API 稳定
+[STUB] 存储层当前为内存占位实现，持久化存储需集成 sh-core
 """
 
 from typing import Any, Dict, List, Optional
@@ -163,7 +166,7 @@ class Memory:
             importance=importance,
         )
 
-        # TODO: 调用 sh-core 实际存储
+        # [STUB] 当前为内存存储，需集成 sh-core 持久化
         storage = self._storage.get(tier, self._working)
         storage.append(entry)
 

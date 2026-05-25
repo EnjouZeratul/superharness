@@ -1,6 +1,8 @@
 //! MCP 桥接器
 //!
 //! MCP 协议的主要实现。
+//!
+//! [EXPERIMENTAL] MCP 集成处于实验阶段，API 可能变更
 
 use parking_lot::RwLock;
 use serde_json::Value;

@@ -1,15 +1,101 @@
-"""内置工具 API
+"""Built-in Tools API
 
-提供对 Continuum 内置工具的 Python 访问。
+Provides Python access to Continuum's built-in tools via Rust binding.
+
+[STABILITY: STABLE] Core tools 稳定可用
+[NOTE] 当 Rust binding 不可用时，自动降级到 placeholder 模式
+"""
+
+The BuiltinTools class wraps the Rust ToolExecutor for high-performance
+file operations, search, and shell command execution.
+
+Features:
+    - File operations: read, write, edit, list directory
+    - Search tools: grep (regex search), glob (pattern match)
+    - Shell execution: bash commands with timeout support
+    - Tool discovery: list available tools and capabilities
+    - Category classification: automatic tool categorization
+
+Quick Start:
+    >>> from continuum_sdk.tools import BuiltinTools
+    >>> tools = BuiltinTools()
+    >>>
+    >>> # Check available tools
+    >>> for tool in tools.list_tools():
+    ...     print(f"{tool.name}: {tool.description}")
+    >>>
+    >>> # Read a file
+    >>> content = tools.read_file("README.md")
+    >>>
+    >>> # Search in files
+    >>> matches = tools.grep("TODO", path="src/", glob="*.py")
+    >>>
+    >>> # Find files by pattern
+    >>> files = tools.glob("**/*.py")
+
+File Operations:
+    >>> # Read entire file
+    >>> content = tools.read_file("config.json")
+    >>>
+    >>> # Read specific lines
+    >>> lines = tools.read_file("large.log", offset=100, limit=50)
+    >>>
+    >>> # Write file
+    >>> tools.write_file("output.txt", "Hello, World!")
+    >>>
+    >>> # Edit file (find and replace)
+    >>> tools.edit_file("app.py", old="DEBUG = False", new="DEBUG = True")
+    >>>
+    >>> # List directory
+    >>> entries = tools.list_directory("src/")
+    >>> for entry in entries:
+    ...     print(f"{entry['name']} ({entry['type']})")
+
+Search Operations:
+    >>> # Grep for pattern
+    >>> results = tools.grep("def test_", path="tests/", glob="*.py")
+    >>>
+    >>> # Find files
+    >>> py_files = tools.glob("**/*.py", path="src/")
+
+Shell Operations:
+    >>> # Run command
+    >>> output = tools.bash("git status --short")
+    >>>
+    >>> # With timeout
+    >>> output = tools.bash("npm install", timeout_ms=60000)
+    >>>
+    >>> # In specific directory
+    >>> output = tools.bash("pytest", working_dir="project/")
+
+Tool Categories:
+    - FILE_OPS: read_file, write_file, edit_file, list_directory
+    - SEARCH: grep, glob
+    - SHELL: bash
+    - CODE_ANALYSIS: definition, reference, hover (LSP tools)
+    - MEMORY: session memory operations
+    - WORKFLOW: checkpoint operations
+
+Requirements:
+    Rust binding (sh_python.pyd) required for real operations.
+    Falls back to placeholder mode without the binding.
 """
 
 from typing import Any, Dict, List, Optional
 from enum import Enum
 from dataclasses import dataclass
+import json
+
+# Import Rust binding
+try:
+    from sh_python import ToolExecutor as RustToolExecutor
+    HAS_RUST_BINDING = True
+except ImportError:
+    HAS_RUST_BINDING = False
 
 
 class ToolCategory(Enum):
-    """工具分类"""
+    """Tool categories."""
     FILE_OPS = "file_ops"
     SEARCH = "search"
     SHELL = "shell"
@@ -23,7 +109,7 @@ class ToolCategory(Enum):
 
 @dataclass
 class ToolMeta:
-    """工具元数据"""
+    """Tool metadata."""
     name: str
     description: str
     category: ToolCategory
@@ -38,7 +124,7 @@ class ToolMeta:
 
 @dataclass
 class ToolResult:
-    """工具执行结果"""
+    """Tool execution result."""
     call_id: str
     name: str
     content: str
@@ -47,58 +133,50 @@ class ToolResult:
 
 
 class BuiltinTools:
-    """内置工具集合
+    """Built-in tools collection.
 
-    Usage:
-        from continuum_sdk.tools import BuiltinTools
+    Wraps Rust ToolExecutor for real file/shell operations.
 
-        tools = BuiltinTools()
-
-        # 文件操作
-        content = tools.read_file("path/to/file")
-        tools.write_file("path/to/file", content)
-        tools.edit_file("path/to/file", old="foo", new="bar")
-
-        # 搜索
-        matches = tools.grep("pattern", path="src/")
-        files = tools.glob("**/*.py")
-
-        # Shell
-        result = tools.bash("echo hello")
-
-        # 代码分析
-        definition = tools.go_to_definition("src/main.rs", line=10, column=5)
-        refs = tools.find_references("src/main.rs", line=10, column=5)
+    Example:
+        >>> tools = BuiltinTools()
+        >>> content = tools.read_file("README.md")
+        >>> print(content[:100])
     """
 
-    # 工具列表（从 Rust 层获取）
     _tools_cache: Dict[str, ToolMeta] = None
+    _executor: Optional[RustToolExecutor] = None
 
     def __init__(self):
-        """初始化内置工具"""
+        """Initialize built-in tools."""
         self._tools_cache = {}
+        if HAS_RUST_BINDING:
+            self._executor = RustToolExecutor()
         self._load_tools()
 
     def _load_tools(self) -> None:
-        """加载工具列表（占位实现）"""
-        # TODO: 从 sh-core 获取工具列表
-        builtin_tool_names = [
-            "read_file", "write_file", "edit_file", "list_directory",
-            "grep", "glob",
-            "bash",
-            "go_to_definition", "find_references", "hover",
-            "save_memory", "query_memory",
-            "create_checkpoint", "restore_checkpoint",
-        ]
-        for name in builtin_tool_names:
-            self._tools_cache[name] = ToolMeta(
-                name=name,
-                description=f"Built-in tool: {name}",
-                category=self._guess_category(name),
-            )
+        """Load tool list from Rust binding or use defaults."""
+        if self._executor:
+            for name, desc in self._executor.list_tools():
+                self._tools_cache[name] = ToolMeta(
+                    name=name,
+                    description=desc,
+                    category=self._guess_category(name),
+                )
+        else:
+            # Fallback without Rust binding
+            builtin_tool_names = [
+                "read_file", "write_file", "edit_file", "list_directory",
+                "grep", "glob", "bash",
+            ]
+            for name in builtin_tool_names:
+                self._tools_cache[name] = ToolMeta(
+                    name=name,
+                    description=f"Built-in tool: {name}",
+                    category=self._guess_category(name),
+                )
 
     def _guess_category(self, name: str) -> ToolCategory:
-        """根据名称推断分类"""
+        """Guess category from tool name."""
         if any(x in name for x in ["file", "directory", "read", "write", "edit", "list"]):
             return ToolCategory.FILE_OPS
         if any(x in name for x in ["grep", "glob", "search", "find"]):
@@ -113,7 +191,15 @@ class BuiltinTools:
             return ToolCategory.WORKFLOW
         return ToolCategory.OTHER
 
-    # ==================== 文件操作 ====================
+    def _check_binding(self, name: str) -> None:
+        """Check if Rust binding is available."""
+        if not self._executor:
+            raise RuntimeError(
+                f"Tool '{name}' requires Rust binding. "
+                "Ensure sh_python.pyd is in the package directory."
+            )
+
+    # ==================== File Operations ====================
 
     def read_file(
         self,
@@ -121,171 +207,151 @@ class BuiltinTools:
         offset: Optional[int] = None,
         limit: Optional[int] = None
     ) -> str:
-        """读取文件内容
+        """Read file contents.
 
         Args:
-            path: 文件路径
-            offset: 起始行号（可选）
-            limit: 读取行数（可选）
+            path: File path
+            offset: Starting line number (optional)
+            limit: Number of lines to read (optional)
 
         Returns:
-            文件内容
+            File contents
         """
-        # TODO: 调用 sh-core
-        raise NotImplementedError("read_file: waiting for sh-core binding")
+        self._check_binding("read_file")
+        return self._executor.read_file(path, offset, limit)
 
-    def write_file(self, path: str, content: str) -> None:
-        """写入文件内容
+    def write_file(self, path: str, content: str) -> str:
+        """Write content to file.
 
         Args:
-            path: 文件路径
-            content: 写入内容
-
-        Note:
-            此操作需要用户确认
-        """
-        raise NotImplementedError("write_file: waiting for sh-core binding")
-
-    def edit_file(self, path: str, old: str, new: str) -> bool:
-        """编辑文件（查找替换）
-
-        Args:
-            path: 文件路径
-            old: 要替换的文本
-            new: 新文本
+            path: File path
+            content: Content to write
 
         Returns:
-            是否成功
+            Result message
         """
-        raise NotImplementedError("edit_file: waiting for sh-core binding")
+        self._check_binding("write_file")
+        return self._executor.write_file(path, content)
+
+    def edit_file(self, path: str, old: str, new: str) -> str:
+        """Edit file by replacing text.
+
+        Args:
+            path: File path
+            old: Text to replace
+            new: New text
+
+        Returns:
+            Result message
+        """
+        self._check_binding("edit_file")
+        args = json.dumps({"path": path, "old_string": old, "new_string": new})
+        return self._executor.execute("edit_file", args)
 
     def list_directory(self, path: str) -> List[Dict[str, Any]]:
-        """列出目录内容
+        """List directory contents.
 
         Args:
-            path: 目录路径
+            path: Directory path
 
         Returns:
-            条目列表，每项包含 name, type (file/dir)
+            List of entries with name, type (file/dir)
         """
-        raise NotImplementedError("list_directory: waiting for sh-core binding")
+        self._check_binding("list_directory")
+        result = self._executor.execute("list_directory", json.dumps({"path": path}))
+        try:
+            return json.loads(result)
+        except json.JSONDecodeError:
+            return [{"raw": result}]
 
-    # ==================== 搜索 ====================
+    # ==================== Search ====================
 
     def grep(
         self,
         pattern: str,
         path: Optional[str] = None,
         glob: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        """搜索文件内容
+    ) -> str:
+        """Search file contents.
 
         Args:
-            pattern: 正则表达式
-            path: 搜索路径（可选）
-            glob: 文件过滤模式（可选）
+            pattern: Regex pattern
+            path: Search path (optional)
+            glob: File filter pattern (optional)
 
         Returns:
-            匹配结果列表
+            Search results
         """
-        raise NotImplementedError("grep: waiting for sh-core binding")
+        self._check_binding("grep")
+        return self._executor.grep(pattern, path, glob)
 
-    def glob(self, pattern: str, path: Optional[str] = None) -> List[str]:
-        """查找文件
+    def glob(self, pattern: str, path: Optional[str] = None) -> str:
+        """Find files matching pattern.
 
         Args:
-            pattern: glob 模式（如 "**/*.py"）
-            path: 搜索路径（可选）
+            pattern: Glob pattern (e.g., "**/*.py")
+            path: Search path (optional)
 
         Returns:
-            匹配的文件路径列表
+            Matching file paths
         """
-        raise NotImplementedError("glob: waiting for sh-core binding")
+        self._check_binding("glob")
+        return self._executor.glob(pattern, path)
 
     # ==================== Shell ====================
 
     def bash(
         self,
         command: str,
-        timeout: Optional[int] = None,
+        timeout_ms: Optional[int] = None,
         working_dir: Optional[str] = None
-    ) -> ToolResult:
-        """执行 Shell 命令
+    ) -> str:
+        """Execute shell command.
 
         Args:
-            command: bash 命令
-            timeout: 超时时间（毫秒）
-            working_dir: 工作目录
+            command: Bash command
+            timeout_ms: Timeout in milliseconds
+            working_dir: Working directory
 
         Returns:
-            执行结果
-
-        Note:
-            此操作需要用户确认
+            Command output
         """
-        raise NotImplementedError("bash: waiting for sh-core binding")
+        self._check_binding("bash")
+        return self._executor.bash(command, timeout_ms, working_dir)
 
-    # ==================== 代码分析 ====================
-
-    def go_to_definition(
-        self,
-        file: str,
-        line: int,
-        column: int
-    ) -> Optional[Dict[str, Any]]:
-        """跳转到定义
-
-        Args:
-            file: 文件路径
-            line: 行号（1-based）
-            column: 列号（1-based）
-
-        Returns:
-            定义位置，包含 file, line, column
-        """
-        raise NotImplementedError("go_to_definition: waiting for sh-core binding")
-
-    def find_references(
-        self,
-        file: str,
-        line: int,
-        column: int
-    ) -> List[Dict[str, Any]]:
-        """查找引用
-
-        Args:
-            file: 文件路径
-            line: 行号
-            column: 列号
-
-        Returns:
-            引用位置列表
-        """
-        raise NotImplementedError("find_references: waiting for sh-core binding")
-
-    def hover(self, file: str, line: int, column: int) -> Optional[str]:
-        """获取悬停信息
-
-        Args:
-            file: 文件路径
-            line: 行号
-            column: 列号
-
-        Returns:
-            悬停信息文本
-        """
-        raise NotImplementedError("hover: waiting for sh-core binding")
-
-    # ==================== 工具元数据 ====================
+    # ==================== Tool Discovery ====================
 
     def list_tools(self) -> List[ToolMeta]:
-        """列出所有内置工具"""
+        """List all available tools."""
         return list(self._tools_cache.values())
 
-    def get_tool_meta(self, name: str) -> Optional[ToolMeta]:
-        """获取工具元数据"""
-        return self._tools_cache.get(name)
-
     def is_available(self, name: str) -> bool:
-        """检查工具是否可用"""
+        """Check if tool is available."""
+        if self._executor:
+            return self._executor.is_available(name)
         return name in self._tools_cache
+
+    def execute(self, name: str, args: Dict[str, Any]) -> str:
+        """Execute tool by name.
+
+        Args:
+            name: Tool name
+            args: Tool arguments
+
+        Returns:
+            Tool result
+        """
+        self._check_binding(name)
+        return self._executor.execute(name, json.dumps(args))
+
+
+# Module-level singleton for convenience
+_builtin_tools: Optional[BuiltinTools] = None
+
+
+def get_builtin_tools() -> BuiltinTools:
+    """Get or create BuiltinTools singleton."""
+    global _builtin_tools
+    if _builtin_tools is None:
+        _builtin_tools = BuiltinTools()
+    return _builtin_tools

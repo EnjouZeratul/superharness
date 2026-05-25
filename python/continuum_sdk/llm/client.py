@@ -1,7 +1,51 @@
 """
 LLM Client
 
-Real LLM API client implementations.
+Real LLM API client implementations for multiple providers.
+
+Features:
+    - Unified interface for Anthropic, OpenAI, and Google Gemini
+    - Streaming response support
+    - Automatic error classification and retry handling
+    - Custom endpoint support (OpenAI-compatible APIs)
+    - Proxy configuration
+
+Supported Providers:
+    - Anthropic (Claude models)
+    - OpenAI (GPT models)
+    - Google (Gemini models)
+    - Together AI
+    - Groq
+    - DeepSeek
+    - Moonshot
+    - Any OpenAI-compatible endpoint
+
+Quick Start:
+    >>> from continuum_sdk.llm import LlmClient, Message
+    >>>
+    >>> # Create client
+    >>> client = LlmClient.for_provider("anthropic", api_key="your-key")
+    >>>
+    >>> # Send message
+    >>> response = await client.chat([Message.user("Hello!")])
+    >>> print(response.content)
+
+Streaming Example:
+    >>> async for chunk in client.chat_stream([Message.user("Tell me a story")]):
+    ...     print(chunk.content, end="", flush=True)
+
+Custom Endpoint:
+    >>> client = LlmClient.for_provider(
+    ...     "custom",
+    ...     api_key="your-key",
+    ...     base_url="https://api.custom.com/v1",
+    ...     api_format="openai"
+    ... )
+
+See Also:
+    Message: Conversation message type
+    ChatResponse: Response container
+    StreamChunk: Streaming chunk type
 """
 
 import json
@@ -755,9 +799,6 @@ class LlmClient:
         """
         from continuum_sdk.config.providers import (
             BUILTIN_PROVIDERS,
-            get_default_base_url,
-            get_default_model,
-            ApiFormat,
         )
 
         provider_lower = provider.lower()

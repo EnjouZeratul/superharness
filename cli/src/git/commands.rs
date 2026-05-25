@@ -171,9 +171,11 @@ mod tests {
 
     #[test]
     fn test_git_commands_creation() {
-        // 测试创建不会失败
-        let cwd = std::env::current_dir();
-        assert!(cwd.is_ok());
+        // 验证 GitCommands 可以在非 Git 目录创建
+        let temp = tempfile::tempdir().unwrap();
+        let cmds = GitCommands::new(temp.path());
+        // 非 Git 目录应该识别为非仓库
+        assert!(!cmds.is_repo());
     }
 
     #[test]

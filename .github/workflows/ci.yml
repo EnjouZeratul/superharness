@@ -52,15 +52,19 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-      - run: pip install ruff
+      - run: pip install ruff black mypy
       - run: ruff check python/
+      - run: black --check python/
+      - name: Run MyPy
+        run: mypy python/continuum python/continuum_sdk
+        continue-on-error: true
 
   python-test:
     name: Python Tests
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -73,7 +77,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ./python[dev]
       - name: Run Python tests
-        run: pytest python/tests/ -v
+        run: pytest python/tests/ -v --cov=continuum_sdk --cov=continuum --cov-report=term-missing
 
   # Build binaries
   build:
@@ -176,7 +180,7 @@ jobs:
           pip install -e ./python[dev]
 
       - name: Generate coverage
-        run: pytest python/tests/ --cov=continuum_sdk --cov-report=xml --cov-report=term
+        run: pytest python/tests/ --cov=continuum_sdk --cov=continuum --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

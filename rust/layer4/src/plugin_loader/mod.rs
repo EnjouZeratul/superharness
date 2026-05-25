@@ -1,6 +1,8 @@
 //! # Plugin Loader
 //!
 //! 插件动态加载和管理系统。
+//!
+//! [STUB] 当前为占位实现，动态加载 (wasm/dylib) 未完成
 
 use async_trait::async_trait;
 use parking_lot::RwLock;

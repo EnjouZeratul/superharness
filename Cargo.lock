@@ -424,8 +424,10 @@ dependencies = [
  "serde",
  "serde_json",
  "sh-core",
+ "sh-layer0",
  "sh-layer1",
  "sh-layer2",
+ "sh-layer3",
  "sh-layer4",
  "tempfile",
  "thiserror 2.0.18",
@@ -2864,6 +2866,7 @@ dependencies = [
  "sh-layer3",
  "sh-layer4",
  "tokio",
+ "uuid",
 ]
 
 [[package]]

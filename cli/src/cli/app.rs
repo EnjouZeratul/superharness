@@ -336,20 +336,21 @@ impl CliApp {
     }
 
     /// 执行 checkpoint 子命令
+    /// [EXPERIMENTAL] checkpoint 命令尚未完全实现
     async fn checkpoint_command(&self, cmd: super::args::CheckpointCmd) -> Result<()> {
         // checkpoint 命令在 commands 模块中实现
         match cmd {
             super::args::CheckpointCmd::List { session } => {
                 println!("Listing checkpoints for session: {:?}", session);
-                // TODO: 调用 CheckpointSystem
+                println!("[EXPERIMENTAL] Checkpoint listing not fully implemented");
             }
             super::args::CheckpointCmd::Restore { checkpoint_id } => {
                 println!("Restoring checkpoint: {}", checkpoint_id);
-                // TODO: 调用 CheckpointSystem
+                println!("[EXPERIMENTAL] Checkpoint restore not fully implemented");
             }
             super::args::CheckpointCmd::Delete { checkpoint_id } => {
                 println!("Deleting checkpoint: {}", checkpoint_id);
-                // TODO: 调用 CheckpointSystem
+                println!("[EXPERIMENTAL] Checkpoint delete not fully implemented");
             }
         }
         Ok(())
@@ -496,27 +497,24 @@ impl CliApp {
     }
 
     /// 执行 LSP 命令
+    /// [EXPERIMENTAL] LSP 集成尚未完成
     async fn lsp_command(&self, cmd: super::args::LspCmd) -> Result<()> {
         match cmd {
             super::args::LspCmd::Definition { file, line, column } => {
                 println!("Finding definition in {} at {}:{}", file, line, column);
-                // TODO: 实现真实 LSP 调用
-                println!("LSP definition lookup not yet implemented");
+                println!("[EXPERIMENTAL] LSP definition lookup not yet implemented");
             }
             super::args::LspCmd::References { file, line, column } => {
                 println!("Finding references in {} at {}:{}", file, line, column);
-                // TODO: 实现真实 LSP 调用
-                println!("LSP references lookup not yet implemented");
+                println!("[EXPERIMENTAL] LSP references lookup not yet implemented");
             }
             super::args::LspCmd::Hover { file, line, column } => {
                 println!("Getting hover info in {} at {}:{}", file, line, column);
-                // TODO: 实现真实 LSP 调用
-                println!("LSP hover not yet implemented");
+                println!("[EXPERIMENTAL] LSP hover not yet implemented");
             }
             super::args::LspCmd::Symbols { file } => {
                 println!("Listing symbols in {}", file);
-                // TODO: 实现真实 LSP 调用
-                println!("LSP symbols not yet implemented");
+                println!("[EXPERIMENTAL] LSP symbols not yet implemented");
             }
         }
 

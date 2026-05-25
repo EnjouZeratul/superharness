@@ -442,16 +442,29 @@ mod tests {
 
     #[test]
     fn test_cli_args_version() {
+        // 版本命令会触发 clap 的 DisplayVersion 退出，无法正常返回
+        // 使用 clap::error::ErrorKind::DisplayVersion 检测
         let args = CliArgs::try_parse_from(["continuum", "--version"]);
-        // 应该成功解析并显示版本
-        assert!(args.is_ok() || args.is_err()); // 版本命令会退出程序
+        match args {
+            Ok(_) => {} // 某些版本允许成功
+            Err(e) => {
+                // 验证是版本显示退出而非解析错误
+                assert!(matches!(e.kind(), clap::error::ErrorKind::DisplayVersion));
+            }
+        }
     }
 
     #[test]
     fn test_cli_args_help() {
+        // 帮助命令会触发 clap 的 DisplayHelp 退出
         let args = CliArgs::try_parse_from(["continuum", "--help"]);
-        // 帮助命令会退出程序
-        assert!(args.is_ok() || args.is_err());
+        match args {
+            Ok(_) => {} // 某些版本允许成功
+            Err(e) => {
+                // 验证是帮助显示退出而非解析错误
+                assert!(matches!(e.kind(), clap::error::ErrorKind::DisplayHelp));
+            }
+        }
     }
 
     #[test]

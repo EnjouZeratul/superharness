@@ -14,29 +14,75 @@ Key Features:
     - State tracking (idle, running, paused, error)
     - Automatic configuration from environment
     - Real LLM API calls (Anthropic, OpenAI, Gemini)
+    - Streaming response support
+    - Multi-provider support
 
 Quick Start (3 steps):
     >>> from continuum import Agent
     >>> agent = Agent()  # Auto-configures from environment
     >>> result = agent.run("your task")
 
-Advanced Usage:
-    >>> agent = Agent(name="my-agent", model="claude-sonnet-4-6")
+Streaming Example:
+    >>> async for chunk in agent.run_stream("Write a poem"):
+    ...     print(chunk.content, end="", flush=True)
+
+Session Management:
     >>> agent.start()
-    >>> agent.register_tool("calc", lambda x: eval(x))
-    >>> result = agent.execute("calculate 2+2")
-    >>> session = agent.create_session()
+    >>> session = agent.create_session("conversation-1")
+    >>> agent.set_session(session)
+    >>> result1 = agent.execute("Hello!")
+    >>> result2 = agent.execute("What did we discuss?")  # Has context
+
+Custom Tools:
+    >>> agent.register_tool(
+    ...     name="calculate",
+    ...     handler=lambda x: eval(x),
+    ...     description="Evaluate math expression",
+    ...     parameters={"type": "object", "properties": {"expr": {"type": "string"}}}
+    ... )
+    >>> result = agent.run("Calculate 2 + 2")
 
 Configuration:
     The Agent auto-loads configuration from:
-    1. Environment variables (CONTINUUM_* > CONTINUUM_* > ANTHROPIC_*)
+    1. Environment variables (CONTINUUM_* > ANTHROPIC_*)
     2. Config file (~/.continuum/config.toml)
     3. Default values
 
 Environment Variables:
-    - CONTINUUM_API_KEY / CONTINUUM_API_KEY: API key for LLM provider
-    - CONTINUUM_PROVIDER / CONTINUUM_PROVIDER: Provider name (anthropic, openai, google)
-    - CONTINUUM_MODEL / CONTINUUM_MODEL: Model name to use
+    - CONTINUUM_API_KEY: API key for LLM provider
+    - CONTINUUM_PROVIDER: Provider name (anthropic, openai, google)
+    - CONTINUUM_MODEL: Model name to use
+    - CONTINUUM_BASE_URL: Custom API endpoint
+
+Provider-Specific Setup:
+    >>> # Anthropic Claude
+    >>> agent = Agent(model="claude-sonnet-4-6")
+    >>>
+    >>> # OpenAI GPT
+    >>> agent = Agent(model="gpt-4", provider="openai")
+    >>>
+    >>> # Google Gemini
+    >>> agent = Agent(model="gemini-1.5-pro", provider="google")
+    >>>
+    >>> # Custom endpoint
+    >>> agent = Agent(
+    ...     model="custom-model",
+    ...     provider="custom",
+    ...     api_key="key",
+    ...     base_url="https://api.custom.com/v1"
+    ... )
+
+State Management:
+    >>> agent.start()      # IDLE -> RUNNING
+    >>> agent.pause()      # RUNNING -> PAUSED
+    >>> agent.start()      # PAUSED -> RUNNING
+    >>> agent.stop()       # ANY -> IDLE
+    >>> print(agent.state)  # AgentState.IDLE
+
+See Also:
+    Session: For conversation management
+    AgentConfig: For configuration details
+    AgentState: For state values
 """
 
 from __future__ import annotations

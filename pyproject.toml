@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.0.0"]
+build-backend = "maturin"
 
 [project]
-name = "continuum"
-version = "0.1.0"
+name = "continuum-agent-sdk"
+version = "1.0.0"
 description = "Production-Grade Agent Framework with Crash Safety Guarantees"
 readme = "README.md"
 license = "MIT"
@@ -13,13 +13,14 @@ authors = [
     { name = "Continuum Team" }
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
 ]
 dependencies = [
     "httpx>=0.25.0",
@@ -31,22 +32,25 @@ dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
 ]
 
 [project.scripts]
 continuum = "continuum.cli:main"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/continuum"]
+[project.urls]
+Homepage = "https://github.com/EnjouZeratul/continuum"
+Repository = "https://github.com/EnjouZeratul/continuum"
+Documentation = "https://github.com/EnjouZeratul/continuum#readme"
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "/src",
-    "/tests",
-]
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "continuum_sdk._continuum"
+strip = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["python/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -54,7 +58,7 @@ addopts = "-v --tb=short"
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["src/continuum"]
+source = ["python/continuum_sdk"]
 branch = true
 
 [tool.coverage.report]
@@ -65,3 +69,11 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]

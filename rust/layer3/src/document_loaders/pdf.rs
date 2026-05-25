@@ -1,6 +1,11 @@
 //! # PDF Document Loader
 //!
 //! PDF 文件加载器（需要 pdf-extract 或类似库）。
+//!
+//! **[EXPERIMENTAL]** PDF 提取功能为实验性实现
+//! - 当前仅返回占位文本，不进行实际 PDF 解析
+//! - 完整实现计划在 v1.2.0 版本
+//! - 需要添加 `pdf-extract` 或 `lopdf` 依赖
 
 use crate::document_loaders::{DocumentLoader, LoadOptions};
 use crate::retriever_engine::Document;
@@ -10,8 +15,17 @@ use std::path::PathBuf;
 
 /// PDF Loader 实现
 ///
-/// 注意：完整实现需要添加 pdf 解析库依赖。
-/// 当前为 stub 实现。
+/// # 实验性功能
+///
+/// 当前实现：
+/// - ✅ 文件扩展名识别
+/// - ⚠️ 内容提取返回占位文本
+/// - ❌ 无实际 PDF 解析
+///
+/// 未来版本将添加：
+/// - 基于页面的分割
+/// - 元数据提取（作者、标题等）
+/// - OCR 支持用于扫描文档
 #[allow(dead_code)]
 pub struct PdfLoader {
     #[allow(dead_code)]
@@ -35,14 +49,14 @@ impl Default for PdfLoader {
 #[async_trait]
 impl DocumentLoader for PdfLoader {
     async fn load(&self, path: PathBuf) -> Layer3Result<Document> {
-        // Stub: 实际实现需要 pdf 解析库
-        // 例如: pdf-extract, lopdf 等
-        Ok(Document::new("[PDF content extraction not implemented]")
+        // 实验性实现：返回占位文本
+        // 未来版本将使用 pdf-extract 或类似库解析 PDF
+        Ok(Document::new("[PDF content extraction - experimental implementation]")
             .with_source(path.to_string_lossy().to_string()))
     }
 
     async fn load_and_split(&self, path: PathBuf) -> Layer3Result<Vec<Document>> {
-        // Stub: 按页分割
+        // 实验性实现：按页分割（当前返回单个文档）
         Ok(vec![self.load(path).await?])
     }
 
@@ -66,5 +80,12 @@ mod tests {
     fn test_pdf_loader_extensions() {
         let loader = PdfLoader::new();
         assert!(loader.extensions().contains(&"pdf"));
+    }
+
+    #[test]
+    fn test_pdf_loader_supports() {
+        let loader = PdfLoader::new();
+        assert!(loader.supports(std::path::Path::new("test.pdf")));
+        assert!(!loader.supports(std::path::Path::new("test.txt")));
     }
 }

@@ -188,7 +188,11 @@ mod tests {
     #[tokio::test]
     async fn test_executor_creation() {
         let executor = DefaultToolExecutor::new();
-        assert!(executor.list_tools().is_empty());
+        // 整改后默认注册了内置工具
+        let tools = executor.list_tools();
+        assert!(!tools.is_empty(), "Expected tools to be registered");
+        // 至少包含基础工具：read_file, write_file, bash, grep, glob
+        assert!(tools.len() >= 5, "Expected at least 5 basic tools, got {}", tools.len());
     }
 
     #[test]

@@ -37,6 +37,16 @@ from .progress import (
     StepLogger,
 )
 from .intelligent import IntelligentAgent, AgentMode, ExecutionResult
+from .task_completion import (
+    TaskCompletionDetector,
+    CompletionStatus,
+    CompletionMarker,
+    TaskRecord,
+)
+from .checkpoint import (
+    CheckpointClient,
+    CheckpointMeta,
+)
 
 __all__ = [
     # Core Agent
@@ -50,6 +60,14 @@ __all__ = [
     "IntelligentAgent",
     "AgentMode",
     "ExecutionResult",
+    # Task Completion
+    "TaskCompletionDetector",
+    "CompletionStatus",
+    "CompletionMarker",
+    "TaskRecord",
+    # Checkpoint
+    "CheckpointClient",
+    "CheckpointMeta",
     # Planner
     "Planner",
     "Plan",

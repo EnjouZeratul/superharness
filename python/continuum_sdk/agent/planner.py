@@ -8,6 +8,55 @@ Features:
     - Dependency analysis: Identify step dependencies
     - Plan generation: Create structured execution plan
     - Step estimation: Estimate complexity and time
+    - LLM-powered planning: Use AI to generate intelligent plans
+
+Step Types:
+    - ANALYZE: Analyze problem/code structure
+    - PLAN: Create detailed plan
+    - SEARCH: Search codebase for patterns
+    - READ: Read and understand files
+    - EDIT: Modify existing files
+    - WRITE: Create new files
+    - TEST: Run tests to verify changes
+    - VERIFY: Verify the results
+    - CONFIRM: Ask user for confirmation
+
+Quick Start:
+    >>> from continuum_sdk.agent.planner import Planner
+    >>> from continuum_sdk.llm import LlmClient
+    >>>
+    >>> planner = Planner()
+    >>> planner.llm_client = LlmClient.for_provider("anthropic", api_key="key")
+    >>>
+    >>> plan = await planner.plan("Fix the null pointer bug in auth.py")
+    >>> print(f"Generated {len(plan.steps)} steps")
+
+Plan Structure:
+    >>> plan.to_dict()  # Export plan as dictionary
+    >>> plan.get_progress()  # Get execution progress
+    >>> plan.get_pending_steps()  # Get next steps to execute
+
+Step Properties:
+    >>> for step in plan.steps:
+    ...     print(f"[{step.id}] {step.type.value}: {step.description}")
+    ...     print(f"  Dependencies: {step.dependencies}")
+    ...     print(f"  Status: {step.status.value}")
+
+Manual Plan Creation:
+    >>> from continuum_sdk.agent.planner import Plan, Step, StepType
+    >>> plan = Plan(
+    ...     id="manual-plan",
+    ...     task="Custom task",
+    ...     steps=[
+    ...         Step(id="s1", type=StepType.READ, description="Read file"),
+    ...         Step(id="s2", type=StepType.EDIT, description="Edit file", dependencies=["s1"]),
+    ...     ]
+    ... )
+
+See Also:
+    IntelligentAgent: Higher-level agent with planner integration
+    SelfCorrection: Error recovery during plan execution
+    ProgressTracker: Track execution progress
 """
 
 import re

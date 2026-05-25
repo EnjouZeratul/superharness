@@ -78,8 +78,21 @@ impl BuiltinToolRegistry {
 
     /// 创建并注册所有默认工具
     pub fn with_defaults() -> Self {
-        let registry = Self::new();
-        // 注册将在各模块实现后添加
+        let mut registry = Self::new();
+
+        // Shell 工具
+        registry.register(Box::new(shell::BashTool));
+
+        // 搜索工具
+        registry.register(Box::new(search::GrepTool));
+        registry.register(Box::new(search::GlobTool));
+
+        // 文件操作工具
+        registry.register(Box::new(file_ops::ReadFileTool));
+        registry.register(Box::new(file_ops::WriteFileTool));
+        registry.register(Box::new(file_ops::EditFileTool));
+        registry.register(Box::new(file_ops::ListDirectoryTool));
+
         registry
     }
 

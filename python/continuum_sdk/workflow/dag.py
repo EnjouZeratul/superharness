@@ -1,6 +1,71 @@
 """工作流 DAG API
 
-定义和执行 DAG 工作流。
+定义和执行 DAG（有向无环图）工作流。
+
+Features:
+    - 任务依赖管理：定义任务间的依赖关系
+    - 并行执行：自动并行执行独立任务
+    - 循环检测：检测并阻止循环依赖
+    - ASCII 可视化：生成工作流结构图
+    - 执行结果追踪：记录每个任务的执行状态
+
+Quick Start:
+    >>> from continuum_sdk.workflow import DAG, Node
+    >>>
+    >>> dag = DAG(name="data_pipeline")
+    >>> dag.add_node(Node("fetch", func=lambda: "数据"))
+    >>> dag.add_node(Node("process", func=lambda: "处理", depends_on=["fetch"]))
+    >>> dag.add_node(Node("save", func=lambda: "保存", depends_on=["process"]))
+    >>>
+    >>> print(dag.visualize())  # 显示 DAG 结构
+    >>> result = await dag.execute()
+
+并行执行:
+    >>> dag = DAG(name="parallel_analysis")
+    >>> dag.add_node(Node("analyze_a", func=lambda: "A结果"))
+    >>> dag.add_node(Node("analyze_b", func=lambda: "B结果"))
+    >>> dag.add_node(Node("analyze_c", func=lambda: "C结果"))
+    >>> dag.add_node(Node("summary", func=lambda: "汇总",
+    ...     depends_on=["analyze_a", "analyze_b", "analyze_c"]))
+    >>>
+    >>> # analyze_a, analyze_b, analyze_c 将并行执行
+    >>> result = await dag.execute(max_workers=3)
+
+循环检测:
+    >>> dag = DAG(name="circular")
+    >>> dag.add_node(Node("a", depends_on=["c"]))  # a -> c
+    >>> dag.add_node(Node("b", depends_on=["a"]))  # c -> a -> b
+    >>> dag.add_node(Node("c", depends_on=["b"]))  # b -> c (循环!)
+    >>>
+    >>> has_cycle, path = dag.detect_cycle()
+    >>> if has_cycle:
+    ...     print(f"检测到循环: {' -> '.join(path)}")
+
+节点状态:
+    - PENDING: 等待执行
+    - RUNNING: 正在执行
+    - SUCCESS: 执行成功
+    - FAILED: 执行失败
+    - SKIPPED: 已跳过
+
+执行结果:
+    >>> for node_id, result in result.results.items():
+    ...     print(f"{node_id}: {result.status.value}")
+    ...     print(f"  输出: {result.output}")
+    ...     print(f"  耗时: {result.duration_ms}ms")
+
+DAGExecutor:
+    >>> from continuum_sdk.workflow import DAGExecutor
+    >>>
+    >>> executor = DAGExecutor(dag, max_workers=4)
+    >>> result = await executor.execute()
+    >>> print(f"执行顺序: {result.execution_order}")
+    >>> print(f"总耗时: {result.duration:.2f}s")
+
+See Also:
+    Node: DAG 节点定义
+    NodeResult: 执行结果容器
+    DAGExecutor: DAG 执行器
 """
 
 from typing import Any, Callable, Dict, List, Optional, Set

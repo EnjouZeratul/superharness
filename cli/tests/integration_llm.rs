@@ -373,31 +373,92 @@ mod mcp_tests {
 
     #[tokio::test]
     async fn test_mcp_tool_call() {
-        use sh_layer4::mcp_bridge::protocol::{ContentBlock, ToolResult};
-        use sh_layer4::mcp_bridge::McpBridge;
+        use sh_layer4::mcp_bridge::handler::{DefaultHandler, McpHandler, SimpleToolExecutor};
+        use sh_layer4::mcp_bridge::protocol::{
+            ContentBlock, McpRequest, RequestId, ToolDefinition, ToolResult,
+        };
+        use std::sync::Arc;
 
-        let bridge = McpBridge::new(Default::default());
+        let handler = DefaultHandler::new("test-server", "1.0.0");
 
-        bridge.register_simple_tool("echo", "Echo tool", |_name, args| {
-            let text = args.as_str().unwrap_or("empty").to_string();
-            Ok(ToolResult {
-                is_error: false,
-                content: vec![ContentBlock::Text { text }],
-            })
-        });
+        // 注册 echo 工具
+        handler.register_tool(
+            ToolDefinition {
+                name: "echo".to_string(),
+                description: Some("Echo tool".to_string()),
+                input_schema: None,
+            },
+            Arc::new(SimpleToolExecutor(|_name, args| {
+                let text = args.as_str().unwrap_or("empty").to_string();
+                Ok(ToolResult {
+                    is_error: false,
+                    content: vec![ContentBlock::Text { text }],
+                })
+            })),
+        );
 
-        bridge.register_simple_tool("add", "Add numbers", |_name, args| {
-            let a = args.get("a").and_then(|v| v.as_i64()).unwrap_or(0);
-            let b = args.get("b").and_then(|v| v.as_i64()).unwrap_or(0);
-            Ok(ToolResult {
-                is_error: false,
-                content: vec![ContentBlock::Text {
-                    text: format!("{}", a + b),
-                }],
-            })
-        });
+        // 注册 add 工具
+        handler.register_tool(
+            ToolDefinition {
+                name: "add".to_string(),
+                description: Some("Add numbers".to_string()),
+                input_schema: None,
+            },
+            Arc::new(SimpleToolExecutor(|_name, args| {
+                let a = args.get("a").and_then(|v| v.as_i64()).unwrap_or(0);
+                let b = args.get("b").and_then(|v| v.as_i64()).unwrap_or(0);
+                Ok(ToolResult {
+                    is_error: false,
+                    content: vec![ContentBlock::Text {
+                        text: format!("{}", a + b),
+                    }],
+                })
+            })),
+        );
 
-        // 注册成功即测试通过
+        // 验证工具列表包含注册的工具
+        let list_request = McpRequest {
+            id: RequestId::Number(1),
+            method: "tools/list".to_string(),
+            params: None,
+        };
+        let list_response = handler.handle(&list_request).await.unwrap();
+        assert!(list_response.error.is_none(), "tools/list should not error");
+        let result = list_response.result.unwrap();
+        let tools: Vec<serde_json::Value> = result.get("tools")
+            .and_then(|t| t.as_array())
+            .cloned()
+            .unwrap_or_default();
+        assert!(tools.len() >= 2, "Should have at least 2 tools registered");
+        let tool_names: Vec<&str> = tools.iter()
+            .filter_map(|t| t.get("name").and_then(|n| n.as_str()))
+            .collect();
+        assert!(tool_names.contains(&"echo"), "echo tool should be registered");
+        assert!(tool_names.contains(&"add"), "add tool should be registered");
+
+        // 实际调用 echo 工具
+        let call_request = McpRequest {
+            id: RequestId::Number(2),
+            method: "tools/call".to_string(),
+            params: Some(serde_json::json!({
+                "name": "echo",
+                "arguments": "hello"
+            })),
+        };
+        let call_response = handler.handle(&call_request).await.unwrap();
+        assert!(call_response.error.is_none(), "echo call should not error");
+
+        // 实际调用 add 工具
+        let add_request = McpRequest {
+            id: RequestId::Number(3),
+            method: "tools/call".to_string(),
+            params: Some(serde_json::json!({
+                "name": "add",
+                "arguments": {"a": 5, "b": 3}
+            })),
+        };
+        let add_response = handler.handle(&add_request).await.unwrap();
+        assert!(add_response.error.is_none(), "add call should not error");
     }
 
     #[tokio::test]

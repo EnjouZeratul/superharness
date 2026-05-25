@@ -14,13 +14,74 @@ Key Features:
     - Export/import for persistence
     - File-based persistence (save/load)
 
-Example:
+Quick Start:
+    >>> from continuum_sdk.agent.session import Session
+    >>>
     >>> session = Session(id="my-session")
     >>> session.add_user_message("Hello")
     >>> session.add_assistant_message("Hi there!")
     >>> print(session.message_count)  # 2
+
+Message Types:
+    >>> # User message
+    >>> session.add_user_message("What is Python?")
+    >>>
+    >>> # Assistant message
+    >>> session.add_assistant_message("Python is a programming language.")
+    >>>
+    >>> # System message (instructions)
+    >>> session.add_system_message("You are a helpful assistant.")
+    >>>
+    >>> # Tool message (function result)
+    >>> session.add_tool_message("search", '{"result": "found"}')
+
+Message History:
+    >>> for msg in session.get_messages():
+    ...     print(f"[{msg.role.value}]: {msg.content[:50]}...")
+    >>>
+    >>> # Get last N messages
+    >>> recent = session.get_messages(limit=10)
+
+Cost Tracking:
+    >>> session.update_cost(cost=0.05, tokens=1000)
+    >>> print(f"Total cost: ${session.total_cost:.4f}")
+    >>> print(f"Total tokens: {session.total_tokens}")
+
+Tool Usage:
+    >>> session.record_tool_use("search")
+    >>> session.record_tool_use("read_file")
+    >>> print(session.tool_calls)  # {"search": 1, "read_file": 1}
+
+Persistence:
+    >>> # Save session
     >>> session.save("~/.continuum/sessions/my-session.json")
-    >>> session2 = Session.load("~/.continuum/sessions/my-session.json")
+    >>>
+    >>> # Load session
+    >>> loaded = Session.load("~/.continuum/sessions/my-session.json")
+    >>>
+    >>> # Export as dict
+    >>> data = session.to_dict()
+    >>>
+    >>> # Import from dict
+    >>> session2 = Session.from_dict(data)
+
+Metadata:
+    >>> session.set_metadata("user_id", "12345")
+    >>> session.set_metadata("preferences", {"language": "en"})
+    >>> print(session.get_metadata("user_id"))  # "12345"
+
+Integration with Agent:
+    >>> agent = Agent()
+    >>> session = agent.create_session("conversation-1")
+    >>> agent.set_session(session)
+    >>>
+    >>> result = agent.execute("Hello")
+    >>> # Messages automatically recorded in session
+
+See Also:
+    Agent: Uses Session for conversation management
+    Message: Message container class
+    MessageRole: Role enumeration
 """
 
 from typing import Optional, List, Dict, Any, Union

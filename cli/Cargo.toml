@@ -22,7 +22,10 @@ path = "src/lib.rs"
 
 [dependencies]
 sh-core = { path = "../rust/sh-core" }
+sh-layer0 = { path = "../rust/layer0" }
 sh-layer1 = { path = "../rust/layer1" }
+sh-layer2 = { path = "../rust/layer2" }
+sh-layer3 = { path = "../rust/layer3" }
 sh-layer4 = { path = "../rust/layer4" }
 
 tokio.workspace = true

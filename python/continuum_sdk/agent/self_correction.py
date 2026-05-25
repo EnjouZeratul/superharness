@@ -1,13 +1,81 @@
 """
 Self-Correction Module
 
-Analyzes errors and generates corrective actions.
+Analyzes errors and generates corrective actions for intelligent recovery.
 
 Features:
-    - Error analysis: Understand error causes
-    - Solution generation: Propose fixes
-    - Adaptive retry: Smart retry with adjustments
-    - Learning: Remember successful patterns
+    - Error classification: Categorize errors into 12 types
+    - Recovery strategies: 6 intelligent recovery approaches
+    - LLM-powered analysis: Use AI for error understanding
+    - Pattern learning: Remember successful corrections
+    - Context-aware: Consider execution context
+
+Error Types:
+    - SYNTAX: Code syntax errors
+    - RUNTIME: Runtime exceptions
+    - IMPORT: Module import failures
+    - TYPE: Type mismatch errors
+    - VALUE: Invalid value errors
+    - PERMISSION: Access/permission denied
+    - NOT_FOUND: File or command not found
+    - TIMEOUT: Operation timeout
+    - NETWORK: Network connectivity issues
+    - TEST_FAILURE: Test assertion failures
+    - LINT: Linting/style violations
+    - UNKNOWN: Unclassified errors
+
+Recovery Strategies:
+    - RETRY: Simple retry the same action
+    - RETRY_MODIFIED: Retry with adjusted parameters
+    - SKIP: Skip the step and continue
+    - ALTERNATIVE: Use a different approach
+    - ASK_USER: Request human intervention
+    - ABORT: Stop execution entirely
+
+Quick Start:
+    >>> from continuum_sdk.agent.self_correction import SelfCorrection
+    >>>
+    >>> correction = SelfCorrection()
+    >>>
+    >>> # Analyze an error
+    >>> error_ctx = correction.analyze_error(
+    ...     error=ValueError("Invalid input"),
+    ...     step_id="step-1",
+    ...     action="process_data"
+    ... )
+    >>> print(f"Error type: {error_ctx.error_type.value}")
+    >>> print(f"Suggested strategy: {error_ctx.suggested_strategy}")
+
+Recovery Proposal:
+    >>> proposal = correction.propose_correction(error_ctx, context={})
+    >>> print(f"Strategy: {proposal.strategy.value}")
+    >>> print(f"Description: {proposal.description}")
+    >>> if proposal.modified_action:
+    ...     print(f"Modified action: {proposal.modified_action}")
+
+LLM-Enhanced Analysis:
+    >>> from continuum_sdk.llm import LlmClient
+    >>>
+    >>> correction.llm_client = LlmClient.for_provider("anthropic", api_key="key")
+    >>> error_ctx = await correction.analyze_with_llm(
+    ...     error=ValueError("Invalid input"),
+    ...     context="Processing user data"
+    ... )
+
+Learning from Corrections:
+    >>> # Successful corrections are stored
+    >>> correction.learn(error_ctx, proposal, success=True)
+    >>>
+    >>> # Similar errors will use learned patterns
+    >>> similar_ctx = correction.analyze_error(
+    ...     error=ValueError("Another invalid input"),
+    ...     step_id="step-2"
+    ... )
+
+See Also:
+    IntelligentAgent: Uses SelfCorrection for automatic recovery
+    ErrorContext: Error classification container
+    CorrectionProposal: Recovery action container
 """
 
 import re

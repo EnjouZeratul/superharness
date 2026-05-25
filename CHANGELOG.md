@@ -5,6 +5,22 @@ All notable changes to Continuum will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Intelligent Agent with task planning and self-correction (80% coverage)
+- Progress tracker with real-time status updates
+- Error classification and recovery strategies
+- Multi-provider LLM client support
+
+### Documentation
+- Testing strategy document (`docs/TEST_STRATEGY.md`)
+- Testing standards document (`docs/TESTING_STANDARDS.md`)
+
+### CI/CD
+- PyPI publishing workflow (`publish-pypi.yml`)
+- Comprehensive coverage reporting for Python and Rust
+
 ## [1.0.0] - 2026-05-12
 
 ### Added

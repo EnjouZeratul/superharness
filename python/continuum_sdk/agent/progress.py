@@ -1,13 +1,66 @@
 """
 Progress Tracker
 
-Real-time task progress tracking and reporting.
+Real-time task progress tracking and reporting with ETA estimation.
 
 Features:
-    - Progress calculation
-    - Status updates
-    - ETA estimation
-    - Event callbacks
+    - Progress calculation: Track step completion percentage
+    - Status updates: Real-time step status changes
+    - ETA estimation: Predict remaining time
+    - Event callbacks: Subscribe to progress events
+    - Human-readable output: Formatted progress display
+
+States:
+    - IDLE: Not started
+    - RUNNING: Currently executing
+    - PAUSED: Temporarily stopped
+    - COMPLETED: Successfully finished
+    - FAILED: Execution failed
+
+Quick Start:
+    >>> from continuum_sdk.agent.progress import ProgressTracker
+    >>>
+    >>> tracker = ProgressTracker()
+    >>> tracker.start(total_steps=5)
+    >>> tracker.update_step("s1", "completed", "Read configuration")
+    >>> tracker.update_step("s2", "running", "Processing data")
+    >>> print(tracker.get_progress_text())
+    >>> # Output: '[2/5] 40% complete, ~5s remaining'
+
+Event Callbacks:
+    >>> def on_progress(event):
+    ...     print(f"Step {event.step_id}: {event.status}")
+    ...     print(f"Progress: {event.progress_percent:.0f}%")
+    ...     if event.estimated_remaining:
+    ...         print(f"ETA: {event.estimated_remaining:.0f}s")
+    >>>
+    >>> tracker.on_progress(on_progress)
+    >>> tracker.start(total_steps=3)
+
+Progress Events:
+    >>> # Each update emits a ProgressEvent
+    >>> event = tracker.update_step("s1", "completed", "Step 1")
+    >>> print(event.step_id)          # "s1"
+    >>> print(event.progress_percent) # 33.33
+    >>> print(event.elapsed_time)     # Time since start
+
+Integration with IntelligentAgent:
+    >>> agent = IntelligentAgent()
+    >>> agent.tracker.on_progress(lambda e: print(f"{e.progress_percent}%"))
+    >>> result = await agent.run("Task")
+
+StepLogger:
+    >>> from continuum_sdk.agent.progress import StepLogger
+    >>>
+    >>> logger = StepLogger()
+    >>> logger.log("s1", "completed", "Result", {"duration": 1.5})
+    >>> print(logger.to_dict())  # Export logs
+    >>> print(logger.get_summary())  # Summary string
+
+See Also:
+    IntelligentAgent: Uses ProgressTracker for execution tracking
+    ProgressEvent: Event data structure
+    StepLogger: Execution history logging
 """
 
 import time
