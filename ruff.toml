@@ -1,0 +1,14 @@
+line-length = 100
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "B", "I", "UP"]
+ignore = [
+    "B904",  # raise from err - good practice but not critical
+    "E402",  # module import not at top - intentional in tests for sys.path
+    "B017",  # blind exception assertion - acceptable in tests
+    "E501",  # line too long - existing code style
+]
+
+[lint.per-file-ignores]
+"python/tests/*" = ["E402", "B017", "E501"]

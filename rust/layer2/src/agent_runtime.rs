@@ -410,7 +410,7 @@ impl AgentRuntime {
             // Simulate a tool call on the second iteration
             let tool_name = &tools[0];
             let tool_call = ToolCall {
-                id: format!("tc_{}", uuid::Uuid::new_v4().to_string()[..8].to_string()),
+                id: format!("tc_{}", &uuid::Uuid::new_v4().to_string()[..8]),
                 name: tool_name.clone(),
                 arguments: serde_json::json!({"task": task}).to_string(),
             };
