@@ -8,7 +8,7 @@ Quick Start (3 steps):
 """
 
 # Re-export from continuum_sdk
-from continuum_sdk import Agent, Session, Config, ConfigLoader
+from continuum_sdk import Agent, Config, ConfigLoader, Session
 
 __version__ = "0.1.0"
 __all__ = ["Agent", "Session", "Config", "ConfigLoader"]

@@ -165,7 +165,7 @@ mod bindings {
         #[pyo3(signature = (storage_path=None))]
         fn new(storage_path: Option<&str>) -> Self {
             let path = storage_path
-                .map(|s| std::path::PathBuf::from(s))
+                .map(std::path::PathBuf::from)
                 .unwrap_or_else(|| std::env::temp_dir().join("continuum_checkpoints"));
             Self {
                 inner: std::sync::Arc::new(tokio::sync::Mutex::new(
@@ -502,7 +502,7 @@ mod bindings {
                 "offset": offset,
                 "limit": limit,
             });
-            let args_json = serde_json::to_string(&args).unwrap();
+            let _args_json = serde_json::to_string(&args).unwrap();
 
             // 使用同步运行时
             let rt = tokio::runtime::Runtime::new()

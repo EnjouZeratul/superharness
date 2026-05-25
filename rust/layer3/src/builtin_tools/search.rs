@@ -67,11 +67,10 @@ impl GrepTool {
                                 .file_name()
                                 .map(|n| n.to_string_lossy())
                                 .unwrap_or_default();
-                            if glob.starts_with("**/") {
-                                let suffix = &glob[3..];
+                            if let Some(suffix) = glob.strip_prefix("**/") {
                                 file_name.ends_with(suffix.trim_start_matches('*'))
-                            } else if glob.starts_with("*") {
-                                file_name.ends_with(&glob[1..])
+                            } else if let Some(suffix) = glob.strip_prefix("*") {
+                                file_name.ends_with(suffix)
                             } else {
                                 file_name == glob
                             }
@@ -208,20 +207,19 @@ impl GlobTool {
             return true;
         }
 
-        if pattern.starts_with("**/") {
-            let suffix = &pattern[3..];
-            if suffix.starts_with('*') {
-                return file_name.ends_with(&suffix[1..]);
+        if let Some(suffix) = pattern.strip_prefix("**/") {
+            if let Some(rest) = suffix.strip_prefix('*') {
+                return file_name.ends_with(rest);
             }
             return file_name == suffix;
         }
 
-        if pattern.starts_with('*') {
-            return file_name.ends_with(&pattern[1..]);
+        if let Some(suffix) = pattern.strip_prefix("*") {
+            return file_name.ends_with(suffix);
         }
 
-        if pattern.ends_with('*') {
-            return file_name.starts_with(&pattern[..pattern.len() - 1]);
+        if let Some(prefix) = pattern.strip_suffix("*") {
+            return file_name.starts_with(prefix);
         }
 
         file_name == pattern

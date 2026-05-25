@@ -14,7 +14,7 @@ static SESSION_MANAGER: OnceLock<ConcurrentSessionManager> = OnceLock::new();
 
 /// 获取会话管理器
 fn get_session_manager() -> &'static ConcurrentSessionManager {
-    SESSION_MANAGER.get_or_init(|| ConcurrentSessionManager::default_config())
+    SESSION_MANAGER.get_or_init(ConcurrentSessionManager::default_config)
 }
 
 /// 执行 session 子命令

@@ -342,7 +342,7 @@ fn is_definition_line(line: &str, symbol: &str) -> bool {
 
     patterns
         .iter()
-        .any(|p| p.as_ref().map_or(false, |r| r.is_match(line)))
+        .any(|p| p.as_ref().is_some_and(|r| r.is_match(line)))
 }
 
 /// 根据文件类型获取定义匹配模式
