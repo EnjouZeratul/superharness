@@ -71,39 +71,45 @@ def format_result(result):
 # Config 基准测试
 # ========================================
 
+
 def bench_config_creation():
     """测试 Config 创建时间"""
     from continuum_sdk import Config
+
     return Config()
 
 
 def bench_config_from_env():
     """测试从环境变量加载"""
     from continuum_sdk import Config
+
     return Config.from_env()
 
 
 def bench_config_from_default():
     """测试默认加载"""
     from continuum_sdk import Config
+
     return Config.from_default()
 
 
 def bench_config_with_params():
     """测试带参数创建"""
     from continuum_sdk import Config
+
     return Config(
         provider="anthropic",
         api_key="test-key",
         model="claude-sonnet-4-6",
         max_tokens=8192,
-        temperature=0.7
+        temperature=0.7,
     )
 
 
 def bench_config_use_provider():
     """测试提供商切换"""
     from continuum_sdk import Config
+
     config = Config()
     config.add_provider("test", api_key="test-key")
     config.use("test")
@@ -113,6 +119,7 @@ def bench_config_use_provider():
 def bench_config_to_dict():
     """测试序列化"""
     from continuum_sdk import Config
+
     config = Config(provider="anthropic", model="claude-sonnet-4-6")
     return config.to_dict()
 
@@ -120,6 +127,7 @@ def bench_config_to_dict():
 def bench_config_from_dict():
     """测试反序列化"""
     from continuum_sdk import Config
+
     data = {"provider": "anthropic", "model": "claude-sonnet-4-6"}
     return Config.from_dict(data)
 
@@ -129,6 +137,7 @@ def bench_config_load_toml():
     from pathlib import Path
 
     from continuum_sdk import Config
+
     template_path = Path(__file__).parent.parent.parent / "templates" / "config.toml"
     if template_path.exists():
         return Config.from_file(str(template_path))
@@ -138,6 +147,7 @@ def bench_config_load_toml():
 def bench_config_add_provider():
     """测试添加提供商"""
     from continuum_sdk import Config
+
     config = Config()
     config.add_provider("custom", api_key="key", model="model")
     return config
@@ -146,6 +156,7 @@ def bench_config_add_provider():
 def bench_config_list_providers():
     """测试列出提供商"""
     from continuum_sdk.config import list_providers
+
     return list_providers()
 
 

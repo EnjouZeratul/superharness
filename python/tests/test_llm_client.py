@@ -48,6 +48,7 @@ from continuum_sdk.llm.types import (
 
 # ==================== 客户端创建测试 ====================
 
+
 class TestLlmClientFactory:
     """LlmClient.for_provider 工厂方法测试"""
 
@@ -82,9 +83,7 @@ class TestLlmClientFactory:
     def test_create_custom_client(self):
         """测试创建自定义端点客户端"""
         client = LlmClient.for_provider(
-            "custom",
-            api_key="test-key",
-            base_url="https://custom.api.com/v1"
+            "custom", api_key="test-key", base_url="https://custom.api.com/v1"
         )
         assert isinstance(client, (OpenAIClient, CustomClient))
         assert client.base_url == "https://custom.api.com/v1"
@@ -102,7 +101,7 @@ class TestLlmClientFactory:
         client = LlmClient.for_provider(
             "unknown_provider_xyz",
             api_key="test-key",
-            base_url="https://api.example.com/v1"
+            base_url="https://api.example.com/v1",
         )
         assert isinstance(client, (OpenAIClient, CustomClient))
 
@@ -111,7 +110,7 @@ class TestLlmClientFactory:
             "my_custom_provider",
             api_key="test-key",
             base_url="https://api.custom.com/v1",
-            api_format="openai"
+            api_format="openai",
         )
         assert isinstance(client2, OpenAIClient)
 
@@ -125,25 +124,21 @@ class TestLlmClientFactory:
     def test_custom_model_override(self):
         """测试自定义默认模型"""
         client = LlmClient.for_provider(
-            "anthropic",
-            api_key="test-key",
-            model="claude-opus-4"
+            "anthropic", api_key="test-key", model="claude-opus-4"
         )
         assert client.default_model == "claude-opus-4"
 
     def test_custom_timeout_and_retries(self):
         """测试自定义超时和重试"""
         client = LlmClient.for_provider(
-            "anthropic",
-            api_key="test-key",
-            timeout=120.0,
-            max_retries=5
+            "anthropic", api_key="test-key", timeout=120.0, max_retries=5
         )
         assert client.timeout == 120.0
         assert client.max_retries == 5
 
 
 # ==================== 请求构建测试 ====================
+
 
 class TestMessageFormatting:
     """消息格式化测试"""
@@ -195,7 +190,7 @@ class TestToolDefinition:
         tool = ToolDefinition(
             name="calculator",
             description="Perform calculations",
-            parameters={"type": "object", "properties": {"expr": {"type": "string"}}}
+            parameters={"type": "object", "properties": {"expr": {"type": "string"}}},
         )
         assert tool.name == "calculator"
         assert tool.description == "Perform calculations"
@@ -203,9 +198,7 @@ class TestToolDefinition:
     def test_anthropic_tool_format(self):
         """测试 Anthropic 工具格式"""
         tool = ToolDefinition(
-            name="test",
-            description="Test tool",
-            parameters={"type": "object"}
+            name="test", description="Test tool", parameters={"type": "object"}
         )
         formatted = tool.to_anthropic_format()
         assert formatted["name"] == "test"
@@ -214,9 +207,7 @@ class TestToolDefinition:
     def test_openai_tool_format(self):
         """测试 OpenAI 工具格式"""
         tool = ToolDefinition(
-            name="test",
-            description="Test tool",
-            parameters={"type": "object"}
+            name="test", description="Test tool", parameters={"type": "object"}
         )
         formatted = tool.to_openai_format()
         assert formatted["type"] == "function"
@@ -224,6 +215,7 @@ class TestToolDefinition:
 
 
 # ==================== 响应处理测试 ====================
+
 
 class TestChatResponse:
     """ChatResponse 解析测试"""
@@ -235,7 +227,7 @@ class TestChatResponse:
             "model": "claude-sonnet-4-6",
             "content": [{"type": "text", "text": "Hello!"}],
             "usage": {"input_tokens": 10, "output_tokens": 5},
-            "stop_reason": "end_turn"
+            "stop_reason": "end_turn",
         }
         response = ChatResponse.from_anthropic(data)
         assert response.content == "Hello!"
@@ -248,11 +240,8 @@ class TestChatResponse:
         data = {
             "id": "chatcmpl-123",
             "model": "gpt-4",
-            "choices": [{
-                "message": {"content": "Hi!"},
-                "finish_reason": "stop"
-            }],
-            "usage": {"prompt_tokens": 8, "completion_tokens": 4, "total_tokens": 12}
+            "choices": [{"message": {"content": "Hi!"}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 8, "completion_tokens": 4, "total_tokens": 12},
         }
         response = ChatResponse.from_openai(data)
         assert response.content == "Hi!"
@@ -264,15 +253,14 @@ class TestChatResponse:
     def test_from_gemini_response(self):
         """测试解析 Gemini 响应"""
         data = {
-            "candidates": [{
-                "content": {"parts": [{"text": "Greetings!"}]},
-                "finishReason": "STOP"
-            }],
+            "candidates": [
+                {"content": {"parts": [{"text": "Greetings!"}]}, "finishReason": "STOP"}
+            ],
             "usageMetadata": {
                 "promptTokenCount": 6,
                 "candidatesTokenCount": 3,
-                "totalTokenCount": 9
-            }
+                "totalTokenCount": 9,
+            },
         }
         response = ChatResponse.from_gemini(data, "gemini-1.5-pro")
         assert response.content == "Greetings!"
@@ -303,6 +291,7 @@ class TestStreamChunk:
 
 # ==================== Anthropic 客户端测试 ====================
 
+
 class TestAnthropicClient:
     """Anthropic 客户端测试"""
 
@@ -314,7 +303,7 @@ class TestAnthropicClient:
             "model": "claude-sonnet-4-6",
             "content": [{"type": "text", "text": "Test response"}],
             "usage": {"input_tokens": 10, "output_tokens": 5},
-            "stop_reason": "end_turn"
+            "stop_reason": "end_turn",
         }
 
     @pytest.mark.asyncio
@@ -327,7 +316,7 @@ class TestAnthropicClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_anthropic_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             messages = [Message.user("Hello")]
@@ -346,7 +335,7 @@ class TestAnthropicClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_anthropic_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             messages = [Message.user("Hello")]
@@ -354,9 +343,9 @@ class TestAnthropicClient:
 
             # 验证请求体包含 system
             call_args = mock_post.call_args
-            body = call_args.kwargs['json']
-            assert 'system' in body
-            assert body['system'] == "Be helpful"
+            body = call_args.kwargs["json"]
+            assert "system" in body
+            assert body["system"] == "Be helpful"
 
     @pytest.mark.asyncio
     async def test_chat_with_tools(self, mock_anthropic_response):
@@ -367,36 +356,37 @@ class TestAnthropicClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_anthropic_response
 
-        tools = [ToolDefinition(
-            name="test_tool",
-            description="A test tool",
-            parameters={"type": "object"}
-        )]
+        tools = [
+            ToolDefinition(
+                name="test_tool",
+                description="A test tool",
+                parameters={"type": "object"},
+            )
+        ]
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             messages = [Message.user("Hello")]
             await client.chat(messages, tools=tools)
 
             call_args = mock_post.call_args
-            body = call_args.kwargs['json']
-            assert 'tools' in body
-            assert len(body['tools']) == 1
+            body = call_args.kwargs["json"]
+            assert "tools" in body
+            assert len(body["tools"]) == 1
 
     @pytest.mark.asyncio
     async def test_chat_custom_base_url(self, mock_anthropic_response):
         """测试自定义 base_url"""
         client = AnthropicClient(
-            api_key="test-key",
-            base_url="https://custom.anthropic.com"
+            api_key="test-key", base_url="https://custom.anthropic.com"
         )
 
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = mock_anthropic_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             await client.chat([Message.user("Hi")])
@@ -419,6 +409,7 @@ class TestAnthropicClient:
 
 # ==================== OpenAI 客户端测试 ====================
 
+
 class TestOpenAIClient:
     """OpenAI 客户端测试"""
 
@@ -428,11 +419,10 @@ class TestOpenAIClient:
         return {
             "id": "chatcmpl-test",
             "model": "gpt-4",
-            "choices": [{
-                "message": {"content": "OpenAI response"},
-                "finish_reason": "stop"
-            }],
-            "usage": {"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8}
+            "choices": [
+                {"message": {"content": "OpenAI response"}, "finish_reason": "stop"}
+            ],
+            "usage": {"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8},
         }
 
     @pytest.mark.asyncio
@@ -444,7 +434,7 @@ class TestOpenAIClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_openai_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             messages = [Message.user("Hello")]
@@ -462,18 +452,15 @@ class TestOpenAIClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_openai_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
-            await client.chat(
-                [Message.user("Hi")],
-                system_prompt="You are helpful"
-            )
+            await client.chat([Message.user("Hi")], system_prompt="You are helpful")
 
             call_args = mock_post.call_args
-            body = call_args.kwargs['json']
+            body = call_args.kwargs["json"]
             # OpenAI 风格：system 是第一条消息
-            assert body['messages'][0]['role'] == 'system'
+            assert body["messages"][0]["role"] == "system"
 
     @pytest.mark.asyncio
     async def test_headers_with_bearer_token(self):
@@ -487,6 +474,7 @@ class TestOpenAIClient:
 
 # ==================== Gemini 客户端测试 ====================
 
+
 class TestGeminiClient:
     """Gemini 客户端测试"""
 
@@ -494,15 +482,17 @@ class TestGeminiClient:
     def mock_gemini_response(self):
         """创建模拟 Gemini 响应"""
         return {
-            "candidates": [{
-                "content": {"parts": [{"text": "Gemini response"}]},
-                "finishReason": "STOP"
-            }],
+            "candidates": [
+                {
+                    "content": {"parts": [{"text": "Gemini response"}]},
+                    "finishReason": "STOP",
+                }
+            ],
             "usageMetadata": {
                 "promptTokenCount": 4,
                 "candidatesTokenCount": 2,
-                "totalTokenCount": 6
-            }
+                "totalTokenCount": 6,
+            },
         }
 
     @pytest.mark.asyncio
@@ -514,7 +504,7 @@ class TestGeminiClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_gemini_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             messages = [Message.user("Hello")]
@@ -531,7 +521,7 @@ class TestGeminiClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_gemini_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             await client.chat([Message.user("Hi")])
@@ -549,21 +539,19 @@ class TestGeminiClient:
         mock_response.status_code = 200
         mock_response.json.return_value = mock_gemini_response
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
-            await client.chat(
-                [Message.user("Hi")],
-                system_prompt="Be helpful"
-            )
+            await client.chat([Message.user("Hi")], system_prompt="Be helpful")
 
             call_args = mock_post.call_args
-            body = call_args.kwargs['json']
-            assert 'systemInstruction' in body
-            assert body['systemInstruction']['parts'][0]['text'] == "Be helpful"
+            body = call_args.kwargs["json"]
+            assert "systemInstruction" in body
+            assert body["systemInstruction"]["parts"][0]["text"] == "Be helpful"
 
 
 # ==================== Custom 客户端测试 ====================
+
 
 class TestCustomClient:
     """自定义客户端测试"""
@@ -571,24 +559,20 @@ class TestCustomClient:
     @pytest.mark.asyncio
     async def test_uses_openai_format(self):
         """测试使用 OpenAI 兼容格式"""
-        client = CustomClient(
-            api_key="test-key",
-            base_url="https://custom.api.com/v1"
-        )
+        client = CustomClient(api_key="test-key", base_url="https://custom.api.com/v1")
 
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "id": "custom-123",
             "model": "custom-model",
-            "choices": [{
-                "message": {"content": "Custom response"},
-                "finish_reason": "stop"
-            }],
-            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}
+            "choices": [
+                {"message": {"content": "Custom response"}, "finish_reason": "stop"}
+            ],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
         }
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             result = await client.chat([Message.user("Hi")])
@@ -599,6 +583,7 @@ class TestCustomClient:
 
 
 # ==================== 错误处理测试 ====================
+
 
 class TestErrorHandling:
     """错误处理测试"""
@@ -612,7 +597,7 @@ class TestErrorHandling:
         mock_response.status_code = 401
         mock_response.text = "Unauthorized"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(AuthenticationError):
@@ -627,7 +612,7 @@ class TestErrorHandling:
         mock_response.status_code = 429
         mock_response.text = "Rate limit exceeded"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(RateLimitError):
@@ -642,7 +627,7 @@ class TestErrorHandling:
         mock_response.status_code = 404
         mock_response.text = "Model not found"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(ModelNotFoundError):
@@ -657,7 +642,7 @@ class TestErrorHandling:
         mock_response.status_code = 502
         mock_response.text = "Bad gateway"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(NetworkError):
@@ -672,7 +657,7 @@ class TestErrorHandling:
         mock_response.status_code = 504
         mock_response.text = "Gateway timeout"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(TimeoutError):
@@ -688,7 +673,7 @@ class TestErrorHandling:
         mock_response.json.side_effect = json.JSONDecodeError("test", "test", 0)
         mock_response.text = "invalid json"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(InvalidResponseError):
@@ -776,6 +761,7 @@ class TestErrorTypes:
 
 # ==================== 资源清理测试 ====================
 
+
 class TestClientLifecycle:
     """客户端生命周期测试"""
 
@@ -784,7 +770,9 @@ class TestClientLifecycle:
         """测试关闭释放资源"""
         client = AnthropicClient(api_key="test-key")
 
-        with patch.object(client._client, 'aclose', new_callable=AsyncMock) as mock_close:
+        with patch.object(
+            client._client, "aclose", new_callable=AsyncMock
+        ) as mock_close:
             await client.close()
             mock_close.assert_called_once()
 
@@ -793,13 +781,16 @@ class TestClientLifecycle:
         """测试上下文管理器"""
         client = AnthropicClient(api_key="test-key")
 
-        with patch.object(client._client, 'aclose', new_callable=AsyncMock) as mock_close:
+        with patch.object(
+            client._client, "aclose", new_callable=AsyncMock
+        ) as mock_close:
             async with client as c:
                 assert c is client
             mock_close.assert_called_once()
 
 
 # ==================== 边界条件测试 ====================
+
 
 class TestEdgeCases:
     """边界条件测试"""
@@ -815,10 +806,10 @@ class TestEdgeCases:
             "id": "msg-empty",
             "model": "claude-sonnet-4-6",
             "content": [{"type": "text", "text": ""}],
-            "usage": {"input_tokens": 0, "output_tokens": 0}
+            "usage": {"input_tokens": 0, "output_tokens": 0},
         }
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             result = await client.chat([])
@@ -834,14 +825,16 @@ class TestEdgeCases:
         mock_response.json.return_value = {
             "id": "chatcmpl-special",
             "model": "gpt-4",
-            "choices": [{
-                "message": {"content": "特殊字符: 你好世界! 🎉"},
-                "finish_reason": "stop"
-            }],
-            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}
+            "choices": [
+                {
+                    "message": {"content": "特殊字符: 你好世界! 🎉"},
+                    "finish_reason": "stop",
+                }
+            ],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
         }
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             result = await client.chat([Message.user("Test")])
@@ -857,18 +850,20 @@ class TestEdgeCases:
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "candidates": [{
-                "content": {"parts": [{"text": long_content}]},
-                "finishReason": "MAX_TOKENS"
-            }],
+            "candidates": [
+                {
+                    "content": {"parts": [{"text": long_content}]},
+                    "finishReason": "MAX_TOKENS",
+                }
+            ],
             "usageMetadata": {
                 "promptTokenCount": 1,
                 "candidatesTokenCount": 10000,
-                "totalTokenCount": 10001
-            }
+                "totalTokenCount": 10001,
+            },
         }
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             result = await client.chat([Message.user("Write a lot")])
@@ -876,6 +871,7 @@ class TestEdgeCases:
 
 
 # ==================== 流式响应测试 ====================
+
 
 class TestAnthropicStreaming:
     """Anthropic 流式响应测试"""
@@ -887,16 +883,18 @@ class TestAnthropicStreaming:
 
         # 构造模拟流式响应
         stream_lines = [
-            "data: {\"type\": \"content_block_delta\", \"delta\": {\"type\": \"text_delta\", \"text\": \"Hello\"}}",
-            "data: {\"type\": \"content_block_delta\", \"delta\": {\"type\": \"text_delta\", \"text\": \" World\"}}",
-            "data: {\"type\": \"message_stop\"}",
+            'data: {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}',
+            'data: {"type": "content_block_delta", "delta": {"type": "text_delta", "text": " World"}}',
+            'data: {"type": "message_stop"}',
         ]
 
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.aiter_lines = Mock(return_value=self._async_iter(stream_lines))
 
-        with patch.object(client._client, 'stream', return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             chunks = []
             async for chunk in client.chat_stream([Message.user("Hi")]):
                 chunks.append(chunk)
@@ -912,15 +910,17 @@ class TestAnthropicStreaming:
         client = AnthropicClient(api_key="test-key")
 
         stream_lines = [
-            "data: {\"type\": \"content_block_delta\", \"delta\": {\"type\": \"text_delta\", \"text\": \"Done\"}}",
-            "data: {\"type\": \"message_stop\"}",
+            'data: {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Done"}}',
+            'data: {"type": "message_stop"}',
         ]
 
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.aiter_lines = Mock(return_value=self._async_iter(stream_lines))
 
-        with patch.object(client._client, 'stream', return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             chunks = []
             async for chunk in client.chat_stream([Message.user("Hi")]):
                 chunks.append(chunk)
@@ -938,25 +938,32 @@ class TestAnthropicStreaming:
         mock_response.status_code = 429
         mock_response.aread = AsyncMock(return_value=b"Rate limit")
 
-        with patch.object(client._client, 'stream', return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             with pytest.raises(RateLimitError):
                 async for _ in client.chat_stream([Message.user("Hi")]):
                     pass
 
     def _async_iter(self, items):
         """创建异步迭代器"""
+
         async def gen():
             for item in items:
                 yield item
+
         return gen()
 
     def _async_context(self, response):
         """创建异步上下文管理器"""
+
         class AsyncCtx:
             async def __aenter__(self):
                 return response
+
             async def __aexit__(self, *args):
                 pass
+
         return AsyncCtx()
 
 
@@ -969,8 +976,8 @@ class TestOpenAIStreaming:
         client = OpenAIClient(api_key="test-key")
 
         stream_lines = [
-            "data: {\"choices\": [{\"delta\": {\"content\": \"Hi\"}}]}",
-            "data: {\"choices\": [{\"delta\": {\"content\": \" there\"}}]}",
+            'data: {"choices": [{"delta": {"content": "Hi"}}]}',
+            'data: {"choices": [{"delta": {"content": " there"}}]}',
             "data: [DONE]",
         ]
 
@@ -978,7 +985,9 @@ class TestOpenAIStreaming:
         mock_response.status_code = 200
         mock_response.aiter_lines = Mock(return_value=self._async_iter(stream_lines))
 
-        with patch.object(client._client, 'stream', return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             chunks = []
             async for chunk in client.chat_stream([Message.user("Hello")]):
                 chunks.append(chunk)
@@ -992,7 +1001,7 @@ class TestOpenAIStreaming:
         client = OpenAIClient(api_key="test-key")
 
         stream_lines = [
-            "data: {\"choices\": [{\"delta\": {\"content\": \"Done\"}, \"finish_reason\": \"stop\"}]}",
+            'data: {"choices": [{"delta": {"content": "Done"}, "finish_reason": "stop"}]}',
             "data: [DONE]",
         ]
 
@@ -1000,7 +1009,9 @@ class TestOpenAIStreaming:
         mock_response.status_code = 200
         mock_response.aiter_lines = Mock(return_value=self._async_iter(stream_lines))
 
-        with patch.object(client._client, 'stream', return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             chunks = []
             async for chunk in client.chat_stream([Message.user("Hi")]):
                 chunks.append(chunk)
@@ -1012,14 +1023,17 @@ class TestOpenAIStreaming:
         async def gen():
             for item in items:
                 yield item
+
         return gen()
 
     def _async_context(self, response):
         class AsyncCtx:
             async def __aenter__(self):
                 return response
+
             async def __aexit__(self, *args):
                 pass
+
         return AsyncCtx()
 
 
@@ -1035,7 +1049,9 @@ class TestGeminiStreaming:
         mock_response.status_code = 200
         mock_response.aiter_text = Mock(return_value=self._async_iter([""]))
 
-        with patch.object(client._client, "stream", return_value=self._async_context(mock_response)) as mock_stream:
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ) as mock_stream:
             chunks = []
             async for chunk in client.chat_stream([Message.user("Hi")]):
                 chunks.append(chunk)
@@ -1044,7 +1060,6 @@ class TestGeminiStreaming:
             mock_stream.assert_called_once()
             # Verify stream completed without error
             assert len(chunks) == 0 or all(c is not None for c in chunks)
-
 
     @pytest.mark.asyncio
     async def test_stream_error(self):
@@ -1055,7 +1070,9 @@ class TestGeminiStreaming:
         mock_response.status_code = 500
         mock_response.aread = AsyncMock(return_value=b"Error")
 
-        with patch.object(client._client, "stream", return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             with pytest.raises(LlmError):
                 async for _ in client.chat_stream([Message.user("Hi")]):
                     pass
@@ -1064,14 +1081,17 @@ class TestGeminiStreaming:
         async def gen():
             for item in items:
                 yield item
+
         return gen()
 
     def _async_context(self, response):
         class AsyncCtx:
             async def __aenter__(self):
                 return response
+
             async def __aexit__(self, *args):
                 pass
+
         return AsyncCtx()
 
 
@@ -1084,7 +1104,7 @@ class TestCustomStreaming:
         client = CustomClient(api_key="test-key", base_url="https://custom.api.com/v1")
 
         stream_lines = [
-            "data: {\"choices\": [{\"delta\": {\"content\": \"Custom\"}}]}",
+            'data: {"choices": [{"delta": {"content": "Custom"}}]}',
             "data: [DONE]",
         ]
 
@@ -1092,7 +1112,9 @@ class TestCustomStreaming:
         mock_response.status_code = 200
         mock_response.aiter_lines = Mock(return_value=self._async_iter(stream_lines))
 
-        with patch.object(client._client, 'stream', return_value=self._async_context(mock_response)):
+        with patch.object(
+            client._client, "stream", return_value=self._async_context(mock_response)
+        ):
             chunks = []
             async for chunk in client.chat_stream([Message.user("Hi")]):
                 chunks.append(chunk)
@@ -1105,18 +1127,22 @@ class TestCustomStreaming:
         async def gen():
             for item in items:
                 yield item
+
         return gen()
 
     def _async_context(self, response):
         class AsyncCtx:
             async def __aenter__(self):
                 return response
+
             async def __aexit__(self, *args):
                 pass
+
         return AsyncCtx()
 
 
 # ==================== 更多边界条件测试 ====================
+
 
 class TestMoreEdgeCases:
     """更多边界条件测试"""
@@ -1124,9 +1150,7 @@ class TestMoreEdgeCases:
     def test_gemini_tool_format(self):
         """测试 Gemini 工具格式"""
         tool = ToolDefinition(
-            name="test",
-            description="Test",
-            parameters={"type": "object"}
+            name="test", description="Test", parameters={"type": "object"}
         )
         formatted = tool.to_gemini_format()
         assert formatted["name"] == "test"
@@ -1134,21 +1158,13 @@ class TestMoreEdgeCases:
 
     def test_message_with_tool_call_id(self):
         """测试带 tool_call_id 的消息"""
-        msg = Message(
-            role=MessageRole.TOOL,
-            content="result",
-            tool_call_id="call-123"
-        )
+        msg = Message(role=MessageRole.TOOL, content="result", tool_call_id="call-123")
         openai_format = msg.to_openai_format()
         assert openai_format["tool_call_id"] == "call-123"
 
     def test_message_with_name(self):
         """测试带 name 的消息"""
-        msg = Message(
-            role=MessageRole.USER,
-            content="Hello",
-            name="alice"
-        )
+        msg = Message(role=MessageRole.USER, content="Hello", name="alice")
         openai_format = msg.to_openai_format()
         assert openai_format["name"] == "alice"
 
@@ -1161,34 +1177,44 @@ class TestMoreEdgeCases:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "candidates": [{"content": {"parts": [{"text": "OK"}]}}],
-            "usageMetadata": {"promptTokenCount": 1, "candidatesTokenCount": 1, "totalTokenCount": 2}
+            "usageMetadata": {
+                "promptTokenCount": 1,
+                "candidatesTokenCount": 1,
+                "totalTokenCount": 2,
+            },
         }
 
-        tools = [ToolDefinition(name="calc", description="Calculate", parameters={"type": "object"})]
+        tools = [
+            ToolDefinition(
+                name="calc", description="Calculate", parameters={"type": "object"}
+            )
+        ]
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             await client.chat([Message.user("Hi")], tools=tools)
 
             call_args = mock_post.call_args
-            body = call_args.kwargs['json']
-            assert 'tools' in body
-            assert 'functionDeclarations' in body['tools'][0]
+            body = call_args.kwargs["json"]
+            assert "tools" in body
+            assert "functionDeclarations" in body["tools"][0]
 
     def test_openai_response_with_tool_calls(self):
         """测试 OpenAI 响应包含 tool calls"""
         data = {
             "id": "chatcmpl-123",
             "model": "gpt-4",
-            "choices": [{
-                "message": {
-                    "content": "",
-                    "tool_calls": [{"id": "call-1", "function": {"name": "test"}}]
-                },
-                "finish_reason": "tool_calls"
-            }],
-            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}
+            "choices": [
+                {
+                    "message": {
+                        "content": "",
+                        "tool_calls": [{"id": "call-1", "function": {"name": "test"}}],
+                    },
+                    "finish_reason": "tool_calls",
+                }
+            ],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
         }
         response = ChatResponse.from_openai(data)
         assert len(response.tool_calls) == 1
@@ -1203,7 +1229,7 @@ class TestMoreEdgeCases:
         mock_response.status_code = 500
         mock_response.text = "Internal Server Error"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(LlmError):
@@ -1218,7 +1244,7 @@ class TestMoreEdgeCases:
         mock_response.status_code = 503
         mock_response.text = "Service Unavailable"
 
-        with patch.object(client._client, 'post', new_callable=AsyncMock) as mock_post:
+        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
             mock_post.return_value = mock_response
 
             with pytest.raises(NetworkError):

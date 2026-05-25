@@ -48,7 +48,11 @@ class TestBashTool:
         bash = BashTool()
         result = bash.run("nonexistent_command_xyz_12345")
         # On Windows, shell may return error result instead of raising
-        assert result.is_error is True or "not found" in result.content.lower() or "not recognized" in result.content.lower()
+        assert (
+            result.is_error is True
+            or "not found" in result.content.lower()
+            or "not recognized" in result.content.lower()
+        )
 
     def test_bash_async(self):
         """Test async execution"""
@@ -67,6 +71,7 @@ class TestBashTool:
     def test_bash_dangerous_validation(self):
         """Test dangerous command validation"""
         from continuum_sdk.tools.bash import validate_command
+
         # Blocked commands
         assert validate_command("sudo rm -rf /") is not None
         assert validate_command("eval 'code'") is not None
@@ -78,38 +83,40 @@ class TestReadTool:
     def test_read_file(self):
         """Test basic file reading"""
         reader = ReadTool()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("Hello, World!\nLine 2\nLine 3")
             filepath = f.name
         try:
             result = reader.read(filepath)
             assert "Hello, World!" in result.content
             assert result.is_error is False
-            assert 'lines_read' in result.metadata
+            assert "lines_read" in result.metadata
         finally:
             # Close file handle before unlink on Windows
             import time
+
             time.sleep(0.1)
             os.unlink(filepath)
 
     def test_read_with_limit(self):
         """Test reading with limit"""
         reader = ReadTool()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("Line 1\nLine 2\nLine 3\n")
             filepath = f.name
         try:
             result = reader.read(filepath, limit=2)
-            assert result.metadata['lines_read'] == 2
+            assert result.metadata["lines_read"] == 2
         finally:
             import time
+
             time.sleep(0.1)
             os.unlink(filepath)
 
     def test_read_with_offset(self):
         """Test reading with offset"""
         reader = ReadTool()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("Line 1\nLine 2\nLine 3\n")
             filepath = f.name
         try:
@@ -117,6 +124,7 @@ class TestReadTool:
             assert "Line 2" in result.content
         finally:
             import time
+
             time.sleep(0.1)
             os.unlink(filepath)
 
@@ -129,7 +137,7 @@ class TestReadTool:
     def test_read_with_line_numbers(self):
         """Test reading with line numbers"""
         reader = ReadTool(show_line_numbers=True)
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("Line 1\nLine 2\n")
             filepath = f.name
         try:
@@ -137,6 +145,7 @@ class TestReadTool:
             assert "1\t" in result.content or "     1\t" in result.content
         finally:
             import time
+
             time.sleep(0.1)
             os.unlink(filepath)
 
@@ -173,13 +182,13 @@ class TestWriteTool:
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
             # Write initial content
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("Original content")
             # Overwrite with backup
             result = writer.write(filepath, "New content")
             assert result.is_error is False
             # Check backup exists
-            backup_path = filepath + '.bak'
+            backup_path = filepath + ".bak"
             assert os.path.exists(backup_path)
 
 
@@ -191,7 +200,7 @@ class TestEditTool:
         editor = EditTool(backup=False)
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("Hello old world")
             result = editor.edit(filepath, "old", "new")
             assert result.is_error is False
@@ -203,7 +212,7 @@ class TestEditTool:
         editor = EditTool(backup=False)
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("Hello world")
             with pytest.raises(ToolError):
                 editor.edit(filepath, "nonexistent", "replacement")
@@ -213,7 +222,7 @@ class TestEditTool:
         editor = EditTool(backup=False)
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("foo bar foo bar foo")
             result = editor.replace_all(filepath, "foo", "baz")
             assert result.is_error is False
@@ -227,11 +236,11 @@ class TestEditTool:
         editor = EditTool(backup=False)
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("Hello world")
             result = editor.edit(filepath, "world", "universe")
-            assert 'diff' in result.metadata
-            assert result.metadata['replacements'] == 1
+            assert "diff" in result.metadata
+            assert result.metadata["replacements"] == 1
 
 
 class TestGrepTool:
@@ -242,7 +251,7 @@ class TestGrepTool:
         grep_tool = GrepTool()
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.py")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("def hello():\n    print('hello')\n\ndef world():\n    pass")
             result = grep_tool.search("def ", path=tmpdir)
             assert "def hello" in result.content or "def world" in result.content
@@ -252,9 +261,11 @@ class TestGrepTool:
         grep_tool = GrepTool()
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("pattern here")
-            result = grep_tool.search("pattern", path=tmpdir, output_mode="files_with_matches")
+            result = grep_tool.search(
+                "pattern", path=tmpdir, output_mode="files_with_matches"
+            )
             assert filepath in result.content or "test.txt" in result.content
 
     def test_grep_case_insensitive(self):
@@ -262,7 +273,7 @@ class TestGrepTool:
         grep_tool = GrepTool()
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("PATTERN HERE")
             result = grep_tool.search("pattern", path=tmpdir, case_sensitive=False)
             assert "PATTERN" in result.content
@@ -276,8 +287,8 @@ class TestGlobTool:
         glob_tool = GlobTool()
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create some files
-            for name in ['test.py', 'test.txt', 'other.py']:
-                Path(tmpdir, name).write_text('content')
+            for name in ["test.py", "test.txt", "other.py"]:
+                Path(tmpdir, name).write_text("content")
             result = glob_tool.find("*.py", path=tmpdir)
             assert "test.py" in result.content or "other.py" in result.content
             assert ".txt" not in result.content
@@ -289,7 +300,7 @@ class TestGlobTool:
             # Create nested structure
             subdir = Path(tmpdir, "subdir")
             subdir.mkdir()
-            Path(subdir, "nested.py").write_text('content')
+            Path(subdir, "nested.py").write_text("content")
             result = glob_tool.find("**/*.py", path=tmpdir)
             assert "nested.py" in result.content
 
@@ -297,7 +308,7 @@ class TestGlobTool:
         """Test glob result metadata"""
         glob_tool = GlobTool()
         result = glob_tool.find("*.py", path=".")
-        assert 'count' in result.metadata
+        assert "count" in result.metadata
 
 
 class TestToolTypes:

@@ -36,7 +36,7 @@ class TestAgentConfig:
             model="gpt-4",
             provider="openai",
             max_tokens=8192,
-            temperature=0.5
+            temperature=0.5,
         )
         assert config.name == "custom"
         assert config.model == "gpt-4"
@@ -137,7 +137,7 @@ class TestAgentTools:
             "search",
             lambda query: f"results for {query}",
             description="Search for information",
-            parameters={"type": "object", "properties": {"query": {"type": "string"}}}
+            parameters={"type": "object", "properties": {"query": {"type": "string"}}},
         )
         assert "search" in agent.list_tools()
         assert len(agent._tool_definitions) == 1
@@ -187,7 +187,7 @@ class TestAgentExecute:
         agent.start()
 
         # Mock the LLM client
-        with patch.object(agent, '_get_llm_client') as mock_get_client:
+        with patch.object(agent, "_get_llm_client") as mock_get_client:
             mock_client = MagicMock()
             mock_client.chat = AsyncMock(return_value=mock_response)
             mock_get_client.return_value = mock_client
@@ -219,7 +219,12 @@ class TestAgentExecute:
 
         # Save and clear all API key environment variables
         saved_keys = {}
-        for key in ["CONTINUUM_API_KEY", "CONTINUUM_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY"]:
+        for key in [
+            "CONTINUUM_API_KEY",
+            "CONTINUUM_API_KEY",
+            "ANTHROPIC_API_KEY",
+            "OPENAI_API_KEY",
+        ]:
             saved_keys[key] = os.environ.get(key)
             if key in os.environ:
                 del os.environ[key]
@@ -252,7 +257,7 @@ class TestAgentQuickStart:
 
         agent = Agent(api_key="test-key")
 
-        with patch.object(agent, '_get_llm_client') as mock_get_client:
+        with patch.object(agent, "_get_llm_client") as mock_get_client:
             mock_client = MagicMock()
             mock_client.chat = AsyncMock(return_value=mock_response)
             mock_get_client.return_value = mock_client
@@ -274,7 +279,7 @@ class TestAgentQuickStart:
         agent = Agent(api_key="test-key")
         agent.start()
 
-        with patch.object(agent, '_get_llm_client') as mock_get_client:
+        with patch.object(agent, "_get_llm_client") as mock_get_client:
             mock_client = MagicMock()
             mock_client.chat = AsyncMock(return_value=mock_response)
             mock_get_client.return_value = mock_client
@@ -306,7 +311,7 @@ class TestAgentStreaming:
 
         agent = Agent(api_key="test-key")
 
-        with patch.object(agent, '_get_llm_client') as mock_get_client:
+        with patch.object(agent, "_get_llm_client") as mock_get_client:
             mock_client = MagicMock()
             mock_client.chat_stream = mock_stream
             mock_get_client.return_value = mock_client

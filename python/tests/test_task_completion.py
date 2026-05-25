@@ -4,7 +4,10 @@ import os
 import sys
 
 # Add python directory to path
-_python_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'python')
+_python_dir = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "python",
+)
 sys.path.insert(0, _python_dir)
 
 import tempfile
@@ -280,7 +283,11 @@ class TestTaskCompletionDetector:
         # Add some tasks
         for i in range(3):
             status = CompletionStatus(
-                marker=CompletionMarker.IN_PROGRESS if i < 2 else CompletionMarker.TASK_COMPLETED,
+                marker=(
+                    CompletionMarker.IN_PROGRESS
+                    if i < 2
+                    else CompletionMarker.TASK_COMPLETED
+                ),
                 is_completed=i >= 2,
                 confidence=0.0,
             )

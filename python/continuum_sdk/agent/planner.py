@@ -72,6 +72,7 @@ if TYPE_CHECKING:
 
 class StepStatus(Enum):
     """Step execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -82,15 +83,16 @@ class StepStatus(Enum):
 
 class StepType(Enum):
     """Step type classification."""
-    ANALYZE = "analyze"       # Analyze problem/code
-    PLAN = "plan"            # Create plan
-    SEARCH = "search"        # Search codebase
-    READ = "read"           # Read files
-    EDIT = "edit"           # Modify files
-    WRITE = "write"         # Create files
-    TEST = "test"           # Run tests
-    VERIFY = "verify"        # Verify changes
-    CONFIRM = "confirm"      # Ask user confirmation
+
+    ANALYZE = "analyze"  # Analyze problem/code
+    PLAN = "plan"  # Create plan
+    SEARCH = "search"  # Search codebase
+    READ = "read"  # Read files
+    EDIT = "edit"  # Modify files
+    WRITE = "write"  # Create files
+    TEST = "test"  # Run tests
+    VERIFY = "verify"  # Verify changes
+    CONFIRM = "confirm"  # Ask user confirmation
 
 
 @dataclass
@@ -113,6 +115,7 @@ class Step:
         estimated_time: Estimated duration in seconds
         metadata: Additional metadata
     """
+
     id: str
     type: StepType
     description: str
@@ -157,6 +160,7 @@ class Plan:
         status: Overall plan status
         context: Accumulated context from execution
     """
+
     id: str
     task: str
     steps: list[Step] = field(default_factory=list)
@@ -175,7 +179,8 @@ class Plan:
     def get_pending_steps(self) -> list[Step]:
         """Get all pending steps with satisfied dependencies."""
         completed_ids = {
-            s.id for s in self.steps
+            s.id
+            for s in self.steps
             if s.status in (StepStatus.COMPLETED, StepStatus.SKIPPED)
         }
         pending = []
@@ -254,28 +259,28 @@ class Planner:
     # Default step templates by task type
     STEP_TEMPLATES = {
         "fix_bug": [
-            StepType.SEARCH,   # Search for relevant code
-            StepType.READ,     # Read and understand code
+            StepType.SEARCH,  # Search for relevant code
+            StepType.READ,  # Read and understand code
             StepType.ANALYZE,  # Analyze the bug
-            StepType.EDIT,     # Apply fix
-            StepType.TEST,     # Run tests
-            StepType.VERIFY,   # Verify fix
+            StepType.EDIT,  # Apply fix
+            StepType.TEST,  # Run tests
+            StepType.VERIFY,  # Verify fix
         ],
         "add_feature": [
-            StepType.SEARCH,   # Search existing patterns
-            StepType.READ,     # Read relevant code
-            StepType.PLAN,     # Design implementation
-            StepType.EDIT,     # Implement changes
-            StepType.TEST,     # Test changes
-            StepType.VERIFY,   # Verify functionality
+            StepType.SEARCH,  # Search existing patterns
+            StepType.READ,  # Read relevant code
+            StepType.PLAN,  # Design implementation
+            StepType.EDIT,  # Implement changes
+            StepType.TEST,  # Test changes
+            StepType.VERIFY,  # Verify functionality
         ],
         "refactor": [
-            StepType.READ,     # Read code to refactor
+            StepType.READ,  # Read code to refactor
             StepType.ANALYZE,  # Analyze structure
-            StepType.PLAN,     # Plan refactoring
-            StepType.EDIT,     # Apply changes
-            StepType.TEST,     # Run tests
-            StepType.VERIFY,   # Verify behavior
+            StepType.PLAN,  # Plan refactoring
+            StepType.EDIT,  # Apply changes
+            StepType.TEST,  # Run tests
+            StepType.VERIFY,  # Verify behavior
         ],
     }
 
@@ -315,9 +320,7 @@ class Planner:
         return plan
 
     async def _plan_with_llm(
-        self,
-        task: str,
-        context: dict[str, Any] | None = None
+        self, task: str, context: dict[str, Any] | None = None
     ) -> list[Step]:
         """Use LLM to analyze task and generate steps."""
         if not self.llm_client:
@@ -358,7 +361,7 @@ Example output:
             # Parse JSON from response
             content = response.content
             # Extract JSON array
-            json_match = re.search(r'\[[\s\S]*\]', content)
+            json_match = re.search(r"\[[\s\S]*\]", content)
             if json_match:
                 steps_data = json.loads(json_match.group())
                 return self._parse_steps(steps_data)
@@ -369,9 +372,7 @@ Example output:
         return []
 
     def _plan_with_patterns(
-        self,
-        task: str,
-        context: dict[str, Any] | None = None
+        self, task: str, context: dict[str, Any] | None = None
     ) -> list[Step]:
         """Pattern-based task decomposition."""
 

@@ -102,9 +102,11 @@ from typing import Any
 # Import Rust binding
 try:
     from sh_python import CheckpointSystem as RustCheckpointSystem
+
     HAS_RUST_BINDING = True
 except ImportError:
     HAS_RUST_BINDING = False
+
     # Define placeholder for type annotation
     class RustCheckpointSystem:
         pass
@@ -113,6 +115,7 @@ except ImportError:
 @dataclass
 class CheckpointMeta:
     """Checkpoint metadata."""
+
     checkpoint_id: str
     session_id: str
     created_at: datetime
@@ -124,7 +127,9 @@ class CheckpointMeta:
         return cls(
             checkpoint_id=data.get("checkpoint_id", ""),
             session_id=data.get("session_id", ""),
-            created_at=datetime.fromisoformat(data.get("created_at", datetime.now().isoformat())),
+            created_at=datetime.fromisoformat(
+                data.get("created_at", datetime.now().isoformat())
+            ),
             trigger=data.get("trigger", "manual"),
             iteration=data.get("iteration", 0),
         )
@@ -156,7 +161,9 @@ class CheckpointClient:
             path_str = str(storage_path) if storage_path else None
             self._system = RustCheckpointSystem(path_str)
         else:
-            self._storage_path = storage_path or Path.home() / ".continuum" / "checkpoints"
+            self._storage_path = (
+                storage_path or Path.home() / ".continuum" / "checkpoints"
+            )
             self._storage_path.mkdir(parents=True, exist_ok=True)
 
     def _check_binding(self) -> None:
@@ -182,9 +189,7 @@ class CheckpointClient:
         return self._system.save(session_id, data_json)
 
     def load(
-        self,
-        session_id: str,
-        checkpoint_id: str | None = None
+        self, session_id: str, checkpoint_id: str | None = None
     ) -> dict[str, Any] | None:
         """Load checkpoint for session.
 

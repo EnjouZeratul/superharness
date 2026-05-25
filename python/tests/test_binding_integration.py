@@ -12,8 +12,7 @@ from continuum_sdk.agent.checkpoint import CheckpointClient
 from continuum_sdk.tools.builtin import HAS_RUST_BINDING, BuiltinTools
 
 pytestmark = pytest.mark.skipif(
-    not HAS_RUST_BINDING,
-    reason="Rust binding not available"
+    not HAS_RUST_BINDING, reason="Rust binding not available"
 )
 
 
@@ -165,12 +164,14 @@ class TestAgentBinding:
     def test_import_agent(self):
         """Test importing Agent from binding."""
         from sh_python import Agent
+
         agent = Agent(name="test-agent")
         assert agent.id == "test-agent"
 
     def test_agent_state(self):
         """Test Agent state management."""
         from sh_python import Agent
+
         agent = Agent()
 
         assert agent.state == "idle"
@@ -187,6 +188,7 @@ class TestAgentBinding:
     def test_agent_create_session(self):
         """Test Agent session creation."""
         from sh_python import Agent
+
         agent = Agent()
 
         session = agent.create_session()
@@ -199,12 +201,14 @@ class TestSessionBinding:
     def test_import_session(self):
         """Test importing Session from binding."""
         from sh_python import Session
+
         session = Session(id="test-session")
         assert session.id == "test-session"
 
     def test_session_messages(self):
         """Test Session message handling."""
         from sh_python import Session
+
         session = Session()
 
         session.add_user_message("Hello")
@@ -220,6 +224,7 @@ class TestSessionBinding:
     def test_session_export(self):
         """Test Session export."""
         from sh_python import Session
+
         session = Session()
         session.add_user_message("Test")
 

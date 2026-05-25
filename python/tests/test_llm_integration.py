@@ -31,6 +31,7 @@ from continuum_sdk.llm import ChatResponse, LlmClient, Message
 
 # ==================== Fixtures ====================
 
+
 @pytest.fixture
 def anthropic_key():
     """获取 Anthropic API Key"""
@@ -60,6 +61,7 @@ def deepseek_key():
 
 # ==================== Anthropic Tests ====================
 
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_anthropic_chat_real(anthropic_key):
@@ -74,10 +76,7 @@ async def test_anthropic_chat_real(anthropic_key):
         model = os.environ.get("CONTINUUM_MODEL", "claude-sonnet-4-6")
 
     client = LlmClient.for_provider(
-        provider="anthropic",
-        api_key=anthropic_key,
-        base_url=base_url,
-        model=model
+        provider="anthropic", api_key=anthropic_key, base_url=base_url, model=model
     )
 
     messages = [Message.user("Say 'Hello, Continuum!' and nothing else.")]
@@ -89,7 +88,9 @@ async def test_anthropic_chat_real(anthropic_key):
     assert len(response.content) > 0
     print(f"\n✓ Response: {response.content[:100]}...")
     print(f"  Model: {response.model}")
-    print(f"  Tokens: {response.usage.input_tokens} in / {response.usage.output_tokens} out")
+    print(
+        f"  Tokens: {response.usage.input_tokens} in / {response.usage.output_tokens} out"
+    )
 
 
 @pytest.mark.integration
@@ -97,13 +98,17 @@ async def test_anthropic_chat_real(anthropic_key):
 async def test_anthropic_chat_stream_real(anthropic_key):
     """测试 Anthropic 流式响应"""
     base_url = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
-    model = os.environ.get("CONTINUUM_MODEL", "hunyuan-turbos" if "tencent" in base_url or "lkeap" in base_url else "claude-sonnet-4-6")
+    model = os.environ.get(
+        "CONTINUUM_MODEL",
+        (
+            "hunyuan-turbos"
+            if "tencent" in base_url or "lkeap" in base_url
+            else "claude-sonnet-4-6"
+        ),
+    )
 
     client = LlmClient.for_provider(
-        provider="anthropic",
-        api_key=anthropic_key,
-        base_url=base_url,
-        model=model
+        provider="anthropic", api_key=anthropic_key, base_url=base_url, model=model
     )
 
     messages = [Message.user("Count from 1 to 5, one number per line.")]
@@ -120,14 +125,13 @@ async def test_anthropic_chat_stream_real(anthropic_key):
 
 # ==================== OpenAI Tests ====================
 
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_openai_chat_real(openai_key):
     """测试 OpenAI GPT 真实 API 调用"""
     client = LlmClient.for_provider(
-        provider="openai",
-        api_key=openai_key,
-        model="gpt-4.1-mini"
+        provider="openai", api_key=openai_key, model="gpt-4.1-mini"
     )
 
     messages = [Message.user("Say 'Hello from OpenAI!' and nothing else.")]
@@ -141,14 +145,13 @@ async def test_openai_chat_real(openai_key):
 
 # ==================== DeepSeek Tests ====================
 
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_deepseek_chat_real(deepseek_key):
     """测试 DeepSeek 真实 API 调用 (OpenAI 兼容格式)"""
     client = LlmClient.for_provider(
-        provider="deepseek",
-        api_key=deepseek_key,
-        model="deepseek-chat"
+        provider="deepseek", api_key=deepseek_key, model="deepseek-chat"
     )
 
     messages = [Message.user("你好，请简短回复")]
@@ -162,6 +165,7 @@ async def test_deepseek_chat_real(deepseek_key):
 
 # ==================== Agent Integration ====================
 
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_agent_fix_buggy_code(anthropic_key):
@@ -169,26 +173,30 @@ async def test_agent_fix_buggy_code(anthropic_key):
     from continuum_sdk.agent.runtime import AgentConfig
 
     base_url = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
-    model = os.environ.get("CONTINUUM_MODEL", "hunyuan-turbos" if "tencent" in base_url or "lkeap" in base_url else "claude-sonnet-4-6")
+    model = os.environ.get(
+        "CONTINUUM_MODEL",
+        (
+            "hunyuan-turbos"
+            if "tencent" in base_url or "lkeap" in base_url
+            else "claude-sonnet-4-6"
+        ),
+    )
 
     # 读取测试文件
     buggy_file = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
         "test",
-        "buggy_program.py"
+        "buggy_program.py",
     )
 
     if not os.path.exists(buggy_file):
         pytest.skip("buggy_program.py not found")
 
-    with open(buggy_file, encoding='utf-8') as f:
+    with open(buggy_file, encoding="utf-8") as f:
         buggy_code = f.read()
 
     config = AgentConfig(
-        provider="anthropic",
-        api_key=anthropic_key,
-        base_url=base_url,
-        model=model
+        provider="anthropic", api_key=anthropic_key, base_url=base_url, model=model
     )
 
     agent = Agent(config=config)
@@ -226,7 +234,7 @@ async def test_custom_provider_openai_format(anthropic_key):
         api_key=anthropic_key,
         base_url=base_url,
         model="hunyuan-turbos",
-        api_format="anthropic"
+        api_format="anthropic",
     )
 
     messages = [Message.user("Reply with just: 'Custom provider works!'")]
@@ -239,6 +247,7 @@ async def test_custom_provider_openai_format(anthropic_key):
 
 # ==================== Error Handling ====================
 
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_invalid_api_key():
@@ -246,9 +255,7 @@ async def test_invalid_api_key():
     from continuum_sdk.llm.errors import AuthenticationError
 
     client = LlmClient.for_provider(
-        provider="anthropic",
-        api_key="invalid-key-12345",
-        model="claude-sonnet-4-6"
+        provider="anthropic", api_key="invalid-key-12345", model="claude-sonnet-4-6"
     )
 
     messages = [Message.user("Hello")]
@@ -284,7 +291,7 @@ if __name__ == "__main__":
         print("\n❌ 未找到任何 API Key，请设置环境变量后重试")
         print("\n示例:")
         print('  export ANTHROPIC_API_KEY="your-key-here"')
-        print('  pytest python/tests/test_llm_integration.py -v -m integration')
+        print("  pytest python/tests/test_llm_integration.py -v -m integration")
         sys.exit(1)
 
     print("\n运行测试...")

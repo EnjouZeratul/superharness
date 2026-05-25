@@ -13,6 +13,7 @@ from enum import Enum
 
 class ProviderType(Enum):
     """提供商类型"""
+
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     GOOGLE = "google"
@@ -22,14 +23,16 @@ class ProviderType(Enum):
 
 class ApiFormat(Enum):
     """API 请求格式"""
+
     ANTHROPIC = "anthropic"  # Anthropic 原生格式
-    OPENAI = "openai"        # OpenAI 兼容格式（大多数提供商）
-    GOOGLE = "google"        # Google AI 格式
+    OPENAI = "openai"  # OpenAI 兼容格式（大多数提供商）
+    GOOGLE = "google"  # Google AI 格式
 
 
 @dataclass
 class ProviderInfo:
     """提供商信息"""
+
     name: str
     display_name: str
     default_model: str

@@ -14,6 +14,7 @@ from continuum_sdk.tools import (
 
 # ==================== 方式 1: 继承 CustomTool ====================
 
+
 class CalculatorTool(CustomTool):
     """计算器工具"""
 
@@ -32,12 +33,12 @@ class CalculatorTool(CustomTool):
                 "operation": {
                     "type": "string",
                     "enum": ["add", "subtract", "multiply", "divide"],
-                    "description": "运算类型"
+                    "description": "运算类型",
                 },
                 "a": {"type": "number", "description": "第一个数"},
-                "b": {"type": "number", "description": "第二个数"}
+                "b": {"type": "number", "description": "第二个数"},
             },
-            "required": ["operation", "a", "b"]
+            "required": ["operation", "a", "b"],
         }
 
     @property
@@ -52,7 +53,7 @@ class CalculatorTool(CustomTool):
             "add": lambda x, y: x + y,
             "subtract": lambda x, y: x - y,
             "multiply": lambda x, y: x * y,
-            "divide": lambda x, y: x / y if y != 0 else "Error: division by zero"
+            "divide": lambda x, y: x / y if y != 0 else "Error: division by zero",
         }
 
         result = ops[op](a, b)
@@ -61,23 +62,18 @@ class CalculatorTool(CustomTool):
 
 # ==================== 方式 2: 使用 @tool 装饰器 ====================
 
-@tool(
-    name="greet",
-    description="生成问候语",
-    requires_confirmation=False
-)
+
+@tool(name="greet", description="生成问候语", requires_confirmation=False)
 async def greet_user(name: str, greeting: str = "Hello") -> str:
     """生成个性化问候语"""
     return f"{greeting}, {name}!"
 
 
-@tool(
-    name="format_json",
-    description="格式化 JSON 字符串"
-)
+@tool(name="format_json", description="格式化 JSON 字符串")
 async def format_json_string(data: str, indent: int = 2) -> str:
     """格式化 JSON"""
     import json
+
     try:
         parsed = json.loads(data)
         return json.dumps(parsed, indent=indent, ensure_ascii=False)
@@ -87,11 +83,12 @@ async def format_json_string(data: str, indent: int = 2) -> str:
 
 # ==================== 方式 3: 危险工具（需要确认） ====================
 
+
 @tool(
     name="delete_temp_files",
     description="删除临时文件",
     is_dangerous=True,
-    requires_confirmation=True
+    requires_confirmation=True,
 )
 async def delete_temp_files(pattern: str) -> str:
     """删除匹配模式的临时文件"""
@@ -100,6 +97,7 @@ async def delete_temp_files(pattern: str) -> str:
 
 
 # ==================== 演示 ====================
+
 
 async def main():
     print("=== 自定义工具示例 ===\n")
@@ -110,7 +108,7 @@ async def main():
     # 1. 注册工具
     print("1. 注册工具")
     register_tool(CalculatorTool())  # 使用默认注册表
-    registry.register(greet_user)     # 装饰器已经创建了实例
+    registry.register(greet_user)  # 装饰器已经创建了实例
     registry.register(format_json_string)
     registry.register(delete_temp_files)
     print(f"   已注册 {len(registry.list_names())} 个工具\n")
@@ -135,10 +133,7 @@ async def main():
     print(f"   greet: {result}")
 
     # JSON 格式化
-    result = await registry.execute(
-        "format_json",
-        data='{"name":"test","value":123}'
-    )
+    result = await registry.execute("format_json", data='{"name":"test","value":123}')
     print(f"   format_json:\n{result}")
 
     # 4. 获取工具元数据

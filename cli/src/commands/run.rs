@@ -155,12 +155,20 @@ fn parse_task(task: &str) -> (String, serde_json::Value) {
 
     // 检查是否有显式工具前缀
     if task_lower.starts_with("bash:") || task_lower.starts_with("run:") {
-        let cmd = task.split_once(':').map(|(_, rest)| rest).unwrap_or(task).trim();
+        let cmd = task
+            .split_once(':')
+            .map(|(_, rest)| rest)
+            .unwrap_or(task)
+            .trim();
         return ("bash".to_string(), serde_json::json!({"command": cmd}));
     }
 
     if task_lower.starts_with("grep:") || task_lower.starts_with("search:") {
-        let pattern = task.split_once(':').map(|(_, rest)| rest).unwrap_or(task).trim();
+        let pattern = task
+            .split_once(':')
+            .map(|(_, rest)| rest)
+            .unwrap_or(task)
+            .trim();
         return (
             "grep".to_string(),
             serde_json::json!({"pattern": pattern, "path": "."}),
@@ -168,7 +176,11 @@ fn parse_task(task: &str) -> (String, serde_json::Value) {
     }
 
     if task_lower.starts_with("glob:") || task_lower.starts_with("find:") {
-        let pattern = task.split_once(':').map(|(_, rest)| rest).unwrap_or(task).trim();
+        let pattern = task
+            .split_once(':')
+            .map(|(_, rest)| rest)
+            .unwrap_or(task)
+            .trim();
         return (
             "glob".to_string(),
             serde_json::json!({"pattern": pattern, "path": "."}),
@@ -176,7 +188,11 @@ fn parse_task(task: &str) -> (String, serde_json::Value) {
     }
 
     if task_lower.starts_with("read:") || task_lower.starts_with("cat:") {
-        let path = task.split_once(':').map(|(_, rest)| rest).unwrap_or(task).trim();
+        let path = task
+            .split_once(':')
+            .map(|(_, rest)| rest)
+            .unwrap_or(task)
+            .trim();
         return ("read_file".to_string(), serde_json::json!({"path": path}));
     }
 

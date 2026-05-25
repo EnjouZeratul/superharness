@@ -83,8 +83,9 @@ def grep(
         else:
             # Search all files (excluding hidden and binary)
             files = [
-                f for f in search_path.rglob("*")
-                if f.is_file() and not f.name.startswith('.')
+                f
+                for f in search_path.rglob("*")
+                if f.is_file() and not f.name.startswith(".")
             ]
 
     # Search files
@@ -95,7 +96,7 @@ def grep(
     for file_path in files[:1000]:  # Limit to 1000 files
         try:
             encoding = detect_encoding(file_path)
-            with open(file_path, encoding=encoding, errors='replace') as f:
+            with open(file_path, encoding=encoding, errors="replace") as f:
                 content = f.read()
 
             matches = list(regex.finditer(content))
@@ -107,23 +108,27 @@ def grep(
                 if output_mode == "content":
                     for match in matches[:head_limit]:
                         # Find line number
-                        line_num = content[:match.start()].count('\n') + 1
-                        line_content = content.split('\n')[line_num - 1]
+                        line_num = content[: match.start()].count("\n") + 1
+                        line_content = content.split("\n")[line_num - 1]
 
-                        results.append({
-                            'file': str(file_path),
-                            'line': line_num,
-                            'content': line_content,
-                            'match': match.group(),
-                            'start': match.start(),
-                            'end': match.end(),
-                        })
+                        results.append(
+                            {
+                                "file": str(file_path),
+                                "line": line_num,
+                                "content": line_content,
+                                "match": match.group(),
+                                "start": match.start(),
+                                "end": match.end(),
+                            }
+                        )
 
                 elif output_mode == "count":
-                    results.append({
-                        'file': str(file_path),
-                        'count': len(matches),
-                    })
+                    results.append(
+                        {
+                            "file": str(file_path),
+                            "count": len(matches),
+                        }
+                    )
 
                 # Stop if we have enough results
                 if output_mode == "content" and len(results) >= head_limit:
@@ -136,9 +141,9 @@ def grep(
 
     # Format output
     if output_mode == "files_with_matches":
-        content_output = '\n'.join(matched_files)
+        content_output = "\n".join(matched_files)
     elif output_mode == "count":
-        content_output = '\n'.join(
+        content_output = "\n".join(
             f"{r['file']}: {r['count']} matches" for r in results
         )
     else:
@@ -149,15 +154,15 @@ def grep(
                 output_lines.append(f"{r['file']}:{r['line']}:\t{r['content']}")
             else:
                 output_lines.append(f"{r['file']}:\t{r['content']}")
-        content_output = '\n'.join(output_lines)
+        content_output = "\n".join(output_lines)
 
     metadata = {
-        'pattern': pattern,
-        'path': str(search_path),
-        'files_searched': len(files),
-        'files_matched': len(matched_files),
-        'total_matches': total_matches,
-        'output_mode': output_mode,
+        "pattern": pattern,
+        "path": str(search_path),
+        "files_searched": len(files),
+        "files_matched": len(matched_files),
+        "total_matches": total_matches,
+        "output_mode": output_mode,
     }
 
     return ToolResult(
@@ -215,12 +220,12 @@ def glob(
         duration_ms = int((time.time() - start_time) * 1000)
 
         # Format output
-        content_output = '\n'.join(str(f) for f in files)
+        content_output = "\n".join(str(f) for f in files)
 
         metadata = {
-            'pattern': pattern,
-            'path': str(search_path),
-            'count': len(files),
+            "pattern": pattern,
+            "path": str(search_path),
+            "count": len(files),
         }
 
         return ToolResult(

@@ -42,12 +42,15 @@ from continuum_sdk.tools.types import ToolError, ToolResult
 # ReadTool Tests
 # ==============================================================================
 
+
 class TestReadTool:
     """ReadTool tests"""
 
     def test_read_file_success(self):
         """测试正常读取文件"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("test content line 1\n")
             f.write("test content line 2\n")
             filepath = f.name
@@ -62,14 +65,16 @@ class TestReadTool:
             assert result.name == "read"
             assert result.call_id is not None
             assert result.duration_ms >= 0
-            assert 'total_lines' in result.metadata
-            assert result.metadata['total_lines'] == 2
+            assert "total_lines" in result.metadata
+            assert result.metadata["total_lines"] == 2
         finally:
             os.unlink(filepath)
 
     def test_read_file_with_offset(self):
         """测试 offset 参数读取部分行"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             for i in range(10):
                 f.write(f"Line Alpha {i+1:02d}\n")  # 01, 02, ... 10 (无子串重叠)
             filepath = f.name
@@ -82,13 +87,15 @@ class TestReadTool:
             assert "Line Alpha 03" in result.content
             assert "Line Alpha 01" not in result.content
             assert "Line Alpha 02" not in result.content
-            assert result.metadata['lines_read'] == 8  # lines 3-10
+            assert result.metadata["lines_read"] == 8  # lines 3-10
         finally:
             os.unlink(filepath)
 
     def test_read_file_with_limit(self):
         """测试 limit 参数限制行数"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             for i in range(10):
                 f.write(f"line {i+1}\n")
             filepath = f.name
@@ -101,13 +108,15 @@ class TestReadTool:
             assert "line 1" in result.content
             assert "line 3" in result.content
             assert "line 4" not in result.content
-            assert result.metadata['lines_read'] == 3
+            assert result.metadata["lines_read"] == 3
         finally:
             os.unlink(filepath)
 
     def test_read_file_with_offset_and_limit(self):
         """测试 offset 和 limit 组合"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             for i in range(10):
                 f.write(f"line {i+1}\n")
             filepath = f.name
@@ -144,7 +153,9 @@ class TestReadTool:
 
     def test_read_empty_file(self):
         """测试读取空文件"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             filepath = f.name
 
         try:
@@ -153,13 +164,15 @@ class TestReadTool:
 
             assert result.is_error is False
             assert result.content == ""
-            assert result.metadata['total_lines'] == 0
+            assert result.metadata["total_lines"] == 0
         finally:
             os.unlink(filepath)
 
     def test_read_file_with_unicode(self):
         """测试读取 Unicode 文件"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("你好世界 🌍\n")
             f.write("日本語テスト\n")
             filepath = f.name
@@ -178,7 +191,9 @@ class TestReadTool:
     def test_read_file_show_line_numbers(self):
         """测试显示行号"""
         reader = ReadTool(show_line_numbers=True)
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("line 1\n")
             f.write("line 2\n")
             filepath = f.name
@@ -194,7 +209,9 @@ class TestReadTool:
 
     def test_read_tool_callable(self):
         """测试 ReadTool 直接调用"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("callable test\n")
             filepath = f.name
 
@@ -209,7 +226,9 @@ class TestReadTool:
 
     def test_read_negative_offset(self):
         """测试负偏移量（应从第0行开始）"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             for i in range(5):
                 f.write(f"negative line {i+1}\n")
             filepath = f.name
@@ -230,44 +249,49 @@ class TestDetectEncoding:
 
     def test_detect_utf8(self):
         """测试 UTF-8 检测"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("Hello, World!\n")
             filepath = f.name
 
         try:
             from pathlib import Path
+
             encoding = detect_encoding(Path(filepath))
-            assert encoding == 'utf-8'
+            assert encoding == "utf-8"
         finally:
             os.unlink(filepath)
 
     def test_detect_gbk(self):
         """测试 GBK 编码检测"""
-        with tempfile.NamedTemporaryFile(mode='wb', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".txt") as f:
             # GBK 编码的中文字符
-            f.write("中文测试\n".encode('gbk'))
+            f.write("中文测试\n".encode("gbk"))
             filepath = f.name
 
         try:
             from pathlib import Path
+
             encoding = detect_encoding(Path(filepath))
             # 应检测为 GBK 或兼容编码
-            assert encoding in ['gbk', 'gb2312', 'gb18030']
+            assert encoding in ["gbk", "gb2312", "gb18030"]
         finally:
             os.unlink(filepath)
 
     def test_detect_latin1(self):
         """测试 Latin-1 编码检测"""
-        with tempfile.NamedTemporaryFile(mode='wb', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".txt") as f:
             # Latin-1 特殊字符（非 UTF-8 兼容）
             f.write(b"\xe9\xe0\xe7\n")  # é, à, ç in Latin-1
             filepath = f.name
 
         try:
             from pathlib import Path
+
             encoding = detect_encoding(Path(filepath))
             # 应检测为 Latin-1 或 UTF-8（fallback）
-            assert encoding in ['latin-1', 'utf-8']
+            assert encoding in ["latin-1", "utf-8"]
         finally:
             os.unlink(filepath)
 
@@ -275,6 +299,7 @@ class TestDetectEncoding:
 # ==============================================================================
 # WriteTool Tests
 # ==============================================================================
+
 
 class TestWriteTool:
     """WriteTool tests"""
@@ -292,13 +317,15 @@ class TestWriteTool:
             assert os.path.exists(filepath)
 
             # 验证内容
-            with open(filepath, encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
             assert "Hello, World!" in content
 
     def test_write_overwrite_existing(self):
         """测试覆盖已有文件"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("old content\n")
             filepath = f.name
 
@@ -308,7 +335,7 @@ class TestWriteTool:
 
             assert result.is_error is False
 
-            with open(filepath, encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
             assert "new content" in content
             assert "old content" not in content
@@ -317,7 +344,9 @@ class TestWriteTool:
 
     def test_write_append_mode(self):
         """测试追加模式"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("line 1\n")
             filepath = f.name
 
@@ -327,7 +356,7 @@ class TestWriteTool:
 
             assert result.is_error is False
 
-            with open(filepath, encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
             assert "line 1" in content
             assert "line 2" in content
@@ -347,7 +376,9 @@ class TestWriteTool:
 
     def test_write_with_backup(self):
         """测试备份功能"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("original content\n")
             filepath = f.name
 
@@ -357,16 +388,16 @@ class TestWriteTool:
 
             assert result.is_error is False
             # 备份文件应存在
-            backup_path = filepath + '.bak'
+            backup_path = filepath + ".bak"
             assert os.path.exists(backup_path)
 
             # 备份内容应为原始内容
-            with open(backup_path, encoding='utf-8') as f:
+            with open(backup_path, encoding="utf-8") as f:
                 backup_content = f.read()
             assert "original content" in backup_content
         finally:
             os.unlink(filepath)
-            backup_path = filepath + '.bak'
+            backup_path = filepath + ".bak"
             if os.path.exists(backup_path):
                 os.unlink(backup_path)
 
@@ -386,12 +417,15 @@ class TestWriteTool:
 # EditTool Tests
 # ==============================================================================
 
+
 class TestEditTool:
     """EditTool tests"""
 
     def test_edit_replace_single_occurrence(self):
         """测试替换单个匹配"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("foo bar foo baz\n")
             filepath = f.name
 
@@ -402,7 +436,7 @@ class TestEditTool:
             assert result.is_error is False
             assert "Replaced 1 occurrence" in result.content
 
-            with open(filepath, encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
             assert content == "QUX bar foo baz\n"
         finally:
@@ -410,7 +444,9 @@ class TestEditTool:
 
     def test_edit_replace_all(self):
         """测试替换所有匹配"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("foo bar foo baz foo\n")
             filepath = f.name
 
@@ -420,7 +456,7 @@ class TestEditTool:
 
             assert result.is_error is False
 
-            with open(filepath, encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
             assert content == "QUX bar QUX baz QUX\n"
         finally:
@@ -428,7 +464,9 @@ class TestEditTool:
 
     def test_edit_string_not_found_raises_error(self):
         """测试字符串不存在"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("hello world\n")
             filepath = f.name
 
@@ -451,7 +489,9 @@ class TestEditTool:
 
     def test_edit_with_backup(self):
         """测试编辑时备份"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("original\n")
             filepath = f.name
 
@@ -460,20 +500,22 @@ class TestEditTool:
             result = editor.edit(filepath, "original", "modified")
 
             assert result.is_error is False
-            backup_path = filepath + '.bak'
+            backup_path = filepath + ".bak"
             assert os.path.exists(backup_path)
 
-            with open(backup_path, encoding='utf-8') as f:
+            with open(backup_path, encoding="utf-8") as f:
                 assert "original" in f.read()
         finally:
             os.unlink(filepath)
-            backup_path = filepath + '.bak'
+            backup_path = filepath + ".bak"
             if os.path.exists(backup_path):
                 os.unlink(backup_path)
 
     def test_edit_tool_callable(self):
         """测试 EditTool 直接调用"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as f:
             f.write("callable edit test\n")
             filepath = f.name
 
@@ -483,7 +525,7 @@ class TestEditTool:
 
             assert result.is_error is False
 
-            with open(filepath, encoding='utf-8') as f:
+            with open(filepath, encoding="utf-8") as f:
                 assert "modified test" in f.read()
         finally:
             os.unlink(filepath)
@@ -492,6 +534,7 @@ class TestEditTool:
 # ==============================================================================
 # BashTool Tests
 # ==============================================================================
+
 
 class TestBashTool:
     """BashTool tests"""
@@ -528,7 +571,12 @@ class TestBashTool:
         # Windows 上 cmd 可能返回 "is not recognized" 错误
         result = bash.run("nonexistent_command_xyz_12345")
         # 应该返回错误结果（非零退出码或错误消息）
-        assert result.is_error is True or "not found" in result.content.lower() or "not recognized" in result.content.lower() or "Execution failed" in result.content
+        assert (
+            result.is_error is True
+            or "not found" in result.content.lower()
+            or "not recognized" in result.content.lower()
+            or "Execution failed" in result.content
+        )
 
     def test_bash_working_directory(self):
         """测试指定工作目录"""
@@ -562,7 +610,7 @@ class TestBashTool:
         """测试环境变量"""
         bash = BashTool()
         # Windows 使用 %VAR% 语法，Unix 使用 $VAR
-        if os.name == 'nt':
+        if os.name == "nt":
             result = bash.run("echo %MY_TEST_VAR%", env={"MY_TEST_VAR": "test_value"})
         else:
             result = bash.run("echo $MY_TEST_VAR", env={"MY_TEST_VAR": "test_value"})
@@ -590,7 +638,7 @@ class TestBashTool:
         """测试有 stderr 输出的命令"""
         bash = BashTool()
         # 使用一个会产生 stderr 的命令
-        if os.name == 'nt':
+        if os.name == "nt":
             # Windows: 使用不存在的路径
             result = bash.run("dir nonexistent_path_xyz")
         else:
@@ -627,6 +675,7 @@ class TestCommandValidation:
 # GrepTool Tests
 # ==============================================================================
 
+
 class TestGrepTool:
     """GrepTool tests"""
 
@@ -634,7 +683,7 @@ class TestGrepTool:
         """测试正则搜索"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.py")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("def hello():\n")
                 f.write("    print('hello')\n")
                 f.write("\n")
@@ -651,11 +700,13 @@ class TestGrepTool:
         """测试 files_with_matches 输出模式"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("hello world\n")
 
             grep_tool = GrepTool()
-            result = grep_tool.search("hello", path=tmpdir, output_mode="files_with_matches")
+            result = grep_tool.search(
+                "hello", path=tmpdir, output_mode="files_with_matches"
+            )
 
             assert result.is_error is False
             assert "test.txt" in result.content
@@ -664,7 +715,7 @@ class TestGrepTool:
         """测试 count 输出模式"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("hello\nhello\nhello\n")
 
             grep_tool = GrepTool()
@@ -677,7 +728,7 @@ class TestGrepTool:
         """测试大小写不敏感"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("HELLO World\n")
 
             grep_tool = GrepTool()
@@ -690,7 +741,7 @@ class TestGrepTool:
         """测试大小写敏感"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("HELLO World\nhello there\n")
 
             grep_tool = GrepTool()
@@ -718,7 +769,9 @@ class TestGrepTool:
 
     def test_grep_single_file(self):
         """测试搜索单个文件"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.py', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".py", encoding="utf-8"
+        ) as f:
             f.write("def single_file_test():\n")
             f.write("    return 'test'\n")
             filepath = f.name
@@ -736,7 +789,7 @@ class TestGrepTool:
         """测试不显示行号"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "test.txt")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("test line without numbers\n")
 
             # Use grep directly with include_line_numbers=False
@@ -750,7 +803,7 @@ class TestGrepTool:
         """测试 GrepTool 直接调用"""
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, "callable.py")
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write("callable_grep_test\n")
 
             grep_tool = GrepTool()
@@ -764,6 +817,7 @@ class TestGrepTool:
 # GlobTool Tests
 # ==============================================================================
 
+
 class TestGlobTool:
     """GlobTool tests"""
 
@@ -771,9 +825,9 @@ class TestGlobTool:
         """测试文件匹配"""
         with tempfile.TemporaryDirectory() as tmpdir:
             # 创建一些文件
-            open(os.path.join(tmpdir, "file1.py"), 'w').close()
-            open(os.path.join(tmpdir, "file2.py"), 'w').close()
-            open(os.path.join(tmpdir, "file3.txt"), 'w').close()
+            open(os.path.join(tmpdir, "file1.py"), "w").close()
+            open(os.path.join(tmpdir, "file2.py"), "w").close()
+            open(os.path.join(tmpdir, "file3.txt"), "w").close()
 
             glob_tool = GlobTool()
             result = glob_tool.find("*.py", path=tmpdir)
@@ -788,7 +842,7 @@ class TestGlobTool:
         with tempfile.TemporaryDirectory() as tmpdir:
             subdir = os.path.join(tmpdir, "subdir")
             os.makedirs(subdir)
-            open(os.path.join(subdir, "nested.py"), 'w').close()
+            open(os.path.join(subdir, "nested.py"), "w").close()
 
             glob_tool = GlobTool()
             result = glob_tool.find("**/*.py", path=tmpdir)
@@ -803,7 +857,9 @@ class TestGlobTool:
             result = glob_tool.find("*.xyz", path=tmpdir)
 
             assert result.is_error is False
-            assert "no matches" in result.content.lower() or result.content.strip() == ""
+            assert (
+                "no matches" in result.content.lower() or result.content.strip() == ""
+            )
 
     def test_glob_nonexistent_path_raises_error(self):
         """测试路径不存在"""
@@ -816,7 +872,7 @@ class TestGlobTool:
     def test_glob_tool_callable(self):
         """测试 GlobTool 直接调用"""
         with tempfile.TemporaryDirectory() as tmpdir:
-            open(os.path.join(tmpdir, "callable_glob.py"), 'w').close()
+            open(os.path.join(tmpdir, "callable_glob.py"), "w").close()
 
             glob_tool = GlobTool()
             result = glob_tool("*.py", path=tmpdir)
@@ -829,7 +885,7 @@ class TestGlobTool:
         with tempfile.TemporaryDirectory() as tmpdir:
             subdir = os.path.join(tmpdir, "deep", "nested")
             os.makedirs(subdir)
-            open(os.path.join(subdir, "deep_file.py"), 'w').close()
+            open(os.path.join(subdir, "deep_file.py"), "w").close()
 
             glob_tool = GlobTool()
             result = glob_tool.find("**/*.py", path=tmpdir)
@@ -841,6 +897,7 @@ class TestGlobTool:
 # ==============================================================================
 # ToolResult Tests
 # ==============================================================================
+
 
 class TestToolResult:
     """ToolResult tests"""
@@ -878,6 +935,7 @@ class TestToolResult:
 # ToolError Tests
 # ==============================================================================
 
+
 class TestToolError:
     """ToolError tests"""
 
@@ -899,6 +957,7 @@ class TestToolError:
 # ==============================================================================
 # BuiltinTools Tests (builtin.py)
 # ==============================================================================
+
 
 class TestToolCategory:
     """ToolCategory enum tests"""
@@ -992,6 +1051,7 @@ class TestBuiltinTools:
         """测试 read_file 尚未实现"""
         # 强制使用无 Rust binding 模式
         import continuum_sdk.tools.builtin as builtin_module
+
         original_executor = builtin_module.HAS_RUST_BINDING
         builtin_module.HAS_RUST_BINDING = False
         try:
@@ -1004,6 +1064,7 @@ class TestBuiltinTools:
     def test_write_file_not_implemented(self):
         """测试 write_file 尚未实现"""
         import continuum_sdk.tools.builtin as builtin_module
+
         original = builtin_module.HAS_RUST_BINDING
         builtin_module.HAS_RUST_BINDING = False
         try:
@@ -1016,6 +1077,7 @@ class TestBuiltinTools:
     def test_bash_not_implemented(self):
         """测试 bash 尚未实现"""
         import continuum_sdk.tools.builtin as builtin_module
+
         original = builtin_module.HAS_RUST_BINDING
         builtin_module.HAS_RUST_BINDING = False
         try:
@@ -1034,4 +1096,6 @@ class TestBuiltinTools:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--cov=continuum_sdk.tools", "--cov-report=term-missing"])
+    pytest.main(
+        [__file__, "-v", "--cov=continuum_sdk.tools", "--cov-report=term-missing"]
+    )

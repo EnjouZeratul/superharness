@@ -93,6 +93,7 @@ from typing import Any
 # Import Rust bindings
 try:
     from sh_core import Session as RustSession
+
     HAS_RUST_BINDINGS = True
 except ImportError:
     HAS_RUST_BINDINGS = False
@@ -100,6 +101,7 @@ except ImportError:
 
 class MessageRole(Enum):
     """消息角色枚举"""
+
     USER = "user"
     ASSISTANT = "assistant"
     SYSTEM = "system"

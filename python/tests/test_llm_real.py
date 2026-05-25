@@ -24,8 +24,7 @@ from continuum_sdk.llm import LlmClient, Message
 
 # 跳过条件：API 不可用
 requires_api = pytest.mark.skipif(
-    not is_api_available(),
-    reason="API key not configured in .env.test"
+    not is_api_available(), reason="API key not configured in .env.test"
 )
 
 
@@ -59,8 +58,9 @@ class TestRealLlmCalls:
         assert isinstance(response.content, str)
         # 验证内容包含预期关键词
         content_lower = response.content.lower()
-        assert "hello" in content_lower or "world" in content_lower, \
-            f"Response should contain 'hello' or 'world', got: {response.content}"
+        assert (
+            "hello" in content_lower or "world" in content_lower
+        ), f"Response should contain 'hello' or 'world', got: {response.content}"
         print(f"\n[Response]: {response.content}")
 
     @pytest.mark.asyncio
@@ -77,11 +77,21 @@ class TestRealLlmCalls:
         print(f"\n[Response]: {response.content}")
         # 验证响应包含编码/助手相关内容（LLM 应遵循系统提示）
         content_lower = response.content.lower()
-        is_coding_related = any(word in content_lower for word in [
-            "coding", "python", "assistant", "program", "code", "develop", "help"
-        ])
-        assert is_coding_related, \
-            f"Response should reflect coding assistant role, got: {response.content}"
+        is_coding_related = any(
+            word in content_lower
+            for word in [
+                "coding",
+                "python",
+                "assistant",
+                "program",
+                "code",
+                "develop",
+                "help",
+            ]
+        )
+        assert (
+            is_coding_related
+        ), f"Response should reflect coding assistant role, got: {response.content}"
 
     @pytest.mark.asyncio
     async def test_multi_turn(self, client):
@@ -112,13 +122,10 @@ class TestRealLlmCalls:
                 parameters={
                     "type": "object",
                     "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "City name"
-                        }
+                        "location": {"type": "string", "description": "City name"}
                     },
-                    "required": ["location"]
-                }
+                    "required": ["location"],
+                },
             )
         ]
 
@@ -133,31 +140,51 @@ class TestRealLlmCalls:
         print(f"\n[Response]: {response.content}")
 
         # 检查是否有 tool_calls 属性
-        has_tool_calls = hasattr(response, 'tool_calls') and response.tool_calls
+        has_tool_calls = hasattr(response, "tool_calls") and response.tool_calls
         if has_tool_calls:
             print(f"[Tool calls]: {response.tool_calls}")
             # 验证工具调用包含必要字段
             for tc in response.tool_calls:
-                tc_dict = tc if isinstance(tc, dict) else {"name": getattr(tc, 'name', None)}
-                assert tc_dict.get('name') in ('get_weather', None), \
-                    f"Tool name should be get_weather or None, got: {tc_dict}"
+                tc_dict = (
+                    tc if isinstance(tc, dict) else {"name": getattr(tc, "name", None)}
+                )
+                assert tc_dict.get("name") in (
+                    "get_weather",
+                    None,
+                ), f"Tool name should be get_weather or None, got: {tc_dict}"
 
         # 如果没有 tool_calls 且有内容，验证内容相关性
-        if not has_tool_calls and response.content and len(response.content.strip()) > 0:
+        if (
+            not has_tool_calls
+            and response.content
+            and len(response.content.strip()) > 0
+        ):
             content_lower = response.content.lower()
-            has_relevant_words = any(word in content_lower for word in [
-                "tokyo", "weather", "sunny", "rain", "temperature", "forecast", "city"
-            ])
-            assert has_relevant_words, \
-                f"Response should discuss weather/Tokyo, got: {response.content}"
+            has_relevant_words = any(
+                word in content_lower
+                for word in [
+                    "tokyo",
+                    "weather",
+                    "sunny",
+                    "rain",
+                    "temperature",
+                    "forecast",
+                    "city",
+                ]
+            )
+            assert (
+                has_relevant_words
+            ), f"Response should discuss weather/Tokyo, got: {response.content}"
             print("[Text response verified]: contains weather-related content")
 
     @pytest.mark.asyncio
     async def test_long_response(self, client):
         """测试长响应处理"""
-        messages = [Message.user(
-            "Explain in 3 short paragraphs: what is Python and why is it popular for data science?"
-        )]
+        messages = [
+            Message.user(
+                "Explain in 3 short paragraphs: what is Python and why is it popular for data science?"
+            )
+        ]
         response = await client.chat(
             messages=messages,
             max_tokens=500,
@@ -166,13 +193,17 @@ class TestRealLlmCalls:
         assert response is not None
         assert response.content is not None
         # 验证长响应内容
-        assert len(response.content) > 100, \
-            f"Long response should be >100 chars, got {len(response.content)} chars"
+        assert (
+            len(response.content) > 100
+        ), f"Long response should be >100 chars, got {len(response.content)} chars"
         # 验证内容包含 Python 相关关键词
         content_lower = response.content.lower()
-        assert "python" in content_lower or "data" in content_lower, \
-            f"Response should discuss Python/data, got: {response.content[:100]}..."
-        print(f"\n[Long response ({len(response.content)} chars)]: {response.content[:200]}...")
+        assert (
+            "python" in content_lower or "data" in content_lower
+        ), f"Response should discuss Python/data, got: {response.content[:100]}..."
+        print(
+            f"\n[Long response ({len(response.content)} chars)]: {response.content[:200]}..."
+        )
 
     @pytest.mark.asyncio
     async def test_multi_turn_context(self, client):
@@ -180,7 +211,9 @@ class TestRealLlmCalls:
         messages = [
             Message.user("My favorite programming language is Python."),
             Message.assistant("Got it, Python is your favorite language."),
-            Message.user("What is my favorite programming language? Reply with ONLY the name."),
+            Message.user(
+                "What is my favorite programming language? Reply with ONLY the name."
+            ),
         ]
         response = await client.chat(
             messages=messages,
@@ -189,8 +222,9 @@ class TestRealLlmCalls:
         )
         assert response is not None
         content_lower = response.content.lower()
-        assert "python" in content_lower, \
-            f"LLM should remember 'Python' from context, got: {response.content}"
+        assert (
+            "python" in content_lower
+        ), f"LLM should remember 'Python' from context, got: {response.content}"
         print(f"\n[Multi-turn response]: {response.content}")
 
     @pytest.mark.asyncio
@@ -208,7 +242,9 @@ class TestRealLlmCalls:
         messages = [Message.user("Hello")]
         with pytest.raises(LlmError) as exc_info:
             await invalid_client.chat(messages=messages, max_tokens=50)
-        print(f"\n[Error caught]: {type(exc_info.value).__name__}: {str(exc_info.value)}")
+        print(
+            f"\n[Error caught]: {type(exc_info.value).__name__}: {str(exc_info.value)}"
+        )
 
 
 @requires_api
@@ -220,6 +256,7 @@ class TestRealAgentPlanning:
         """创建智能 Agent"""
         load_env()
         from continuum_sdk.agent import AgentMode, IntelligentAgent
+
         return IntelligentAgent(
             api_key=get_api_key(),
             base_url=get_base_url(),
@@ -302,7 +339,9 @@ class TestRealToolExecution:
 
         from continuum_sdk.tools import ReadTool
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".txt", delete=False, encoding="utf-8"
+        ) as f:
             f.write("test content for real read")
             filepath = f.name
 
@@ -314,6 +353,7 @@ class TestRealToolExecution:
             print(f"\n[Read]: {result.content[:50]}...")
         finally:
             import time
+
             time.sleep(0.1)
             os.unlink(filepath)
 
@@ -328,8 +368,9 @@ class TestRealToolExecution:
         bash = BashTool()
         result = await bash.run_async("echo 'agent_bash_test'")
         assert result.is_error is False, f"Bash execution failed: {result.content}"
-        assert "agent_bash_test" in result.content, \
-            f"Output should contain 'agent_bash_test', got: {result.content}"
+        assert (
+            "agent_bash_test" in result.content
+        ), f"Output should contain 'agent_bash_test', got: {result.content}"
         print(f"\n[Bash result]: {result.content}")
 
         # 验证 Agent 可以规划 bash 相关任务
@@ -361,14 +402,17 @@ class TestRealToolExecution:
             # 测试写入
             writer = WriteTool(backup=False)
             write_result = writer.write(test_file, "Agent file ops test content")
-            assert write_result.is_error is False, f"Write failed: {write_result.content}"
+            assert (
+                write_result.is_error is False
+            ), f"Write failed: {write_result.content}"
 
             # 测试读取
             reader = ReadTool()
             read_result = reader.read(test_file)
             assert read_result.is_error is False, f"Read failed: {read_result.content}"
-            assert "Agent file ops test content" in read_result.content, \
-                f"Read content mismatch, got: {read_result.content}"
+            assert (
+                "Agent file ops test content" in read_result.content
+            ), f"Read content mismatch, got: {read_result.content}"
 
         print(f"\n[Write result]: {write_result.content}")
         print(f"[Read result]: {read_result.content[:50]}...")
@@ -389,7 +433,11 @@ class TestRealToolExecution:
     @pytest.mark.asyncio
     async def test_agent_error_recovery(self):
         """测试 Agent 错误恢复 - 验证 SelfCorrection 实际分析错误"""
-        from continuum_sdk.agent.self_correction import ErrorType, RecoveryStrategy, SelfCorrection
+        from continuum_sdk.agent.self_correction import (
+            ErrorType,
+            RecoveryStrategy,
+            SelfCorrection,
+        )
 
         # 直接测试 SelfCorrection 错误分类能力
         correction = SelfCorrection()
@@ -397,26 +445,32 @@ class TestRealToolExecution:
         # 测试 1: ImportError 应分类为 IMPORT 类型
         import_err = ImportError("No module named 'nonexistent_module'")
         ctx = correction.analyze_error(import_err)
-        assert ctx.error_type == ErrorType.IMPORT, \
-            f"ImportError should classify as IMPORT, got {ctx.error_type}"
+        assert (
+            ctx.error_type == ErrorType.IMPORT
+        ), f"ImportError should classify as IMPORT, got {ctx.error_type}"
         proposal = correction.propose_correction(ctx)
-        assert proposal.strategy in (RecoveryStrategy.RETRY_MODIFIED, RecoveryStrategy.RETRY), \
-            f"Import error should propose RETRY/RETRY_MODIFIED, got {proposal.strategy}"
+        assert proposal.strategy in (
+            RecoveryStrategy.RETRY_MODIFIED,
+            RecoveryStrategy.RETRY,
+        ), f"Import error should propose RETRY/RETRY_MODIFIED, got {proposal.strategy}"
         print(f"\n[Import error]: {ctx.error_type} → {proposal.strategy}")
 
         # 测试 2: FileNotFoundError 应分类为 NOT_FOUND 类型
         not_found_err = FileNotFoundError("config.yaml not found")
         ctx2 = correction.analyze_error(not_found_err)
-        assert ctx2.error_type == ErrorType.NOT_FOUND, \
-            f"FileNotFoundError should classify as NOT_FOUND, got {ctx2.error_type}"
+        assert (
+            ctx2.error_type == ErrorType.NOT_FOUND
+        ), f"FileNotFoundError should classify as NOT_FOUND, got {ctx2.error_type}"
         print(f"[FileNotFound error]: {ctx2.error_type}")
 
         # 测试 3: 连接错误应提出重试策略
         conn_err = ConnectionError("Connection refused")
         ctx3 = correction.analyze_error(conn_err)
         proposal3 = correction.propose_correction(ctx3)
-        assert proposal3.strategy in (RecoveryStrategy.RETRY, RecoveryStrategy.RETRY_MODIFIED), \
-            f"Connection error should propose RETRY, got {proposal3.strategy}"
+        assert proposal3.strategy in (
+            RecoveryStrategy.RETRY,
+            RecoveryStrategy.RETRY_MODIFIED,
+        ), f"Connection error should propose RETRY, got {proposal3.strategy}"
         print(f"[Connection error]: {ctx3.error_type} → {proposal3.strategy}")
 
 

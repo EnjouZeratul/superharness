@@ -88,9 +88,11 @@ from typing import Any
 # Import Rust binding
 try:
     from sh_python import ToolExecutor as RustToolExecutor
+
     HAS_RUST_BINDING = True
 except ImportError:
     HAS_RUST_BINDING = False
+
     # Define placeholder for type annotation
     class RustToolExecutor:
         pass
@@ -98,6 +100,7 @@ except ImportError:
 
 class ToolCategory(Enum):
     """Tool categories."""
+
     FILE_OPS = "file_ops"
     SEARCH = "search"
     SHELL = "shell"
@@ -112,6 +115,7 @@ class ToolCategory(Enum):
 @dataclass
 class ToolMeta:
     """Tool metadata."""
+
     name: str
     description: str
     category: ToolCategory
@@ -127,6 +131,7 @@ class ToolMeta:
 @dataclass
 class ToolResult:
     """Tool execution result."""
+
     call_id: str
     name: str
     content: str
@@ -167,8 +172,13 @@ class BuiltinTools:
         else:
             # Fallback without Rust binding
             builtin_tool_names = [
-                "read_file", "write_file", "edit_file", "list_directory",
-                "grep", "glob", "bash",
+                "read_file",
+                "write_file",
+                "edit_file",
+                "list_directory",
+                "grep",
+                "glob",
+                "bash",
             ]
             for name in builtin_tool_names:
                 self._tools_cache[name] = ToolMeta(
@@ -179,7 +189,9 @@ class BuiltinTools:
 
     def _guess_category(self, name: str) -> ToolCategory:
         """Guess category from tool name."""
-        if any(x in name for x in ["file", "directory", "read", "write", "edit", "list"]):
+        if any(
+            x in name for x in ["file", "directory", "read", "write", "edit", "list"]
+        ):
             return ToolCategory.FILE_OPS
         if any(x in name for x in ["grep", "glob", "search", "find"]):
             return ToolCategory.SEARCH
@@ -204,10 +216,7 @@ class BuiltinTools:
     # ==================== File Operations ====================
 
     def read_file(
-        self,
-        path: str,
-        offset: int | None = None,
-        limit: int | None = None
+        self, path: str, offset: int | None = None, limit: int | None = None
     ) -> str:
         """Read file contents.
 
@@ -269,10 +278,7 @@ class BuiltinTools:
     # ==================== Search ====================
 
     def grep(
-        self,
-        pattern: str,
-        path: str | None = None,
-        glob: str | None = None
+        self, pattern: str, path: str | None = None, glob: str | None = None
     ) -> str:
         """Search file contents.
 
@@ -306,7 +312,7 @@ class BuiltinTools:
         self,
         command: str,
         timeout_ms: int | None = None,
-        working_dir: str | None = None
+        working_dir: str | None = None,
     ) -> str:
         """Execute shell command.
 

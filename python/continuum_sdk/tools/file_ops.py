@@ -31,18 +31,18 @@ def detect_encoding(file_path: Path) -> str:
     """
     # Read first 4KB for encoding detection
     try:
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             raw = f.read(4096)
 
         # Try UTF-8 first
         try:
-            raw.decode('utf-8')
-            return 'utf-8'
+            raw.decode("utf-8")
+            return "utf-8"
         except UnicodeDecodeError:
             pass
 
         # Try common encodings
-        for encoding in ['gbk', 'gb2312', 'gb18030', 'shift-jis', 'euc-kr', 'latin-1']:
+        for encoding in ["gbk", "gb2312", "gb18030", "shift-jis", "euc-kr", "latin-1"]:
             try:
                 raw.decode(encoding)
                 return encoding
@@ -50,9 +50,9 @@ def detect_encoding(file_path: Path) -> str:
                 continue
 
         # Fallback to utf-8 with errors='replace'
-        return 'utf-8'
+        return "utf-8"
     except Exception:
-        return 'utf-8'
+        return "utf-8"
 
 
 def read_file(
@@ -102,7 +102,7 @@ def read_file(
 
     try:
         # Read file
-        with open(file_path, encoding=encoding, errors='replace') as f:
+        with open(file_path, encoding=encoding, errors="replace") as f:
             lines = f.readlines()
 
         # Calculate line range
@@ -122,20 +122,20 @@ def read_file(
             # Format with line numbers like cat -n
             output_lines = []
             for i, line in enumerate(selected_lines, start=(offset or 1)):
-                line = line.rstrip('\n\r')
+                line = line.rstrip("\n\r")
                 output_lines.append(f"{i:6}\t{line}")
-            content = '\n'.join(output_lines)
+            content = "\n".join(output_lines)
         else:
-            content = ''.join(selected_lines).rstrip('\n\r')
+            content = "".join(selected_lines).rstrip("\n\r")
 
         duration_ms = int((time.time() - start_time) * 1000)
 
         # Add metadata
         metadata = {
-            'path': str(file_path),
-            'encoding': encoding,
-            'total_lines': len(lines),
-            'lines_read': len(selected_lines),
+            "path": str(file_path),
+            "encoding": encoding,
+            "total_lines": len(lines),
+            "lines_read": len(selected_lines),
         }
 
         return ToolResult(
@@ -208,7 +208,7 @@ def write_file(
     backup: bool = True,
     append: bool = False,
     create_dirs: bool = True,
-    encoding: str = 'utf-8',
+    encoding: str = "utf-8",
 ) -> ToolResult:
     """
     Write content to file.
@@ -242,22 +242,22 @@ def write_file(
     # Create backup if needed
     backup_path = None
     if backup and file_exists and not append:
-        backup_path = file_path.with_suffix(file_path.suffix + '.bak')
+        backup_path = file_path.with_suffix(file_path.suffix + ".bak")
         shutil.copy2(file_path, backup_path)
 
     try:
-        mode = 'a' if append else 'w'
-        with open(file_path, mode, encoding=encoding, errors='replace') as f:
+        mode = "a" if append else "w"
+        with open(file_path, mode, encoding=encoding, errors="replace") as f:
             f.write(content)
-            if not content.endswith('\n'):
-                f.write('\n')
+            if not content.endswith("\n"):
+                f.write("\n")
 
         duration_ms = int((time.time() - start_time) * 1000)
 
         metadata = {
-            'path': str(file_path),
-            'bytes_written': len(content.encode(encoding)),
-            'backup': str(backup_path) if backup_path else None,
+            "path": str(file_path),
+            "bytes_written": len(content.encode(encoding)),
+            "backup": str(backup_path) if backup_path else None,
         }
 
         return ToolResult(
@@ -369,7 +369,7 @@ def edit_file(
     # Read file
     encoding = detect_encoding(file_path)
     try:
-        with open(file_path, encoding=encoding, errors='replace') as f:
+        with open(file_path, encoding=encoding, errors="replace") as f:
             content = f.read()
     except Exception as e:
         raise ToolError(
@@ -391,7 +391,7 @@ def edit_file(
 
     # Create backup if needed
     if backup:
-        backup_path = file_path.with_suffix(file_path.suffix + '.bak')
+        backup_path = file_path.with_suffix(file_path.suffix + ".bak")
         shutil.copy2(file_path, backup_path)
 
     # Perform replacement
@@ -404,7 +404,7 @@ def edit_file(
 
     # Write back
     try:
-        with open(file_path, 'w', encoding=encoding) as f:
+        with open(file_path, "w", encoding=encoding) as f:
             f.write(new_content)
     except Exception as e:
         # Restore from backup
@@ -419,18 +419,20 @@ def edit_file(
     duration_ms = int((time.time() - start_time) * 1000)
 
     # Generate diff for metadata
-    diff = list(difflib.unified_diff(
-        content.splitlines(keepends=True),
-        new_content.splitlines(keepends=True),
-        fromfile=str(file_path),
-        tofile=str(file_path),
-    ))
+    diff = list(
+        difflib.unified_diff(
+            content.splitlines(keepends=True),
+            new_content.splitlines(keepends=True),
+            fromfile=str(file_path),
+            tofile=str(file_path),
+        )
+    )
 
     metadata = {
-        'path': str(file_path),
-        'replacements': replacements,
-        'total_occurrences': count,
-        'diff': ''.join(diff),
+        "path": str(file_path),
+        "replacements": replacements,
+        "total_occurrences": count,
+        "diff": "".join(diff),
     }
 
     return ToolResult(

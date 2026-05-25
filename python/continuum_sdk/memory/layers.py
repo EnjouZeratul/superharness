@@ -15,15 +15,17 @@ from typing import Any
 
 class MemoryTier(Enum):
     """记忆层级"""
-    WORKING = "working"      # 当前对话上下文
-    SESSION = "session"     # 会话记忆
-    PROJECT = "project"     # 项目知识库
-    LONG_TERM = "long_term" # 跨项目知识
+
+    WORKING = "working"  # 当前对话上下文
+    SESSION = "session"  # 会话记忆
+    PROJECT = "project"  # 项目知识库
+    LONG_TERM = "long_term"  # 跨项目知识
 
 
 @dataclass
 class MemoryEntry:
     """记忆条目"""
+
     id: str
     tier: MemoryTier
     content: str
@@ -42,6 +44,7 @@ class MemoryEntry:
 @dataclass
 class MemoryQuery:
     """记忆查询"""
+
     query: str
     tier: MemoryTier | None = None
     limit: int = 10
@@ -57,13 +60,20 @@ class TierProxy:
         memory.working().clear()
     """
 
-    def __init__(self, memory: 'Memory', tier: MemoryTier):
+    def __init__(self, memory: "Memory", tier: MemoryTier):
         self._memory = memory
         self._tier = tier
 
-    def add(self, content: str, metadata: dict[str, Any] | None = None, importance: float = 0.5) -> str:
+    def add(
+        self,
+        content: str,
+        metadata: dict[str, Any] | None = None,
+        importance: float = 0.5,
+    ) -> str:
         """添加记忆"""
-        return self._memory.remember(content, tier=self._tier, metadata=metadata, importance=importance)
+        return self._memory.remember(
+            content, tier=self._tier, metadata=metadata, importance=importance
+        )
 
     def search(self, query: str, limit: int = 10) -> list[MemoryEntry]:
         """搜索记忆"""
@@ -145,7 +155,7 @@ class Memory:
         content: str,
         tier: MemoryTier = MemoryTier.WORKING,
         metadata: dict[str, Any] | None = None,
-        importance: float = 0.5
+        importance: float = 0.5,
     ) -> str:
         """存储记忆
 
@@ -177,10 +187,7 @@ class Memory:
         return entry.id
 
     def recall(
-        self,
-        query: str,
-        tier: MemoryTier | None = None,
-        limit: int = 10
+        self, query: str, tier: MemoryTier | None = None, limit: int = 10
     ) -> list[MemoryEntry]:
         """查询记忆
 
@@ -195,12 +202,16 @@ class Memory:
         results = []
 
         # 搜索顺序：Working -> Session -> Project -> LongTerm
-        tiers = [tier] if tier else [
-            MemoryTier.WORKING,
-            MemoryTier.SESSION,
-            MemoryTier.PROJECT,
-            MemoryTier.LONG_TERM,
-        ]
+        tiers = (
+            [tier]
+            if tier
+            else [
+                MemoryTier.WORKING,
+                MemoryTier.SESSION,
+                MemoryTier.PROJECT,
+                MemoryTier.LONG_TERM,
+            ]
+        )
 
         for t in tiers:
             storage = self._storage.get(t, [])
@@ -267,10 +278,7 @@ class Memory:
         Returns:
             各层级记忆数量
         """
-        return {
-            tier: len(storage)
-            for tier, storage in self._storage.items()
-        }
+        return {tier: len(storage) for tier, storage in self._storage.items()}
 
     # ==================== 便捷方法 ====================
 
@@ -300,6 +308,6 @@ class Memory:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'Memory':
+    def from_dict(cls, data: dict[str, Any]) -> "Memory":
         """从字典创建"""
         return cls(session_id=data.get("session_id", ""))

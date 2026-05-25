@@ -21,7 +21,7 @@ def _load_env_file(filepath: Path):
     """从 env 文件加载配置（不覆盖已存在的环境变量）"""
     if not filepath.exists():
         return
-    with open(filepath, encoding='utf-8') as f:
+    with open(filepath, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#"):

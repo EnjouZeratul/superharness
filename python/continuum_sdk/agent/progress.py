@@ -73,6 +73,7 @@ from typing import Any
 
 class ProgressState(Enum):
     """Progress state."""
+
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
@@ -83,6 +84,7 @@ class ProgressState(Enum):
 @dataclass
 class ProgressEvent:
     """Progress event data."""
+
     step_id: str
     step_description: str
     status: str
@@ -131,14 +133,16 @@ class ProgressTracker:
         self.end_time = None
         self.events = []
 
-        self._notify(ProgressEvent(
-            step_id="",
-            step_description="Started",
-            status="started",
-            progress_percent=0,
-            elapsed_time=0,
-            estimated_remaining=None,
-        ))
+        self._notify(
+            ProgressEvent(
+                step_id="",
+                step_description="Started",
+                status="started",
+                progress_percent=0,
+                elapsed_time=0,
+                estimated_remaining=None,
+            )
+        )
 
     def update_step(
         self,
@@ -159,8 +163,15 @@ class ProgressTracker:
             self.skipped_steps += 1
 
         # Check if done
-        if self.completed_steps + self.failed_steps + self.skipped_steps >= self.total_steps:
-            self.state = ProgressState.COMPLETED if self.failed_steps == 0 else ProgressState.FAILED
+        if (
+            self.completed_steps + self.failed_steps + self.skipped_steps
+            >= self.total_steps
+        ):
+            self.state = (
+                ProgressState.COMPLETED
+                if self.failed_steps == 0
+                else ProgressState.FAILED
+            )
             self.end_time = datetime.now()
 
         # Calculate progress

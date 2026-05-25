@@ -513,14 +513,12 @@ class GeminiClient(BaseLlmClient):
         }
 
         if system_prompt:
-            body["systemInstruction"] = {
-                "parts": [{"text": system_prompt}]
-            }
+            body["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
         if tools:
-            body["tools"] = [{
-                "functionDeclarations": [t.to_gemini_format() for t in tools]
-            }]
+            body["tools"] = [
+                {"functionDeclarations": [t.to_gemini_format() for t in tools]}
+            ]
 
         body.update(kwargs)
 
@@ -568,9 +566,7 @@ class GeminiClient(BaseLlmClient):
         }
 
         if system_prompt:
-            body["systemInstruction"] = {
-                "parts": [{"text": system_prompt}]
-            }
+            body["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
         body.update(kwargs)
 

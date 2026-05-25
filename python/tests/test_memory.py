@@ -27,9 +27,7 @@ class TestMemoryEntry:
     def test_entry_creation(self):
         """测试条目创建"""
         entry = MemoryEntry(
-            id="test-123",
-            tier=MemoryTier.WORKING,
-            content="Test content"
+            id="test-123", tier=MemoryTier.WORKING, content="Test content"
         )
         assert entry.id == "test-123"
         assert entry.tier == MemoryTier.WORKING
@@ -38,11 +36,7 @@ class TestMemoryEntry:
 
     def test_entry_touch(self):
         """测试访问更新"""
-        entry = MemoryEntry(
-            id="test",
-            tier=MemoryTier.WORKING,
-            content="content"
-        )
+        entry = MemoryEntry(id="test", tier=MemoryTier.WORKING, content="content")
         initial_count = entry.access_count
         entry.touch()
         assert entry.access_count == initial_count + 1
@@ -54,7 +48,7 @@ class TestMemoryEntry:
             tier=MemoryTier.PROJECT,
             content="Content",
             metadata={"key": "value"},
-            importance=0.9
+            importance=0.9,
         )
         assert entry.metadata == {"key": "value"}
         assert entry.importance == 0.9

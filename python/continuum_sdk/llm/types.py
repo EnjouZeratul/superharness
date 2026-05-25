@@ -11,6 +11,7 @@ from typing import Any
 
 class MessageRole(Enum):
     """Message role in conversation."""
+
     USER = "user"
     ASSISTANT = "assistant"
     SYSTEM = "system"
@@ -28,6 +29,7 @@ class Message:
         name: Optional name for tool messages
         tool_call_id: Optional tool call ID for tool responses
     """
+
     role: MessageRole
     content: str
     name: str | None = None
@@ -77,6 +79,7 @@ class Message:
 @dataclass
 class TokenUsage:
     """Token usage statistics."""
+
     input_tokens: int = 0
     output_tokens: int = 0
     total_tokens: int = 0
@@ -99,6 +102,7 @@ class ChatResponse:
         response_id: Unique response identifier
         tool_calls: List of tool calls if any
     """
+
     content: str
     model: str
     usage: TokenUsage
@@ -159,7 +163,9 @@ class ChatResponse:
             model=model,
             usage=TokenUsage(
                 input_tokens=data.get("usageMetadata", {}).get("promptTokenCount", 0),
-                output_tokens=data.get("usageMetadata", {}).get("candidatesTokenCount", 0),
+                output_tokens=data.get("usageMetadata", {}).get(
+                    "candidatesTokenCount", 0
+                ),
                 total_tokens=data.get("usageMetadata", {}).get("totalTokenCount", 0),
             ),
             finish_reason=candidate.get("finishReason", "STOP"),
@@ -176,6 +182,7 @@ class StreamChunk:
         finish_reason: Why the stream ended (if it ended)
         tool_calls: Tool call deltas if any
     """
+
     content: str = ""
     finish_reason: str | None = None
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
@@ -191,6 +198,7 @@ class ToolDefinition:
         description: Tool description
         parameters: JSON Schema for parameters
     """
+
     name: str
     description: str
     parameters: dict[str, Any]

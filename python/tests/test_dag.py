@@ -34,6 +34,7 @@ class TestNode:
 
     def test_node_with_func(self):
         """Test creating a node with a function."""
+
         def my_func():
             return 42
 
@@ -288,6 +289,7 @@ class TestDAGExecution:
     @pytest.mark.asyncio
     async def test_execute_node_failure(self):
         """Test handling node failure."""
+
         def failing_func():
             raise ValueError("oops")
 
@@ -301,7 +303,7 @@ class TestDAGExecution:
     async def test_dependency_failure_skips_dependent(self):
         """Test that dependent nodes are skipped when dependency fails."""
         dag = DAG("test")
-        dag.add(Node("a", func=lambda: 1/0))  # Fails
+        dag.add(Node("a", func=lambda: 1 / 0))  # Fails
         dag.add(Node("b", func=lambda: 42).depends_on("a"))
         result = await dag.execute()
         assert result.get_result("a").status == NodeStatus.FAILED
@@ -319,6 +321,7 @@ class TestDAGExecution:
     @pytest.mark.asyncio
     async def test_async_node_func(self):
         """Test executing async node function."""
+
         async def async_func():
             await asyncio.sleep(0.01)
             return "async_result"
@@ -393,10 +396,7 @@ class TestNodeResult:
     def test_node_result_creation(self):
         """Test creating a NodeResult."""
         result = NodeResult(
-            node_id="a",
-            status=NodeStatus.SUCCESS,
-            output=42,
-            duration_ms=100
+            node_id="a", status=NodeStatus.SUCCESS, output=42, duration_ms=100
         )
         assert result.node_id == "a"
         assert result.status == NodeStatus.SUCCESS

@@ -33,6 +33,7 @@ from ..llm import BaseLlmClient, Message
 
 class CompletionMarker(Enum):
     """Task completion markers."""
+
     TASK_COMPLETED = "TASK_COMPLETED"
     USER_INTERRUPTED = "USER_INTERRUPTED"
     IN_PROGRESS = "IN_PROGRESS"
@@ -52,6 +53,7 @@ class CompletionStatus:
         suggestions: Optional suggestions for next steps
         timestamp: When the check was performed
     """
+
     marker: CompletionMarker
     is_completed: bool
     confidence: float = 0.0
@@ -97,6 +99,7 @@ class TaskRecord:
         attempts: Number of execution attempts
         result: Final result (if completed)
     """
+
     task_id: str
     description: str
     status: CompletionStatus
@@ -191,7 +194,9 @@ Respond in this exact JSON format:
         """
         self._llm = llm_client
         self.confidence_threshold = confidence_threshold
-        self._persistence_path = persistence_path or Path.home() / ".continuum" / "tasks"
+        self._persistence_path = (
+            persistence_path or Path.home() / ".continuum" / "tasks"
+        )
         self._tasks: dict[str, TaskRecord] = {}
 
         self._ensure_persistence_dir()
@@ -259,7 +264,7 @@ Respond in this exact JSON format:
         """Parse LLM JSON response."""
         import re
 
-        json_match = re.search(r'\{[^}]+\}', content, re.DOTALL)
+        json_match = re.search(r"\{[^}]+\}", content, re.DOTALL)
         if not json_match:
             return CompletionStatus(
                 marker=CompletionMarker.IN_PROGRESS,
@@ -304,13 +309,24 @@ Respond in this exact JSON format:
     def _rule_based_check(self, task: str, result: str) -> CompletionStatus:
         """Rule-based completion check when LLM is unavailable."""
         completion_indicators = [
-            "done", "completed", "finished", "success",
-            "fixed", "added", "removed", "updated", "created"
+            "done",
+            "completed",
+            "finished",
+            "success",
+            "fixed",
+            "added",
+            "removed",
+            "updated",
+            "created",
         ]
 
         error_indicators = [
-            "error", "failed", "exception", "unable to",
-            "could not", "did not"
+            "error",
+            "failed",
+            "exception",
+            "unable to",
+            "could not",
+            "did not",
         ]
 
         result_lower = result.lower()
@@ -397,7 +413,8 @@ Respond in this exact JSON format:
             List of TaskRecord objects
         """
         return [
-            record for record in self._tasks.values()
+            record
+            for record in self._tasks.values()
             if record.status.marker == CompletionMarker.IN_PROGRESS
         ]
 
@@ -408,7 +425,8 @@ Respond in this exact JSON format:
             Number of tasks cleared
         """
         to_remove = [
-            task_id for task_id, record in self._tasks.items()
+            task_id
+            for task_id, record in self._tasks.items()
             if record.status.is_completed
         ]
         for task_id in to_remove:
@@ -418,6 +436,7 @@ Respond in this exact JSON format:
     def _generate_task_id(self, task: str) -> str:
         """Generate a unique task ID."""
         import hashlib
+
         timestamp = datetime.now().isoformat()
         hash_input = f"{task}:{timestamp}".encode()
         return hashlib.md5(hash_input).hexdigest()[:12]

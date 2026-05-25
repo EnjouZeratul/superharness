@@ -9,6 +9,7 @@ from continuum_sdk.workflow import DAG, Node
 
 # ==================== 定义节点函数 ====================
 
+
 async def fetch_data():
     """获取数据"""
     print("   [fetch_data] 正在获取数据...")
@@ -45,10 +46,11 @@ def merge_results(process_batch_1, process_batch_2, validate_data):
     """合并结果"""
     print("   [merge_results] 合并中...")
     return {
-        "total_processed": len(process_batch_1["processed"]) + len(process_batch_2["processed"]),
+        "total_processed": len(process_batch_1["processed"])
+        + len(process_batch_2["processed"]),
         "batch_1": process_batch_1,
         "batch_2": process_batch_2,
-        "validation": validate_data
+        "validation": validate_data,
     }
 
 
@@ -72,6 +74,7 @@ def notify_failure(**kwargs):
 
 
 # ==================== 构建 DAG ====================
+
 
 def create_data_pipeline():
     """创建数据处理工作流"""
@@ -99,6 +102,7 @@ def create_data_pipeline():
 
 
 # ==================== 运行示例 ====================
+
 
 async def main():
     print("=== 工作流 DAG 示例 ===\n")

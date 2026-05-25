@@ -36,6 +36,7 @@ from continuum_sdk.agent import (
 
 # ==================== Planner Tests ====================
 
+
 class TestPlanner:
     """Planner tests"""
 
@@ -135,6 +136,7 @@ class TestStep:
 
 # ==================== Self-Correction Tests ====================
 
+
 class TestSelfCorrection:
     """SelfCorrection tests"""
 
@@ -172,7 +174,10 @@ class TestSelfCorrection:
         error = ConnectionError("Connection refused")
         error_ctx = correction.analyze_error(error)
         proposal = correction.propose_correction(error_ctx)
-        assert proposal.strategy in (RecoveryStrategy.RETRY, RecoveryStrategy.RETRY_MODIFIED)
+        assert proposal.strategy in (
+            RecoveryStrategy.RETRY,
+            RecoveryStrategy.RETRY_MODIFIED,
+        )
 
     def test_propose_correction_ask_user_after_retries(self):
         """Test asking user after too many retries"""
@@ -190,7 +195,10 @@ class TestSelfCorrection:
         error_ctx = correction.analyze_error(error)
         proposal = correction.propose_correction(error_ctx)
         assert proposal.strategy == RecoveryStrategy.RETRY_MODIFIED
-        assert "requests" in proposal.modified_action or "install" in proposal.description.lower()
+        assert (
+            "requests" in proposal.modified_action
+            or "install" in proposal.description.lower()
+        )
 
     def test_error_history(self):
         """Test error history tracking"""
@@ -239,6 +247,7 @@ class TestErrorContext:
 
 
 # ==================== Progress Tracker Tests ====================
+
 
 class TestProgressTracker:
     """ProgressTracker tests"""
@@ -340,6 +349,7 @@ class TestStepLogger:
 
 # ==================== Intelligent Agent Tests ====================
 
+
 class TestIntelligentAgent:
     """IntelligentAgent tests"""
 
@@ -421,6 +431,7 @@ class TestIntelligentAgent:
 
 # ==================== Planner Advanced Tests ====================
 
+
 class TestPlannerTaskDetection:
     """Test task type detection and pattern matching."""
 
@@ -494,7 +505,7 @@ class TestPlannerStepTemplates:
         planner = Planner()
         plan = asyncio.run(planner.plan("fix bug"))
         for i in range(1, len(plan.steps)):
-            assert plan.steps[i-1].id in plan.steps[i].dependencies
+            assert plan.steps[i - 1].id in plan.steps[i].dependencies
 
     def test_step_descriptions_not_empty(self):
         """Test that all step descriptions are non-empty."""
@@ -550,10 +561,10 @@ class TestPlannerLLMBased:
         """Test that LLM planning produces steps when available."""
         mock_client = AsyncMock()
         mock_response = Mock()
-        mock_response.content = '''[
+        mock_response.content = """[
             {"id": "s1", "type": "search", "description": "Find code", "action": "search", "dependencies": []},
             {"id": "s2", "type": "edit", "description": "Fix it", "action": "edit", "dependencies": ["s1"]}
-        ]'''
+        ]"""
         mock_client.chat = AsyncMock(return_value=mock_response)
 
         planner = Planner(llm_client=mock_client)
@@ -591,7 +602,12 @@ class TestPlannerLLMBased:
         """Test parsing steps with unknown type defaults to ANALYZE."""
         planner = Planner()
         steps_data = [
-            {"id": "s1", "type": "unknown_type", "description": "Test", "action": "test"},
+            {
+                "id": "s1",
+                "type": "unknown_type",
+                "description": "Test",
+                "action": "test",
+            },
         ]
         steps = planner._parse_steps(steps_data)
         assert steps[0].type == StepType.ANALYZE
@@ -611,13 +627,19 @@ class TestPlannerLLMBased:
 
 # ==================== Plan Tests ====================
 
+
 class TestPlanProgress:
     """Test Plan progress calculation."""
 
     def _make_plan(self, step_count=3):
         """Create a plan with steps."""
         steps = [
-            Step(id=f"s{i+1}", type=StepType.ANALYZE, description=f"Step {i+1}", action=f"action_{i+1}")
+            Step(
+                id=f"s{i+1}",
+                type=StepType.ANALYZE,
+                description=f"Step {i+1}",
+                action=f"action_{i+1}",
+            )
             for i in range(step_count)
         ]
         return Plan(id="test-plan", task="test task", steps=steps)
@@ -670,8 +692,20 @@ class TestPlanProgress:
         """Test that pending steps respect dependency ordering."""
         steps = [
             Step(id="s1", type=StepType.SEARCH, description="Search", action="search"),
-            Step(id="s2", type=StepType.READ, description="Read", action="read", dependencies=["s1"]),
-            Step(id="s3", type=StepType.EDIT, description="Edit", action="edit", dependencies=["s2"]),
+            Step(
+                id="s2",
+                type=StepType.READ,
+                description="Read",
+                action="read",
+                dependencies=["s1"],
+            ),
+            Step(
+                id="s3",
+                type=StepType.EDIT,
+                description="Edit",
+                action="edit",
+                dependencies=["s2"],
+            ),
         ]
         plan = Plan(id="dep-plan", task="test", steps=steps)
 
@@ -690,7 +724,13 @@ class TestPlanProgress:
         """Test that a skipped step satisfies dependencies for later steps."""
         steps = [
             Step(id="s1", type=StepType.SEARCH, description="Search", action="search"),
-            Step(id="s2", type=StepType.READ, description="Read", action="read", dependencies=["s1"]),
+            Step(
+                id="s2",
+                type=StepType.READ,
+                description="Read",
+                action="read",
+                dependencies=["s1"],
+            ),
         ]
         plan = Plan(id="skip-plan", task="test", steps=steps)
 
@@ -708,6 +748,7 @@ class TestPlanProgress:
 
 
 # ==================== Self-Correction Advanced Tests ====================
+
 
 class TestSelfCorrectionClassification:
     """Advanced error classification tests."""
@@ -753,7 +794,9 @@ class TestSelfCorrectionClassification:
         """Test error analysis preserves step context."""
         correction = SelfCorrection()
         error = ImportError("No module named 'foo'")
-        ctx = correction.analyze_error(error, step_id="s3", action="import foo", target="foo.py")
+        ctx = correction.analyze_error(
+            error, step_id="s3", action="import foo", target="foo.py"
+        )
         assert ctx.step_id == "s3"
         assert ctx.action == "import foo"
         assert ctx.target == "foo.py"
@@ -843,8 +886,12 @@ class TestSelfCorrectionLearning:
     def test_error_key_normalizes_numbers(self):
         """Test that error keys normalize numbers for better matching."""
         correction = SelfCorrection()
-        ctx1 = ErrorContext(error_type=ErrorType.RUNTIME, message="Error at line 42 in file.py")
-        ctx2 = ErrorContext(error_type=ErrorType.RUNTIME, message="Error at line 99 in file.py")
+        ctx1 = ErrorContext(
+            error_type=ErrorType.RUNTIME, message="Error at line 42 in file.py"
+        )
+        ctx2 = ErrorContext(
+            error_type=ErrorType.RUNTIME, message="Error at line 99 in file.py"
+        )
         key1 = correction._make_error_key(ctx1)
         key2 = correction._make_error_key(ctx2)
         assert key1 == key2
@@ -861,7 +908,9 @@ class TestSelfCorrectionLLMBased:
         mock_client.chat = AsyncMock(return_value=mock_response)
 
         correction = SelfCorrection(llm_client=mock_client)
-        ctx = ErrorContext(error_type=ErrorType.UNKNOWN, message="Strange error", attempt=1)
+        ctx = ErrorContext(
+            error_type=ErrorType.UNKNOWN, message="Strange error", attempt=1
+        )
         proposal = correction.propose_correction(ctx)
         assert proposal.strategy == RecoveryStrategy.RETRY_MODIFIED
         assert proposal.confidence == 0.9
@@ -879,6 +928,7 @@ class TestSelfCorrectionLLMBased:
 
 
 # ==================== Progress Tracker Advanced Tests ====================
+
 
 class TestProgressTrackerStateTransitions:
     """Test progress tracker state transitions."""
@@ -977,7 +1027,7 @@ class TestProgressTrackerCallbacks:
         """Test that a failing callback doesn't break others."""
         events = []
         tracker = ProgressTracker()
-        tracker.on_progress(lambda e: 1/0)  # Will raise
+        tracker.on_progress(lambda e: 1 / 0)  # Will raise
         tracker.on_progress(lambda e: events.append(e))
         tracker.start(2)
 
@@ -1052,6 +1102,7 @@ class TestProgressTrackerEstimation:
 
 # ==================== IntelligentAgent Execution Tests ====================
 
+
 class TestIntelligentAgentExecute:
     """Test agent plan execution."""
 
@@ -1073,7 +1124,12 @@ class TestIntelligentAgentExecute:
     def _make_simple_plan(self):
         """Create a simple plan for testing."""
         steps = [
-            Step(id="s1", type=StepType.ANALYZE, description="Analyze", action="analyze the bug"),
+            Step(
+                id="s1",
+                type=StepType.ANALYZE,
+                description="Analyze",
+                action="analyze the bug",
+            ),
         ]
         return Plan(id="test-plan", task="test task", steps=steps)
 
@@ -1084,7 +1140,9 @@ class TestIntelligentAgentExecute:
         plan = self._make_simple_plan()
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             result = await agent.execute(plan)
 
         assert result.status in ("completed", "partial")
@@ -1103,7 +1161,9 @@ class TestIntelligentAgentExecute:
         agent = self._make_agent()
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             result = await agent.execute(task="fix bug in auth.py")
 
         assert result is not None
@@ -1118,7 +1178,12 @@ class TestIntelligentAgentExecute:
         plan.steps[0].max_retries = 0
 
         # Make step execution raise
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, side_effect=RuntimeError("Step failed")):
+        with patch.object(
+            agent,
+            "_execute_step",
+            new_callable=AsyncMock,
+            side_effect=RuntimeError("Step failed"),
+        ):
             result = await agent.execute(plan)
 
         assert result is not None
@@ -1148,7 +1213,9 @@ class TestIntelligentAgentExecute:
             completed_steps.append(step.id)
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             await agent.execute(plan, on_step_complete=on_complete)
 
         assert "s1" in completed_steps
@@ -1158,13 +1225,23 @@ class TestIntelligentAgentExecute:
         """Test executing a plan with multiple sequential steps."""
         agent = self._make_agent()
         steps = [
-            Step(id="s1", type=StepType.ANALYZE, description="Analyze", action="analyze"),
-            Step(id="s2", type=StepType.EDIT, description="Edit", action="edit", dependencies=["s1"]),
+            Step(
+                id="s1", type=StepType.ANALYZE, description="Analyze", action="analyze"
+            ),
+            Step(
+                id="s2",
+                type=StepType.EDIT,
+                description="Edit",
+                action="edit",
+                dependencies=["s1"],
+            ),
         ]
         plan = Plan(id="multi", task="multi task", steps=steps)
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             result = await agent.execute(plan)
 
         assert result.total_steps == 2
@@ -1179,7 +1256,9 @@ class TestIntelligentAgentExecute:
             raise RuntimeError("Callback error")
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             # Should not crash
             result = await agent.execute(plan, on_step_start=bad_callback)
         assert result is not None
@@ -1206,7 +1285,13 @@ class TestIntelligentAgentRetryLogic:
         """Test that transient errors trigger retry."""
         agent = self._make_agent()
         steps = [
-            Step(id="s1", type=StepType.ANALYZE, description="Analyze", action="analyze", max_retries=2),
+            Step(
+                id="s1",
+                type=StepType.ANALYZE,
+                description="Analyze",
+                action="analyze",
+                max_retries=2,
+            ),
         ]
         plan = Plan(id="retry-plan", task="retry test", steps=steps)
 
@@ -1226,7 +1311,8 @@ class TestIntelligentAgentRetryLogic:
         def patched_get_pending():
             # Include RETRYING steps as pending
             completed_ids = {
-                s.id for s in plan.steps
+                s.id
+                for s in plan.steps
                 if s.status in (StepStatus.COMPLETED, StepStatus.SKIPPED)
             }
             result = []
@@ -1239,7 +1325,7 @@ class TestIntelligentAgentRetryLogic:
 
         plan.get_pending_steps = patched_get_pending
 
-        with patch.object(agent, '_execute_step', side_effect=flaky_execute):
+        with patch.object(agent, "_execute_step", side_effect=flaky_execute):
             await agent.execute(plan)
 
         assert call_count >= 2  # Failed once, then succeeded
@@ -1249,12 +1335,29 @@ class TestIntelligentAgentRetryLogic:
         """Test that ABORT recovery strategy stops plan execution."""
         agent = self._make_agent()
         steps = [
-            Step(id="s1", type=StepType.ANALYZE, description="Analyze", action="analyze", max_retries=0),
-            Step(id="s2", type=StepType.EDIT, description="Edit", action="edit", dependencies=["s1"]),
+            Step(
+                id="s1",
+                type=StepType.ANALYZE,
+                description="Analyze",
+                action="analyze",
+                max_retries=0,
+            ),
+            Step(
+                id="s2",
+                type=StepType.EDIT,
+                description="Edit",
+                action="edit",
+                dependencies=["s1"],
+            ),
         ]
         plan = Plan(id="abort-plan", task="abort test", steps=steps)
 
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, side_effect=PermissionError("No access")):
+        with patch.object(
+            agent,
+            "_execute_step",
+            new_callable=AsyncMock,
+            side_effect=PermissionError("No access"),
+        ):
             result = await agent.execute(plan)
 
         # Execution should stop (not reach s2)
@@ -1262,6 +1365,7 @@ class TestIntelligentAgentRetryLogic:
 
 
 # ==================== IntelligentAgent Utility Tests ====================
+
 
 class TestIntelligentAgentUtilities:
     """Test agent utility methods."""
@@ -1415,7 +1519,9 @@ class TestIntelligentAgentRun:
         # Don't set correction.llm_client to avoid asyncio.run() issues
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             result = await agent.run("fix bug in auth.py")
 
         assert result is not None
@@ -1423,6 +1529,7 @@ class TestIntelligentAgentRun:
 
 
 # ==================== StepLogger Advanced Tests ====================
+
 
 class TestStepLoggerAdvanced:
     """Advanced StepLogger tests."""
@@ -1470,6 +1577,7 @@ class TestStepLoggerAdvanced:
 
 # ==================== ErrorContext Tests ====================
 
+
 class TestErrorContextAdvanced:
     """Advanced ErrorContext tests."""
 
@@ -1506,6 +1614,7 @@ class TestErrorContextAdvanced:
 
 # ==================== Correction Tests ====================
 
+
 class TestCorrection:
     """Test Correction dataclass."""
 
@@ -1533,6 +1642,7 @@ class TestCorrection:
 
 
 # ==================== ProgressEvent Tests ====================
+
 
 class TestProgressEvent:
     """Test ProgressEvent dataclass."""
@@ -1567,6 +1677,7 @@ class TestProgressEvent:
 
 # ==================== Integration Tests ====================
 
+
 class TestIntelligentAgentIntegration:
     """Integration tests for the full agent workflow."""
 
@@ -1587,7 +1698,9 @@ class TestIntelligentAgentIntegration:
         assert len(plan.steps) > 0
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             result = await agent.execute(plan)
         assert result is not None
         assert result.task == "fix bug in auth.py"
@@ -1610,7 +1723,9 @@ class TestIntelligentAgentIntegration:
         # Don't set correction.llm_client to avoid asyncio.run() issues
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             await agent.run("fix bug")
 
         assert len(events) > 0
@@ -1628,13 +1743,16 @@ class TestIntelligentAgentIntegration:
         # Don't set correction.llm_client to avoid asyncio.run() issues
 
         # Mock _execute_step to avoid real tool execution
-        with patch.object(agent, '_execute_step', new_callable=AsyncMock, return_value="Mock result"):
+        with patch.object(
+            agent, "_execute_step", new_callable=AsyncMock, return_value="Mock result"
+        ):
             result = await agent.run("fix bug")
 
         assert result.duration_seconds >= 0
 
 
 # ==================== IntelligentAgent ExecuteStep Tests ====================
+
 
 class TestIntelligentAgentExecuteStep:
     """Test _execute_step method with different step types."""
@@ -1654,7 +1772,12 @@ class TestIntelligentAgentExecuteStep:
     async def test_execute_step_analyze_type(self):
         """Test executing ANALYZE step type."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.ANALYZE, description="Analyze code", action="analyze this function")
+        step = Step(
+            id="s1",
+            type=StepType.ANALYZE,
+            description="Analyze code",
+            action="analyze this function",
+        )
 
         result = await agent._execute_step(step)
         assert result is not None
@@ -1663,7 +1786,12 @@ class TestIntelligentAgentExecuteStep:
     async def test_execute_step_verify_type(self):
         """Test executing VERIFY step type."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.VERIFY, description="Verify changes", action="verify the fix")
+        step = Step(
+            id="s1",
+            type=StepType.VERIFY,
+            description="Verify changes",
+            action="verify the fix",
+        )
 
         result = await agent._execute_step(step)
         assert result is not None
@@ -1672,7 +1800,12 @@ class TestIntelligentAgentExecuteStep:
     async def test_execute_step_edit_type(self):
         """Test executing EDIT step type."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.EDIT, description="Edit file", action="edit auth.py to fix bug")
+        step = Step(
+            id="s1",
+            type=StepType.EDIT,
+            description="Edit file",
+            action="edit auth.py to fix bug",
+        )
 
         result = await agent._execute_step(step)
         assert result is not None
@@ -1681,7 +1814,12 @@ class TestIntelligentAgentExecuteStep:
     async def test_execute_step_unknown_type(self):
         """Test executing unknown/generic step type."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.CONFIRM, description="Confirm", action="confirm changes")
+        step = Step(
+            id="s1",
+            type=StepType.CONFIRM,
+            description="Confirm",
+            action="confirm changes",
+        )
 
         result = await agent._execute_step(step)
         assert result is not None
@@ -1690,7 +1828,12 @@ class TestIntelligentAgentExecuteStep:
     async def test_llm_analyze_method(self):
         """Test _llm_analyze method directly."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.ANALYZE, description="Analyze", action="analyze the bug")
+        step = Step(
+            id="s1",
+            type=StepType.ANALYZE,
+            description="Analyze",
+            action="analyze the bug",
+        )
 
         result = await agent._llm_analyze(step)
         assert result == "Mock LLM result"
@@ -1699,7 +1842,9 @@ class TestIntelligentAgentExecuteStep:
     async def test_llm_edit_method(self):
         """Test _llm_edit method directly."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.EDIT, description="Edit", action="edit the file")
+        step = Step(
+            id="s1", type=StepType.EDIT, description="Edit", action="edit the file"
+        )
 
         result = await agent._llm_edit(step)
         assert result == "Mock LLM result"
@@ -1708,7 +1853,9 @@ class TestIntelligentAgentExecuteStep:
     async def test_llm_verify_method(self):
         """Test _llm_verify method directly."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.VERIFY, description="Verify", action="verify the fix")
+        step = Step(
+            id="s1", type=StepType.VERIFY, description="Verify", action="verify the fix"
+        )
 
         result = await agent._llm_verify(step)
         assert result == "Mock LLM result"
@@ -1717,7 +1864,9 @@ class TestIntelligentAgentExecuteStep:
     async def test_llm_execute_method(self):
         """Test _llm_execute method directly."""
         agent = self._make_agent()
-        step = Step(id="s1", type=StepType.ANALYZE, description="Generic", action="do something")
+        step = Step(
+            id="s1", type=StepType.ANALYZE, description="Generic", action="do something"
+        )
 
         result = await agent._llm_execute(step)
         assert result == "Mock LLM result"

@@ -28,6 +28,7 @@ except ImportError:
 
 class Provider(Enum):
     """LLM 提供商"""
+
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     GOOGLE = "google"
@@ -38,6 +39,7 @@ class Provider(Enum):
 @dataclass
 class ProviderConfig:
     """提供商配置"""
+
     name: str
     api_key: str | None = None
     base_url: str | None = None
@@ -262,14 +264,20 @@ class Config:
             "MODEL": "model",
             "SMALL_MODEL": "small_model",
             "EFFORT_LEVEL": "effort_level",
-            "DISABLE_TRAFFIC": ("disable_traffic", lambda x: x.lower() in ("1", "true", "yes")),
+            "DISABLE_TRAFFIC": (
+                "disable_traffic",
+                lambda x: x.lower() in ("1", "true", "yes"),
+            ),
             "BUDGET": ("budget", float),
             "MAX_TOKENS": ("max_tokens", int),
             "TEMPERATURE": ("temperature", float),
             "WORKTREES_DIR": "worktrees_dir",
             "PLUGINS_DIR": "plugins_dir",
             "LOG_LEVEL": "log_level",
-            "AUDIT_ENABLED": ("audit_enabled", lambda x: x.lower() in ("1", "true", "yes")),
+            "AUDIT_ENABLED": (
+                "audit_enabled",
+                lambda x: x.lower() in ("1", "true", "yes"),
+            ),
             "AUDIT_RETENTION": ("audit_retention_days", int),
         }
 
@@ -392,9 +400,14 @@ class Config:
 
         return self
 
-    def add_provider(self, name: str, api_key: str | None = None,
-                     base_url: str | None = None, model: str | None = None,
-                     small_model: str | None = None) -> None:
+    def add_provider(
+        self,
+        name: str,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        model: str | None = None,
+        small_model: str | None = None,
+    ) -> None:
         """
         添加提供商配置
 
@@ -449,7 +462,9 @@ class Config:
         try:
             if suffix == ".toml":
                 if tomllib is None:
-                    print("Warning: TOML support requires Python 3.11+ or tomli package")
+                    print(
+                        "Warning: TOML support requires Python 3.11+ or tomli package"
+                    )
                     return {}
                 with open(path, "rb") as f:
                     return tomllib.load(f)
@@ -476,13 +491,15 @@ class Config:
 
         支持 ${VAR_NAME} 和 $VAR_NAME 格式
         """
-        pattern = re.compile(r'\$\{([^}]+)\}|\$([A-Za-z_][A-Za-z0-9_]*)')
+        pattern = re.compile(r"\$\{([^}]+)\}|\$([A-Za-z_][A-Za-z0-9_]*)")
 
         def expand_value(value: Any) -> Any:
             if isinstance(value, str):
+
                 def replacer(match):
                     var_name = match.group(1) or match.group(2)
                     return os.environ.get(var_name, match.group(0))
+
                 return pattern.sub(replacer, value)
             elif isinstance(value, dict):
                 return {k: expand_value(v) for k, v in value.items()}

@@ -5,7 +5,6 @@ Error types for LLM client operations.
 """
 
 
-
 class LlmError(Exception):
     """
     Base error for LLM operations.
@@ -32,6 +31,7 @@ class AuthenticationError(LlmError):
         - Expired API key
         - Wrong API key for provider
     """
+
     pass
 
 
@@ -62,6 +62,7 @@ class NetworkError(LlmError):
         - Connection refused
         - SSL/TLS errors
     """
+
     pass
 
 
@@ -126,6 +127,7 @@ class ModelNotFoundError(LlmError):
     """
     Raised when specified model is not available.
     """
+
     pass
 
 
@@ -133,6 +135,7 @@ class InsufficientQuotaError(LlmError):
     """
     Raised when account quota is exceeded.
     """
+
     pass
 
 

@@ -96,7 +96,7 @@ def tool(
     description: str,
     parameters: dict[str, Any] | None = None,
     requires_confirmation: bool = False,
-    is_dangerous: bool = False
+    is_dangerous: bool = False,
 ) -> Callable:
     """工具装饰器
 
@@ -118,6 +118,7 @@ def tool(
         async def greet(name: str, greeting: str = "Hello") -> str:
             return f"{greeting}, {name}!"
     """
+
     def decorator(func: Callable) -> CustomTool:
         # 自动推断参数 Schema
         inferred_params = parameters
@@ -129,7 +130,7 @@ def tool(
             required = []
 
             for param_name, param in sig.parameters.items():
-                if param_name == 'self':
+                if param_name == "self":
                     continue
 
                 param_type = hints.get(param_name, str)

@@ -93,28 +93,30 @@ if TYPE_CHECKING:
 
 class ErrorType(Enum):
     """Error classification."""
-    SYNTAX = "syntax"           # Syntax errors in code
-    RUNTIME = "runtime"         # Runtime errors
-    IMPORT = "import"           # Import/module errors
-    TYPE = "type"               # Type errors
-    VALUE = "value"             # Value errors
-    PERMISSION = "permission"   # Permission errors
-    NOT_FOUND = "not_found"     # File/command not found
-    TIMEOUT = "timeout"         # Timeout errors
-    NETWORK = "network"         # Network errors
-    TEST_FAILURE = "test"       # Test failures
-    LINT = "lint"               # Linting errors
-    UNKNOWN = "unknown"         # Unknown errors
+
+    SYNTAX = "syntax"  # Syntax errors in code
+    RUNTIME = "runtime"  # Runtime errors
+    IMPORT = "import"  # Import/module errors
+    TYPE = "type"  # Type errors
+    VALUE = "value"  # Value errors
+    PERMISSION = "permission"  # Permission errors
+    NOT_FOUND = "not_found"  # File/command not found
+    TIMEOUT = "timeout"  # Timeout errors
+    NETWORK = "network"  # Network errors
+    TEST_FAILURE = "test"  # Test failures
+    LINT = "lint"  # Linting errors
+    UNKNOWN = "unknown"  # Unknown errors
 
 
 class RecoveryStrategy(Enum):
     """Recovery strategy types."""
-    RETRY = "retry"                     # Simple retry
-    RETRY_MODIFIED = "retry_modified"   # Retry with modifications
-    SKIP = "skip"                       # Skip and continue
-    ALTERNATIVE = "alternative"         # Use alternative approach
-    ASK_USER = "ask_user"               # Ask user for help
-    ABORT = "abort"                     # Abort execution
+
+    RETRY = "retry"  # Simple retry
+    RETRY_MODIFIED = "retry_modified"  # Retry with modifications
+    SKIP = "skip"  # Skip and continue
+    ALTERNATIVE = "alternative"  # Use alternative approach
+    ASK_USER = "ask_user"  # Ask user for help
+    ABORT = "abort"  # Abort execution
 
 
 @dataclass
@@ -133,6 +135,7 @@ class ErrorContext:
         timestamp: When error occurred
         context: Additional context
     """
+
     error_type: ErrorType
     message: str
     traceback: str | None = None
@@ -168,6 +171,7 @@ class Correction:
         parameters: Additional parameters
         confidence: Confidence level (0-1)
     """
+
     strategy: RecoveryStrategy
     description: str
     modified_action: str | None = None
@@ -326,9 +330,7 @@ class SelfCorrection:
         # Try LLM-based analysis
         if self.llm_client:
             try:
-                correction = asyncio.run(
-                    self._llm_based_correction(error_ctx, context)
-                )
+                correction = asyncio.run(self._llm_based_correction(error_ctx, context))
                 if correction:
                     return correction
             except Exception:
@@ -387,13 +389,15 @@ Context: {json.dumps(context, indent=2) if context else 'None'}"""
 
             # Parse JSON response
             content = response.content
-            json_match = re.search(r'\{[\s\S]*\}', content)
+            json_match = re.search(r"\{[\s\S]*\}", content)
             if json_match:
                 data = json.loads(json_match.group())
                 strategy_map = {s.value: s for s in RecoveryStrategy}
 
                 return Correction(
-                    strategy=strategy_map.get(data.get("strategy", "retry"), RecoveryStrategy.RETRY),
+                    strategy=strategy_map.get(
+                        data.get("strategy", "retry"), RecoveryStrategy.RETRY
+                    ),
                     description=data.get("description", ""),
                     modified_action=data.get("modified_action"),
                     parameters=data.get("parameters", {}),
@@ -480,7 +484,7 @@ Context: {json.dumps(context, indent=2) if context else 'None'}"""
     def _make_error_key(self, error_ctx: ErrorContext) -> str:
         """Create a key for identifying similar errors."""
         # Normalize error message
-        message = re.sub(r'\d+', 'N', error_ctx.message[:100])
+        message = re.sub(r"\d+", "N", error_ctx.message[:100])
         return f"{error_ctx.error_type.value}:{message}"
 
     def mark_successful(self, error_ctx: ErrorContext, correction: Correction):

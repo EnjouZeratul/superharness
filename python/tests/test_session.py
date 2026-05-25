@@ -31,7 +31,11 @@ class TestMessage:
 
     def test_message_from_dict(self):
         """测试消息反序列化"""
-        data = {"role": "assistant", "content": "Response", "timestamp": datetime.now().isoformat()}
+        data = {
+            "role": "assistant",
+            "content": "Response",
+            "timestamp": datetime.now().isoformat(),
+        }
         msg = Message.from_dict(data)
         assert msg.role == MessageRole.ASSISTANT
         assert msg.content == "Response"

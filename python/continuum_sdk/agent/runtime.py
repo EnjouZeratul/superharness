@@ -99,6 +99,7 @@ if TYPE_CHECKING:
 # Import Rust bindings (will be available after compilation)
 try:
     from sh_core import Agent as RustAgent
+
     HAS_RUST_BINDINGS = True
 except ImportError:
     HAS_RUST_BINDINGS = False
@@ -124,6 +125,7 @@ from ..llm import (
 
 class AgentState(Enum):
     """Agent state enumeration."""
+
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
@@ -412,6 +414,7 @@ class Agent:
             asyncio.get_running_loop()  # Check if in async context
             # Already in async context, need to run in thread
             import concurrent.futures
+
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future = executor.submit(asyncio.run, self.execute_async(task))
                 return future.result()
@@ -443,7 +446,11 @@ class Agent:
         # Add conversation history from current session
         if self._current_session:
             for msg in self._current_session.get_messages():
-                role = LlmMessageRole.USER if msg.role.value == "user" else LlmMessageRole.ASSISTANT
+                role = (
+                    LlmMessageRole.USER
+                    if msg.role.value == "user"
+                    else LlmMessageRole.ASSISTANT
+                )
                 if msg.role.value == "system":
                     role = LlmMessageRole.SYSTEM
                 messages.append(Message(role=role, content=msg.content))
@@ -476,9 +483,7 @@ class Agent:
 
         except AuthenticationError as e:
             self._state = AgentState.ERROR
-            raise ValueError(
-                f"Authentication failed: {e}. Check your API key."
-            ) from e
+            raise ValueError(f"Authentication failed: {e}. Check your API key.") from e
 
         except LlmError as e:
             self._state = AgentState.ERROR
@@ -504,7 +509,11 @@ class Agent:
 
         if self._current_session:
             for msg in self._current_session.get_messages():
-                role = LlmMessageRole.USER if msg.role.value == "user" else LlmMessageRole.ASSISTANT
+                role = (
+                    LlmMessageRole.USER
+                    if msg.role.value == "user"
+                    else LlmMessageRole.ASSISTANT
+                )
                 if msg.role.value == "system":
                     role = LlmMessageRole.SYSTEM
                 messages.append(Message(role=role, content=msg.content))
@@ -566,7 +575,9 @@ class Agent:
 
         return result
 
-    async def run_stream(self, task: str, auto_start: bool = True) -> AsyncIterator[StreamChunk]:
+    async def run_stream(
+        self, task: str, auto_start: bool = True
+    ) -> AsyncIterator[StreamChunk]:
         """
         Streaming task execution.
 

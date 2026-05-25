@@ -91,7 +91,8 @@ from .self_correction import ErrorContext, RecoveryStrategy, SelfCorrection
 
 class AgentMode(Enum):
     """Agent execution mode."""
-    AUTONOMOUS = "autonomous"     # Execute without confirmation
+
+    AUTONOMOUS = "autonomous"  # Execute without confirmation
     INTERACTIVE = "interactive"  # Ask for confirmation
     STEP_BY_STEP = "step_by_step"  # Pause after each step
 
@@ -99,6 +100,7 @@ class AgentMode(Enum):
 @dataclass
 class ExecutionResult:
     """Result of plan execution."""
+
     plan_id: str
     task: str
     status: str
@@ -194,6 +196,7 @@ class IntelligentAgent:
         if self._llm_client is None:
             if not self.api_key:
                 import os
+
                 self.api_key = (
                     os.environ.get("CONTINUUM_API_KEY")
                     or os.environ.get("CONTINUUM_API_KEY")
@@ -201,7 +204,9 @@ class IntelligentAgent:
                 )
 
             if not self.api_key:
-                raise ValueError("API key required. Set CONTINUUM_API_KEY or pass api_key parameter.")
+                raise ValueError(
+                    "API key required. Set CONTINUUM_API_KEY or pass api_key parameter."
+                )
 
             self._llm_client = LlmClient.for_provider(
                 provider=self.provider,
@@ -283,8 +288,7 @@ class IntelligentAgent:
 
                 # Check for failed steps that might block
                 failed_blocking = [
-                    s for s in plan.steps
-                    if s.status == StepStatus.FAILED
+                    s for s in plan.steps if s.status == StepStatus.FAILED
                 ]
                 if failed_blocking:
                     break
@@ -338,7 +342,9 @@ class IntelligentAgent:
                     target=step.target,
                 )
 
-                self.logger.log(step.id, "error", str(e), {"error_type": error_ctx.error_type.value})
+                self.logger.log(
+                    step.id, "error", str(e), {"error_type": error_ctx.error_type.value}
+                )
 
                 # Propose correction
                 correction = self.correction.propose_correction(error_ctx, self.context)
@@ -348,15 +354,22 @@ class IntelligentAgent:
                     if step.retry_count < step.max_retries:
                         step.retry_count += 1
                         step.status = StepStatus.RETRYING
-                        self.logger.log(step.id, "retrying", f"Attempt {step.retry_count}")
+                        self.logger.log(
+                            step.id, "retrying", f"Attempt {step.retry_count}"
+                        )
                         continue
 
                 elif correction.strategy == RecoveryStrategy.RETRY_MODIFIED:
-                    if step.retry_count < step.max_retries and correction.modified_action:
+                    if (
+                        step.retry_count < step.max_retries
+                        and correction.modified_action
+                    ):
                         step.retry_count += 1
                         step.action = correction.modified_action
                         step.status = StepStatus.RETRYING
-                        self.logger.log(step.id, "retrying", f"Modified: {correction.description}")
+                        self.logger.log(
+                            step.id, "retrying", f"Modified: {correction.description}"
+                        )
                         corrections_applied += 1
                         continue
 
@@ -455,7 +468,7 @@ class IntelligentAgent:
             # Generic LLM execution
             result = await self._llm_execute(step)
 
-        return result.content if hasattr(result, 'content') else str(result)
+        return result.content if hasattr(result, "content") else str(result)
 
     async def _llm_analyze(self, step: Step) -> str:
         """Use LLM for analysis."""
@@ -485,7 +498,9 @@ Provide a concise analysis focusing on:
         # In real implementation, would analyze and generate edit
         client = self._get_llm_client()
 
-        system_prompt = "You are planning code edits. Provide specific file changes needed."
+        system_prompt = (
+            "You are planning code edits. Provide specific file changes needed."
+        )
 
         messages = [Message.user(step.action)]
 
@@ -501,7 +516,9 @@ Provide a concise analysis focusing on:
         """Verify changes."""
         client = self._get_llm_client()
 
-        system_prompt = "Verify that the changes resolved the issue. Check for regressions."
+        system_prompt = (
+            "Verify that the changes resolved the issue. Check for regressions."
+        )
 
         messages = [Message.user(step.action)]
 
@@ -526,12 +543,13 @@ Provide a concise analysis focusing on:
         """Extract search pattern from action."""
         # Simple extraction: look for quoted strings or key terms
         import re
+
         match = re.search(r'["\']([^"\']+)["\']', action)
         if match:
             return match.group(1)
 
         # Look for "for X" or "find X" patterns
-        match = re.search(r'(?:for|find|search)\s+(\w+)', action, re.IGNORECASE)
+        match = re.search(r"(?:for|find|search)\s+(\w+)", action, re.IGNORECASE)
         if match:
             return match.group(1)
 
@@ -540,8 +558,9 @@ Provide a concise analysis focusing on:
     def _extract_file(self, action: str) -> str | None:
         """Extract file path from action."""
         import re
+
         # Look for file paths
-        match = re.search(r'[\w/.-]+\.\w+', action)
+        match = re.search(r"[\w/.-]+\.\w+", action)
         if match:
             return match.group(0)
         return None
@@ -587,6 +606,8 @@ Provide a concise analysis focusing on:
 
         progress = self.current_plan.get_progress()
         lines.append("")
-        lines.append(f"Progress: {progress['completed']}/{progress['total']} ({progress['progress_percent']:.0f}%)")
+        lines.append(
+            f"Progress: {progress['completed']}/{progress['total']} ({progress['progress_percent']:.0f}%)"
+        )
 
         return "\n".join(lines)

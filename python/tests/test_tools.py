@@ -44,9 +44,7 @@ class TestToolMeta:
     def test_tool_meta_creation(self):
         """测试工具元数据创建"""
         meta = ToolMeta(
-            name="test_tool",
-            description="A test tool",
-            category=ToolCategory.OTHER
+            name="test_tool", description="A test tool", category=ToolCategory.OTHER
         )
         assert meta.name == "test_tool"
         assert meta.description == "A test tool"
@@ -61,7 +59,7 @@ class TestToolMeta:
             description="Dangerous",
             category=ToolCategory.SHELL,
             requires_confirmation=True,
-            is_dangerous=True
+            is_dangerous=True,
         )
         assert meta.requires_confirmation
         assert meta.is_dangerous
@@ -73,9 +71,7 @@ class TestToolResult:
     def test_tool_result_creation(self):
         """测试工具结果创建"""
         result = ToolResult(
-            call_id="call-123",
-            name="read_file",
-            content="file contents"
+            call_id="call-123", name="read_file", content="file contents"
         )
         assert result.call_id == "call-123"
         assert result.name == "read_file"
@@ -85,10 +81,7 @@ class TestToolResult:
     def test_tool_result_error(self):
         """测试错误结果"""
         result = ToolResult(
-            call_id="call-456",
-            name="fail_tool",
-            content="Error message",
-            is_error=True
+            call_id="call-456", name="fail_tool", content="Error message", is_error=True
         )
         assert result.is_error
 
@@ -217,6 +210,7 @@ class TestCustomTool:
 
     def test_custom_tool_creation(self):
         """测试自定义工具创建"""
+
         @tool(name="my_tool", description="My custom tool")
         def my_tool(x: int) -> int:
             """My custom tool"""

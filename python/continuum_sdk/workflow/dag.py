@@ -77,6 +77,7 @@ from typing import Any
 
 class NodeStatus(Enum):
     """节点状态"""
+
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
@@ -87,6 +88,7 @@ class NodeStatus(Enum):
 @dataclass
 class NodeResult:
     """节点执行结果"""
+
     node_id: str
     status: NodeStatus
     output: Any = None
@@ -114,7 +116,7 @@ class Node:
     description: str | None = None
     dependencies: set[str] = field(default_factory=set)
 
-    def depends_on(self, *node_ids: str) -> 'Node':
+    def depends_on(self, *node_ids: str) -> "Node":
         """添加依赖节点
 
         Args:
@@ -126,7 +128,7 @@ class Node:
         self.dependencies.update(node_ids)
         return self
 
-    def set_func(self, func: Callable) -> 'Node':
+    def set_func(self, func: Callable) -> "Node":
         """设置执行函数"""
         self.func = func
         return self
@@ -188,7 +190,8 @@ class DAGResult:
     def failed_nodes(self) -> list[str]:
         """获取失败的节点 ID"""
         return [
-            node_id for node_id, result in self._results.items()
+            node_id
+            for node_id, result in self._results.items()
             if result.status == NodeStatus.FAILED
         ]
 
@@ -234,7 +237,7 @@ class DAG:
         self.name = name or id
         self._nodes: dict[str, Node] = {}
 
-    def add(self, node: Node) -> 'DAG':
+    def add(self, node: Node) -> "DAG":
         """添加节点
 
         Args:
@@ -260,7 +263,7 @@ class DAG:
             return True
         return False
 
-    def depends_on(self, node_id: str, *depends: str) -> 'DAG':
+    def depends_on(self, node_id: str, *depends: str) -> "DAG":
         """添加依赖关系
 
         Args:
@@ -313,7 +316,9 @@ class DAG:
         for node in self._nodes.values():
             for dep in node.dependencies:
                 if dep not in self._nodes:
-                    errors.append(f"Node '{node.id}' depends on non-existent node '{dep}'")
+                    errors.append(
+                        f"Node '{node.id}' depends on non-existent node '{dep}'"
+                    )
 
         return errors
 
@@ -349,9 +354,7 @@ class DAG:
         return order
 
     async def execute(
-        self,
-        inputs: dict[str, Any] | None = None,
-        parallel: bool = True
+        self, inputs: dict[str, Any] | None = None, parallel: bool = True
     ) -> DAGResult:
         """执行工作流
 
@@ -370,11 +373,14 @@ class DAG:
         if errors:
             # 验证失败，标记所有节点为 SKIPPED
             for node_id in self._nodes:
-                result._set_result(node_id, NodeResult(
-                    node_id=node_id,
-                    status=NodeStatus.FAILED,
-                    error="; ".join(errors)
-                ))
+                result._set_result(
+                    node_id,
+                    NodeResult(
+                        node_id=node_id,
+                        status=NodeStatus.FAILED,
+                        error="; ".join(errors),
+                    ),
+                )
             return result
 
         # 获取执行顺序
@@ -412,7 +418,9 @@ class DAG:
                 if node_id in assigned:
                     continue
                 # 所有依赖都已分配
-                if all(dep in assigned for dep in node.dependencies if dep in self._nodes):
+                if all(
+                    dep in assigned for dep in node.dependencies if dep in self._nodes
+                ):
                     level.append(node_id)
             if not level:
                 break
@@ -422,10 +430,7 @@ class DAG:
         return levels
 
     async def _execute_node(
-        self,
-        node: Node,
-        outputs: dict[str, Any],
-        result: DAGResult
+        self, node: Node, outputs: dict[str, Any], result: DAGResult
     ) -> None:
         """执行单个节点"""
         import time
@@ -436,11 +441,14 @@ class DAG:
         for dep in node.dependencies:
             dep_result = result.get_result(dep)
             if dep_result and dep_result.status != NodeStatus.SUCCESS:
-                result._set_result(node.id, NodeResult(
-                    node_id=node.id,
-                    status=NodeStatus.SKIPPED,
-                    error=f"Dependency '{dep}' failed"
-                ))
+                result._set_result(
+                    node.id,
+                    NodeResult(
+                        node_id=node.id,
+                        status=NodeStatus.SKIPPED,
+                        error=f"Dependency '{dep}' failed",
+                    ),
+                )
                 return
 
         # 执行节点
@@ -450,9 +458,7 @@ class DAG:
             else:
                 # 收集依赖输出
                 dep_outputs = {
-                    dep: outputs.get(dep)
-                    for dep in node.dependencies
-                    if dep in outputs
+                    dep: outputs.get(dep) for dep in node.dependencies if dep in outputs
                 }
 
                 # 调用函数
@@ -466,21 +472,27 @@ class DAG:
             outputs[node.id] = output
             duration = int((time.time() - start) * 1000)
 
-            result._set_result(node.id, NodeResult(
-                node_id=node.id,
-                status=NodeStatus.SUCCESS,
-                output=output,
-                duration_ms=duration
-            ))
+            result._set_result(
+                node.id,
+                NodeResult(
+                    node_id=node.id,
+                    status=NodeStatus.SUCCESS,
+                    output=output,
+                    duration_ms=duration,
+                ),
+            )
 
         except Exception as e:
             duration = int((time.time() - start) * 1000)
-            result._set_result(node.id, NodeResult(
-                node_id=node.id,
-                status=NodeStatus.FAILED,
-                error=str(e),
-                duration_ms=duration
-            ))
+            result._set_result(
+                node.id,
+                NodeResult(
+                    node_id=node.id,
+                    status=NodeStatus.FAILED,
+                    error=str(e),
+                    duration_ms=duration,
+                ),
+            )
 
     def visualize(self) -> str:
         """生成可视化字符串

@@ -22,18 +22,35 @@ from .types import ToolError, ToolResult
 
 # Dangerous commands that require explicit confirmation
 DANGEROUS_COMMANDS = {
-    "rm", "rmdir", "del", "format", "mkfs",
-    "dd", "shutdown", "reboot", "poweroff",
-    "chmod", "chown",
-    "git push", "git reset", "git checkout",
-    "npm publish", "pip upload",
+    "rm",
+    "rmdir",
+    "del",
+    "format",
+    "mkfs",
+    "dd",
+    "shutdown",
+    "reboot",
+    "poweroff",
+    "chmod",
+    "chown",
+    "git push",
+    "git reset",
+    "git checkout",
+    "npm publish",
+    "pip upload",
 }
 
 # Blocked commands (never allowed)
 BLOCKED_COMMANDS = {
-    "sudo", "su", "doas",  # Privilege escalation
-    "eval", "exec",  # Code execution
-    "mkfifo", "nc", "ncat", "telnet",  # Network backdoors
+    "sudo",
+    "su",
+    "doas",  # Privilege escalation
+    "eval",
+    "exec",  # Code execution
+    "mkfifo",
+    "nc",
+    "ncat",
+    "telnet",  # Network backdoors
     "ssh-keygen -p",  # Key manipulation
 }
 
@@ -133,10 +150,7 @@ async def bash_execute(
 
         # Wait with timeout
         try:
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
         except asyncio.TimeoutError:
             proc.kill()
             raise ToolError(
@@ -148,8 +162,8 @@ async def bash_execute(
         duration_ms = int((time.time() - start_time) * 1000)
 
         # Decode output
-        stdout_str = stdout.decode('utf-8', errors='replace')
-        stderr_str = stderr.decode('utf-8', errors='replace')
+        stdout_str = stdout.decode("utf-8", errors="replace")
+        stderr_str = stderr.decode("utf-8", errors="replace")
 
         # Build result content
         if proc.returncode != 0:

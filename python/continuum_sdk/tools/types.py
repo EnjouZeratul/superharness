@@ -11,6 +11,7 @@ from typing import Any
 
 class ToolCategory(Enum):
     """Tool category classification."""
+
     FILE_OPS = "file_ops"
     SEARCH = "search"
     SHELL = "shell"
@@ -35,6 +36,7 @@ class ToolResult:
         duration_ms: Execution duration in milliseconds
         metadata: Additional metadata
     """
+
     call_id: str
     name: str
     content: str
@@ -77,6 +79,7 @@ class ToolMeta:
         is_dangerous: Whether the tool is dangerous
         parameters: JSON Schema for parameters
     """
+
     name: str
     description: str
     category: ToolCategory
