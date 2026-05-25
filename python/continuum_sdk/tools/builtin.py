@@ -193,7 +193,7 @@ class BuiltinTools:
     def _check_binding(self, name: str) -> None:
         """Check if Rust binding is available."""
         if not self._executor:
-            raise RuntimeError(
+            raise NotImplementedError(
                 f"Tool '{name}' requires Rust binding. "
                 "Ensure sh_python.pyd is in the package directory."
             )
@@ -329,6 +329,17 @@ class BuiltinTools:
         if self._executor:
             return self._executor.is_available(name)
         return name in self._tools_cache
+
+    def get_tool_meta(self, name: str) -> Optional[ToolMeta]:
+        """Get tool metadata by name.
+
+        Args:
+            name: Tool name
+
+        Returns:
+            ToolMeta if found, None otherwise
+        """
+        return self._tools_cache.get(name)
 
     def execute(self, name: str, args: Dict[str, Any]) -> str:
         """Execute tool by name.

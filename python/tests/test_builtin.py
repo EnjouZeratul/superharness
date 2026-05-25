@@ -983,21 +983,40 @@ class TestBuiltinTools:
 
     def test_read_file_not_implemented(self):
         """测试 read_file 尚未实现"""
-        tools = BuiltinTools()
-        with pytest.raises(NotImplementedError):
-            tools.read_file("test.txt")
+        # 强制使用无 Rust binding 模式
+        import continuum_sdk.tools.builtin as builtin_module
+        original_executor = builtin_module.HAS_RUST_BINDING
+        builtin_module.HAS_RUST_BINDING = False
+        try:
+            tools = BuiltinTools()
+            with pytest.raises(NotImplementedError):
+                tools.read_file("test.txt")
+        finally:
+            builtin_module.HAS_RUST_BINDING = original_executor
 
     def test_write_file_not_implemented(self):
         """测试 write_file 尚未实现"""
-        tools = BuiltinTools()
-        with pytest.raises(NotImplementedError):
-            tools.write_file("test.txt", "content")
+        import continuum_sdk.tools.builtin as builtin_module
+        original = builtin_module.HAS_RUST_BINDING
+        builtin_module.HAS_RUST_BINDING = False
+        try:
+            tools = BuiltinTools()
+            with pytest.raises(NotImplementedError):
+                tools.write_file("test.txt", "content")
+        finally:
+            builtin_module.HAS_RUST_BINDING = original
 
     def test_bash_not_implemented(self):
         """测试 bash 尚未实现"""
-        tools = BuiltinTools()
-        with pytest.raises(NotImplementedError):
-            tools.bash("echo hello")
+        import continuum_sdk.tools.builtin as builtin_module
+        original = builtin_module.HAS_RUST_BINDING
+        builtin_module.HAS_RUST_BINDING = False
+        try:
+            tools = BuiltinTools()
+            with pytest.raises(NotImplementedError):
+                tools.bash("echo hello")
+        finally:
+            builtin_module.HAS_RUST_BINDING = original
 
     def test_guess_category_other(self):
         """测试无法推断分类的工具"""
