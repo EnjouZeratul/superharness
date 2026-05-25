@@ -14,7 +14,6 @@ Checkpoint Recovery - 检查点恢复示例
 - 恢复后状态一致性验证
 """
 
-import json
 from continuum_sdk.agent.checkpoint import CheckpointClient
 
 
@@ -78,11 +77,13 @@ def crash_recovery_simulation():
     # 加载检查点列表
     checkpoints = client.list(session_id)
     if checkpoints:
-        latest_state = checkpoints[-1]
+        latest_cp_id = checkpoints[-1]
+        latest_state = client.load(session_id, latest_cp_id)
+        print(f"  最新检查点ID: {latest_cp_id}")
         print(f"  最新检查点状态: {latest_state}")
 
         # 恢复执行
-        state_data = latest_state if isinstance(latest_state, dict) else json.loads(latest_state) if latest_state else {}
+        state_data = latest_state if latest_state else {}
         iteration = state_data.get("iteration", 0)
         print(f"\n  从步骤 {iteration + 1} 继续执行...")
 
@@ -107,7 +108,8 @@ def checkpoint_integrity():
     loaded = client.load(session_id, cp_id)
 
     if loaded:
-        parsed = loaded if isinstance(loaded, dict) else json.loads(loaded) if loaded else {}
+        # load() 可能返回 dict 或 list
+        parsed = loaded[0] if isinstance(loaded, list) and loaded else loaded if isinstance(loaded, dict) else {}
         print("检查点完整性验证:")
         print(f"  iteration: {'ok' if parsed.get('iteration', 0) >= 0 else 'fail'}")
         print(f"  messages: {'ok' if isinstance(parsed.get('messages'), list) else 'fail'}")

@@ -24,24 +24,24 @@ def basic_dag():
     print("=== 基础 DAG 示例 ===")
 
     # 创建 DAG
-    dag = DAG(name="analysis_pipeline")
+    dag = DAG(id="analysis_pipeline")
 
     # 添加节点（使用Node类）
     node1 = Node(
-        name="fetch_data",
+        id="fetch_data",
         description="获取数据",
         func=lambda: "数据获取完成"
     )
 
     node2 = Node(
-        name="parse_data",
+        id="parse_data",
         description="解析数据",
         func=lambda: "数据解析完成"
     )
     node2.depends_on("fetch_data")
 
     node3 = Node(
-        name="save_results",
+        id="save_results",
         description="保存结果",
         func=lambda: "结果已保存"
     )
@@ -65,16 +65,16 @@ def parallel_execution():
     """并行执行示例"""
     print("=== 并行执行示例 ===")
 
-    dag = DAG(name="parallel_analysis")
+    dag = DAG(id="parallel_analysis")
 
     # 添加并行节点
-    dag.add(Node(name="analyze_a", description="分析模块A", func=lambda: "模块A: 100% 通过"))
-    dag.add(Node(name="analyze_b", description="分析模块B", func=lambda: "模块B: 95% 通过"))
-    dag.add(Node(name="analyze_c", description="分析模块C", func=lambda: "模块C: 100% 通过"))
+    dag.add(Node(id="analyze_a", description="分析模块A", func=lambda: "模块A: 100% 通过"))
+    dag.add(Node(id="analyze_b", description="分析模块B", func=lambda: "模块B: 95% 通过"))
+    dag.add(Node(id="analyze_c", description="分析模块C", func=lambda: "模块C: 100% 通过"))
 
     # 汇总节点（依赖所有分析节点）
     summary = Node(
-        name="summary",
+        id="summary",
         description="生成汇总报告",
         func=lambda: "汇总报告已生成"
     )
@@ -95,19 +95,19 @@ def complex_dependencies():
     """复杂依赖示例"""
     print("=== 复杂依赖示例 ===")
 
-    dag = DAG(name="build_pipeline")
+    dag = DAG(id="build_pipeline")
 
     # 构建流水线节点
     nodes = [
-        Node(name="checkout", description="检出代码", func=lambda: "代码已检出"),
-        Node(name="install_deps", description="安装依赖", func=lambda: "依赖已安装"),
-        Node(name="lint", description="代码检查", func=lambda: "检查通过"),
-        Node(name="test_unit", description="单元测试", func=lambda: "12/12 通过"),
-        Node(name="test_integration", description="集成测试", func=lambda: "5/5 通过"),
-        Node(name="build", description="构建", func=lambda: "构建成功"),
-        Node(name="deploy_staging", description="部署测试环境", func=lambda: "已部署到测试环境"),
-        Node(name="smoke_test", description="冒烟测试", func=lambda: "冒烟测试通过"),
-        Node(name="deploy_prod", description="部署生产环境", func=lambda: "已部署到生产环境"),
+        Node(id="checkout", description="检出代码", func=lambda: "代码已检出"),
+        Node(id="install_deps", description="安装依赖", func=lambda: "依赖已安装"),
+        Node(id="lint", description="代码检查", func=lambda: "检查通过"),
+        Node(id="test_unit", description="单元测试", func=lambda: "12/12 通过"),
+        Node(id="test_integration", description="集成测试", func=lambda: "5/5 通过"),
+        Node(id="build", description="构建", func=lambda: "构建成功"),
+        Node(id="deploy_staging", description="部署测试环境", func=lambda: "已部署到测试环境"),
+        Node(id="smoke_test", description="冒烟测试", func=lambda: "冒烟测试通过"),
+        Node(id="deploy_prod", description="部署生产环境", func=lambda: "已部署到生产环境"),
     ]
 
     # 设置依赖关系
@@ -136,12 +136,12 @@ def cycle_detection():
     """循环检测示例"""
     print("=== 循环检测示例 ===")
 
-    dag = DAG(name="circular")
+    dag = DAG(id="circular")
 
     # 故意创建循环依赖
-    node_a = Node(name="a", func=lambda: "a")
-    node_b = Node(name="b", func=lambda: "b")
-    node_c = Node(name="c", func=lambda: "c")
+    node_a = Node(id="a", func=lambda: "a")
+    node_b = Node(id="b", func=lambda: "b")
+    node_c = Node(id="c", func=lambda: "c")
 
     node_a.depends_on("c")
     node_b.depends_on("a")
