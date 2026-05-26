@@ -13,6 +13,9 @@
 //! - `tasks`: 任务队列管理
 //! - `prompts`: 提示词管理
 
+// Re-export Layer 1 (and transitively Layer 0) for upper layers
+pub use sh_layer1;
+
 pub mod agent_runtime;
 pub mod checkpoint_system;
 pub mod hook_system;

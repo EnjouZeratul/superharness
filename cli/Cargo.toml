@@ -22,10 +22,6 @@ path = "src/lib.rs"
 
 [dependencies]
 sh-core = { path = "../rust/sh-core" }
-sh-layer0 = { path = "../rust/layer0" }
-sh-layer1 = { path = "../rust/layer1" }
-sh-layer2 = { path = "../rust/layer2" }
-sh-layer3 = { path = "../rust/layer3" }
 sh-layer4 = { path = "../rust/layer4" }
 
 tokio.workspace = true
@@ -45,6 +41,11 @@ ratatui = "0.30"  # TUI 框架
 crossterm = "0.28"  # 终端控制
 whoami = "1.5"  # 用户名获取
 regex = "1.10"  # 正则表达式
+dirs = "5.0"  # 配置目录获取
+
+# Markdown 和语法高亮
+syntect = "5.2"  # 语法高亮
+pulldown-cmark = "0.11"  # Markdown 解析
 
 [dev-dependencies]
 tempfile.workspace = true

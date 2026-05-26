@@ -5,8 +5,8 @@
 use anyhow::Result;
 
 use crate::cli::SessionCmd;
-use sh_layer2::session_manager::ConcurrentSessionManager;
-use sh_layer2::session_manager::SessionManagerTrait;
+use sh_layer4::sh_layer3::sh_layer2::session_manager::ConcurrentSessionManager;
+use sh_layer4::sh_layer3::sh_layer2::session_manager::SessionManagerTrait;
 use std::sync::OnceLock;
 
 /// 全局会话管理器
@@ -86,7 +86,7 @@ async fn list_sessions(manager: &ConcurrentSessionManager, _all: bool) -> Result
 
 /// 恢复会话
 async fn resume_session(manager: &ConcurrentSessionManager, session_id: &str) -> Result<()> {
-    use sh_layer2::types::SessionId;
+    use sh_layer4::sh_layer3::sh_layer2::types::SessionId;
 
     println!("Resuming session: {}", session_id);
 
@@ -128,7 +128,7 @@ async fn delete_session(
     session_id: &str,
     force: bool,
 ) -> Result<()> {
-    use sh_layer2::types::SessionId;
+    use sh_layer4::sh_layer3::sh_layer2::types::SessionId;
 
     println!("Deleting session: {} (force: {})", session_id, force);
 
@@ -161,7 +161,7 @@ async fn delete_session(
 
 /// 显示会话详情
 async fn show_session(manager: &ConcurrentSessionManager, session_id: &str) -> Result<()> {
-    use sh_layer2::types::SessionId;
+    use sh_layer4::sh_layer3::sh_layer2::types::SessionId;
 
     println!("Showing session details: {}", session_id);
 

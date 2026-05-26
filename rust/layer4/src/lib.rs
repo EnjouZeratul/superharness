@@ -20,6 +20,9 @@ pub mod plugin_loader;
 pub mod types;
 pub mod worktree_manager;
 
+// Re-export Layer 3 (and transitively Layer 2, Layer 1, Layer 0) for upper layers
+pub use sh_layer3;
+
 // 导出核心类型
 pub use types::{IntegrationConfig, Layer4Error, Layer4Result, MessagePriority, PluginPermission};
 

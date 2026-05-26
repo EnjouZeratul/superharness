@@ -19,6 +19,9 @@ pub mod tool_executor;
 pub mod types;
 pub mod vector_store;
 
+// Re-export Layer 2 types for upper layers (链式暴露)
+pub use sh_layer2;
+
 // Re-export core types
 pub use types::{
     CodeLocation, CodeRange, Layer3Error, Layer3Result, MemoryEntry, MemoryQuery, MemoryTier,
@@ -34,14 +37,22 @@ pub use memory_system::{
 };
 pub use process_manager::{ProcessLimits, ProcessManager as ProcessManagerTrait, ProcessSignal};
 pub use query_engine::{CodeAnalyzer, QueryEngine, SymbolInfo, SymbolKind};
-pub use retriever_engine::{ChunkingStrategy, EmbeddingModel, FixedSizeChunker, RetrieverEngine};
+pub use retriever_engine::{
+    Chunk, ChunkingStrategy, ChunkPosition, DefaultRetrieverEngine, Document,
+    FixedSizeChunker, HybridSearchConfig, HybridWeights, MockEmbeddingModel,
+    ParagraphChunker, RecursiveChunker, RetrievalResult, RetrieverEngine,
+};
 pub use sandbox_runtime::{
     ExecutionResult, SandboxConfig, SandboxId, SandboxRuntime as SandboxRuntimeTrait,
 };
 pub use tool_executor::{
     ContextualExecutor, DefaultToolExecutor, ExecutionContext, ToolExecutor, ToolValidator,
 };
-pub use vector_store::{VectorItem, VectorStore as VectorStoreTrait, VectorStoreConfig};
+pub use vector_store::{
+    DistanceMetric, FileVectorStore, FileVectorStoreFactory, InMemoryVectorStore,
+    InMemoryVectorStoreFactory, IndexType, MetadataFilter, VectorItem,
+    VectorStore as VectorStoreTrait, VectorStoreConfig, VectorStoreFactory,
+};
 
 // Re-export builtin tools for Layer 2 integration
 pub use builtin_tools::file_ops::{EditFileTool, ListDirectoryTool, ReadFileTool, WriteFileTool};

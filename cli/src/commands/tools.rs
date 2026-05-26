@@ -3,8 +3,8 @@
 //! 列出和管理可用工具。
 
 use anyhow::Result;
-use sh_layer3::tool_executor::DefaultToolExecutor;
-use sh_layer3::ToolExecutor;
+use sh_layer4::sh_layer3::tool_executor::DefaultToolExecutor;
+use sh_layer4::sh_layer3::ToolExecutor;
 
 /// 执行 tools 子命令
 pub fn execute(filter: Option<String>, verbose: bool) -> Result<()> {

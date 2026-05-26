@@ -3,9 +3,10 @@
 //! 连接真实 LLM API 进行对话。
 
 use anyhow::Result;
-use sh_layer1::{
+use sh_layer4::sh_layer3::sh_layer2::sh_layer1::{
     config_manager::ConfigManager,
     llm_client::{LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, Message, MessageRole},
+    streaming::{StreamEvent as LlmStreamEvent, ContentDelta},
 };
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
@@ -308,6 +309,7 @@ impl AgentClient {
 
     /// 发送消息并流式获取响应
     ///
+    /// 使用真实的 SSE 流式响应，通过 MessageStream 处理。
     /// 返回一个接收器，通过该接收器可以接收流式响应块
     pub async fn send_message_stream(
         &self,
@@ -340,7 +342,10 @@ impl AgentClient {
             model: provider_config.model.clone(),
             max_tokens: provider_config.default_max_tokens,
             temperature: provider_config.default_temperature,
-            system_prompt: Some("You are a helpful AI assistant running in Continuum terminal. Be concise and helpful.".to_string()),
+            system_prompt: Some(
+                "You are a helpful AI assistant running in Continuum terminal. Be concise and helpful."
+                    .to_string(),
+            ),
             stop_sequences: vec![],
         };
 
@@ -359,7 +364,7 @@ impl AgentClient {
             .collect();
 
         // 创建通道
-        let (tx, rx) = mpsc::channel(32);
+        let (tx, rx) = mpsc::channel(64);
 
         // 克隆必要的数据
         let llm_client = self.llm_client.clone();
@@ -377,7 +382,7 @@ impl AgentClient {
         // 发送开始事件
         let _ = tx.send(StreamEvent::Start).await;
 
-        // 在后台任务中处理 API 调用
+        // 在后台任务中处理流式 API 调用
         tokio::spawn(async move {
             // 读取客户端
             let client_guard = llm_client.read().await;
@@ -388,45 +393,91 @@ impl AgentClient {
                         .send(StreamEvent::Error("Agent not initialized".to_string()))
                         .await;
                     let _ = tx.send(StreamEvent::Done).await;
+                    let mut s = state.write().await;
+                    *s = AgentState::Idle;
                     return;
                 }
             };
 
-            // 发送请求
-            let result = client.send(messages_clone, &request_config_clone).await;
+            // 发送流式请求
+            let stream_result = client.send_stream(messages_clone, &request_config_clone).await;
 
-            match result {
-                Ok(response) => {
-                    // 将响应分割成块进行流式发送
-                    let content = response.content.clone();
-                    let words: Vec<&str> = content.split_whitespace().collect();
+            match stream_result {
+                Ok(mut message_stream) => {
+                    let mut full_content = String::new();
+                    let mut message_id = String::new();
+                    let mut model_name = request_config_clone.model.clone();
 
-                    // 每次发送几个单词作为块
-                    for chunk in words.chunks(5) {
-                        let chunk_text = chunk.join(" ");
-                        if tx.send(StreamEvent::Chunk(chunk_text + " ")).await.is_err() {
-                            break;
+                    // 处理流式事件
+                    loop {
+                        match message_stream.next_event().await {
+                            Ok(Some(event)) => {
+                                match event {
+                                    LlmStreamEvent::MessageStart { id, model } => {
+                                        message_id = id;
+                                        model_name = model;
+                                    }
+                                    LlmStreamEvent::ContentBlockDelta { delta, .. } => {
+                                        match delta {
+                                            ContentDelta::Text(text) => {
+                                                full_content.push_str(&text);
+                                                if tx.send(StreamEvent::Chunk(text)).await.is_err() {
+                                                    break;
+                                                }
+                                            }
+                                            ContentDelta::Thinking(thinking) => {
+                                                // 可选：发送思考内容作为特殊事件
+                                                if tx.send(StreamEvent::Chunk(format!("[思考] {} ", thinking))).await.is_err() {
+                                                    break;
+                                                }
+                                            }
+                                            ContentDelta::ToolInput(input) => {
+                                                // 工具调用输入
+                                                if tx.send(StreamEvent::Chunk(format!("[工具] {} ", input))).await.is_err() {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    LlmStreamEvent::MessageDelta { stop_reason, .. } => {
+                                        // 消息增量，记录结束原因
+                                        tracing::debug!("Stream finished: {:?}", stop_reason);
+                                    }
+                                    LlmStreamEvent::MessageStop => {
+                                        // 消息结束
+                                        break;
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            Ok(None) => {
+                                // 流结束
+                                break;
+                            }
+                            Err(e) => {
+                                let _ = tx.send(StreamEvent::Error(e.to_string())).await;
+                                break;
+                            }
                         }
-                        // 小延迟以产生流式效果
-                        tokio::time::sleep(tokio::time::Duration::from_millis(20)).await;
                     }
 
                     // 添加助手响应到历史
-                    {
+                    if !full_content.is_empty() {
                         let mut history = message_history.write().await;
                         history.push(ChatMessage {
                             role: "assistant".to_string(),
-                            content: response.content,
+                            content: full_content,
                         });
                     }
 
-                    let _ = tx.send(StreamEvent::Done).await;
+                    tracing::debug!("Stream completed: message_id={}, model={}", message_id, model_name);
                 }
                 Err(e) => {
                     let _ = tx.send(StreamEvent::Error(e.to_string())).await;
-                    let _ = tx.send(StreamEvent::Done).await;
                 }
             }
+
+            let _ = tx.send(StreamEvent::Done).await;
 
             // 设置状态为空闲
             let mut s = state.write().await;
@@ -434,6 +485,42 @@ impl AgentClient {
         });
 
         Ok(rx)
+    }
+
+    /// 发送消息并使用回调处理流式响应
+    ///
+    /// 提供 on_chunk 回调函数，实时处理每个响应块
+    pub async fn send_message_with_callback<F>(
+        &self,
+        user_message: &str,
+        mut on_chunk: F,
+    ) -> Result<String, AgentError>
+    where
+        F: FnMut(&str) + Send,
+    {
+        let mut receiver = self.send_message_stream(user_message).await?;
+
+        let mut full_response = String::new();
+
+        while let Some(event) = receiver.recv().await {
+            match event {
+                StreamEvent::Start => {
+                    // 流开始
+                }
+                StreamEvent::Chunk(text) => {
+                    on_chunk(&text);
+                    full_response.push_str(&text);
+                }
+                StreamEvent::Done => {
+                    break;
+                }
+                StreamEvent::Error(msg) => {
+                    return Err(AgentError::ApiError(msg));
+                }
+            }
+        }
+
+        Ok(full_response)
     }
 }
 
