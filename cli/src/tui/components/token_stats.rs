@@ -2,9 +2,10 @@
 //!
 //! 支持 Token 实时统计、历史图表、预算预警等功能。
 
+use super::color_theme::ColorTheme;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
+    style::Style,
     text::{Line, Span},
     widgets::{Block, Borders, Gauge, Paragraph, Sparkline},
     Frame,
@@ -37,6 +38,8 @@ pub struct TokenStatsComponent {
     cost_per_million: f64,
     /// 是否显示成本
     show_cost: bool,
+    /// 颜色主题
+    theme: ColorTheme,
 }
 
 /// Token 使用快照
@@ -63,7 +66,13 @@ impl TokenStatsComponent {
             model_name: String::new(),
             cost_per_million: 0.0,
             show_cost: true,
+            theme: ColorTheme::dark(),
         }
+    }
+
+    /// 设置主题
+    pub fn set_theme(&mut self, theme: ColorTheme) {
+        self.theme = theme;
     }
 
     /// 设置预算
@@ -206,13 +215,13 @@ impl TokenStatsComponent {
         };
 
         let color = if self.is_over_budget() {
-            Color::Red
+            self.theme.error_message
         } else if self.is_critical() {
-            Color::Magenta
+            self.theme.token_count
         } else if self.is_warning() {
-            Color::Yellow
+            self.theme.budget_warning
         } else {
-            Color::Green
+            self.theme.cost
         };
 
         let gauge = Gauge::default()
@@ -232,32 +241,32 @@ impl TokenStatsComponent {
         let mut spans = vec![
             Span::styled(
                 format!(" In: {} ", self.input_tokens),
-                Style::default().fg(Color::Cyan),
+                Style::default().fg(self.theme.title),
             ),
             Span::styled(
                 format!("Out: {} ", self.output_tokens),
-                Style::default().fg(Color::Green),
+                Style::default().fg(self.theme.cost),
             ),
         ];
 
         if self.show_cost && self.cost_per_million > 0.0 {
             spans.push(Span::styled(
                 format!("Cost: ${:.4} ", cost),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(self.theme.budget_warning),
             ));
         }
 
         if rate > 0.0 {
             spans.push(Span::styled(
                 format!("Rate: {:.0}/min", rate),
-                Style::default().fg(Color::Gray),
+                Style::default().fg(self.theme.punctuation),
             ));
         }
 
         if let Some(remaining) = self.estimated_remaining() {
             spans.push(Span::styled(
                 format!(" ETA: {:.0}min", remaining),
-                Style::default().fg(Color::Magenta),
+                Style::default().fg(self.theme.token_count),
             ));
         }
 
@@ -278,7 +287,7 @@ impl TokenStatsComponent {
                     .title(format!("History ({} samples)", data.len())),
             )
             .data(&data)
-            .style(Style::default().fg(Color::Cyan));
+            .style(Style::default().fg(self.theme.title));
 
         f.render_widget(sparkline, area);
     }
@@ -286,13 +295,13 @@ impl TokenStatsComponent {
     /// 渲染迷你版本（用于状态栏）
     pub fn render_mini(&self, f: &mut Frame, area: Rect) {
         let color = if self.is_over_budget() {
-            Color::Red
+            self.theme.error_message
         } else if self.is_critical() {
-            Color::Magenta
+            self.theme.token_count
         } else if self.is_warning() {
-            Color::Yellow
+            self.theme.budget_warning
         } else {
-            Color::Green
+            self.theme.cost
         };
 
         let text = if let Some(pct) = self.usage_percentage() {

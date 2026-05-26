@@ -249,4 +249,178 @@ mod tests {
             .unwrap();
         assert!(result.valid);
     }
+
+    // ========== 错误处理测试 ==========
+
+    #[test]
+    fn test_multiple_forbidden_patterns() {
+        let validator = InputValidator::new();
+
+        // 同时包含多个禁止模式的输入
+        let input = "<script>javascript:alert('xss')data:text/html";
+        let result = validator.validate(input).unwrap();
+        assert!(!result.valid);
+        // 应该检测到所有三个禁止模式
+        assert!(result.errors.len() >= 3);
+    }
+
+    #[test]
+    fn test_nested_forbidden_patterns() {
+        let validator = InputValidator::new();
+
+        // 嵌套的禁止模式
+        let result = validator
+            .validate("<script><script>nested</script></script>")
+            .unwrap();
+        assert!(!result.valid);
+    }
+
+    #[test]
+    fn test_case_sensitive_patterns() {
+        let validator = InputValidator::new();
+
+        // 大小写测试
+        let result = validator.validate("<SCRIPT>alert('xss')</SCRIPT>").unwrap();
+        // 默认是大小写敏感的，大写应该通过
+        assert!(result.valid);
+    }
+
+    #[test]
+    fn test_partial_forbidden_pattern() {
+        let validator = InputValidator::new()
+            .add_forbidden_pattern("dangerous".to_string());
+
+        // 部分匹配应该被检测到
+        let result = validator.validate("This is dangerous!").unwrap();
+        assert!(!result.valid);
+
+        // 作为子字符串也应该被检测
+        let result = validator.validate("verydangerousword").unwrap();
+        assert!(!result.valid);
+    }
+
+    #[test]
+    fn test_multiple_errors_accumulation() {
+        let validator = InputValidator::new().with_max_length(50);
+
+        // 同时触发多个错误：超长 + 禁止模式 + 空（trim后）
+        let input = format!("<script>{}", "a".repeat(100));
+        let result = validator.validate(&input).unwrap();
+        assert!(!result.valid);
+        assert!(result.errors.len() >= 2);
+    }
+
+    #[test]
+    fn test_extreme_max_length() {
+        // 极小的最大长度
+        let validator = InputValidator::new().with_max_length(1);
+
+        let result = validator.validate("ab").unwrap();
+        assert!(!result.valid);
+
+        let result = validator.validate("a").unwrap();
+        assert!(result.valid);
+    }
+
+    #[test]
+    fn test_zero_max_length() {
+        let validator = InputValidator::new().with_max_length(0);
+
+        // 任何非空输入都应该被拒绝
+        let result = validator.validate("a").unwrap();
+        assert!(!result.valid);
+
+        // 空输入也会被拒绝（因为是空的）
+        let result = validator.validate("").unwrap();
+        assert!(!result.valid);
+    }
+
+    #[test]
+    fn test_sanitize_preserves_newlines_and_tabs() {
+        let validator = InputValidator::new();
+
+        let input = "Line1\nLine2\tTabbed";
+        let result = validator.validate(input).unwrap();
+        assert!(result.valid);
+        let sanitized = result.sanitized.unwrap();
+        assert!(sanitized.contains('\n'));
+        assert!(sanitized.contains('\t'));
+    }
+
+    #[test]
+    fn test_sanitize_trims_whitespace() {
+        let validator = InputValidator::new();
+
+        let input = "   hello world   ";
+        let result = validator.validate(input).unwrap();
+        assert!(result.valid);
+        assert_eq!(result.sanitized.unwrap(), "hello world");
+    }
+
+    #[test]
+    fn test_all_control_characters_removed() {
+        let validator = InputValidator::new();
+
+        // 各种控制字符
+        let input = "Hello\x00\x01\x02\x03\x04\x05\x06\x07\x08World";
+        let result = validator.validate(input).unwrap();
+        assert!(result.valid);
+        let sanitized = result.sanitized.unwrap();
+        assert!(!sanitized.contains('\x00'));
+        assert!(!sanitized.contains('\x01'));
+        assert!(!sanitized.contains('\x07'));
+        assert!(sanitized.contains("Hello"));
+        assert!(sanitized.contains("World"));
+    }
+
+    #[test]
+    fn test_result_serialization() {
+        let validator = InputValidator::new();
+
+        let result = validator.validate("Hello").unwrap();
+        let json = serde_json::to_string(&result).unwrap();
+        assert!(json.contains("valid"));
+        assert!(json.contains("errors"));
+        assert!(json.contains("sanitized"));
+    }
+
+    #[test]
+    fn test_result_deserialization() {
+        let json = "{\"valid\":true,\"errors\":[],\"sanitized\":\"test\"}";
+        let result: ValidationResult = serde_json::from_str(json).unwrap();
+        assert!(result.valid);
+        assert!(result.errors.is_empty());
+        assert_eq!(result.sanitized, Some("test".to_string()));
+    }
+
+    #[test]
+    fn test_empty_errors_list_when_valid() {
+        let validator = InputValidator::new();
+
+        let result = validator.validate("valid input").unwrap();
+        assert!(result.valid);
+        assert!(result.errors.is_empty());
+    }
+
+    #[test]
+    fn test_sanitized_none_when_invalid() {
+        let validator = InputValidator::new();
+
+        let result = validator.validate("<script>").unwrap();
+        assert!(!result.valid);
+        assert!(result.sanitized.is_none());
+    }
+
+    #[test]
+    fn test_validator_builder_chain() {
+        let validator = InputValidator::new()
+            .with_max_length(500)
+            .add_forbidden_pattern("bad1".to_string())
+            .add_forbidden_pattern("bad2".to_string())
+            .add_forbidden_pattern("bad3".to_string());
+
+        let result = validator.validate("bad1bad2bad3").unwrap();
+        assert!(!result.valid);
+        assert!(result.errors.len() >= 3);
+    }
 }

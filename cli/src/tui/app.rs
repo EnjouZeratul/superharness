@@ -24,7 +24,7 @@ pub struct Message {
 }
 
 /// 消息角色
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Role {
     User,
     Assistant,

@@ -21,7 +21,12 @@ pub use embeddings::{
 };
 pub use error_handler::{ErrorHandler, ShError, ShResult};
 pub use event_bus::EventBus;
-pub use llm_client::LlmClient;
+pub use llm_client::{
+    LlmClient, LlmClientTrait, LlmProvider, LlmRequestConfig, LlmResponse, Message, MessageRole, TokenUsage,
+};
 pub use observability::Observability;
 pub use storage_engine::StorageEngine;
-pub use streaming::StreamHandler;
+pub use streaming::{
+    AbortableStream, CallbackStream, ContentBlockType, ContentDelta, MessageStream, OnChunkCallback, SseEvent, SseParser,
+    StreamEvent, StreamHandler, StreamProvider, StreamState, StreamUsage,
+};

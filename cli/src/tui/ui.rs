@@ -6,16 +6,17 @@ use ratatui::{
 };
 
 use super::app::App;
-use super::components::{ChatComponent, InputComponent, StatusComponent, ToolDisplayComponent};
+use super::components::{ChatComponent, InputComponent, KeyHintsComponent, StatusComponent, ToolDisplayComponent};
 
 /// 渲染 TUI 界面
 pub fn render(
     f: &mut Frame,
     _app: &App,
-    chat: &ChatComponent,
-    input: &InputComponent,
+    chat: &mut ChatComponent,
+    input: &mut InputComponent,
     status: &StatusComponent,
     tools: &ToolDisplayComponent,
+    key_hints: &KeyHintsComponent,
     show_tools: bool,
 ) {
     // 工具显示的高度（折叠模式为1行统计）
@@ -28,6 +29,7 @@ pub fn render(
             Constraint::Min(1),               // 聊天区域
             Constraint::Length(tools_height), // 工具显示（动态）
             Constraint::Length(3),            // 输入区域
+            Constraint::Length(1),            // 快捷键提示栏
         ])
         .split(f.area());
 
@@ -44,6 +46,9 @@ pub fn render(
 
     // 渲染输入区域
     render_input(f, chunks[3], input);
+
+    // 渲染快捷键提示栏
+    render_key_hints(f, chunks[4], key_hints);
 }
 
 /// 渲染状态栏
@@ -52,12 +57,12 @@ fn render_status(f: &mut Frame, area: Rect, status: &StatusComponent) {
 }
 
 /// 渲染聊天区域
-fn render_chat(f: &mut Frame, area: Rect, chat: &ChatComponent) {
+fn render_chat(f: &mut Frame, area: Rect, chat: &mut ChatComponent) {
     chat.render(f, area);
 }
 
 /// 渲染输入区域
-fn render_input(f: &mut Frame, area: Rect, input: &InputComponent) {
+fn render_input(f: &mut Frame, area: Rect, input: &mut InputComponent) {
     input.render(f, area);
 }
 
@@ -69,4 +74,9 @@ fn render_tools_collapsed(f: &mut Frame, area: Rect, tools: &ToolDisplayComponen
 /// 渲染工具显示（展开模式）
 pub fn render_tools_expanded(f: &mut Frame, area: Rect, tools: &ToolDisplayComponent) {
     tools.render(f, area, false);
+}
+
+/// 渲染快捷键提示栏
+fn render_key_hints(f: &mut Frame, area: Rect, key_hints: &KeyHintsComponent) {
+    key_hints.render(f, area);
 }

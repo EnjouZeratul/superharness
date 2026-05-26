@@ -39,6 +39,15 @@ from .types import (
     TokenUsage,
     ToolDefinition,
 )
+from .streaming import (
+    SseParser,
+    SseEvent,
+    StreamState,
+    StreamEvent,
+    StreamUsage,
+    CallbackStream,
+    ContentBlockType,
+)
 
 __all__ = [
     # Client
@@ -62,4 +71,12 @@ __all__ = [
     "StreamChunk",
     "TokenUsage",
     "ToolDefinition",
+    # Streaming
+    "SseParser",
+    "SseEvent",
+    "StreamState",
+    "StreamEvent",
+    "StreamUsage",
+    "CallbackStream",
+    "ContentBlockType",
 ]

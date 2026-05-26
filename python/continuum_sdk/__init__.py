@@ -25,10 +25,11 @@ Streaming:
     ...     print(chunk.content)
 
 Tools:
+    >>> import ast
     >>> agent.register_tool(
     ...     "calc",
-    ...     lambda x: eval(x),
-    ...     description="Evaluate math expressions",
+    ...     lambda x: ast.literal_eval(x),
+    ...     description="Evaluate math expressions (safe)",
     ...     parameters={"type": "object", "properties": {"expression": {"type": "string"}}}
     ... )
 """

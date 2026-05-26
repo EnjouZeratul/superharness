@@ -1,8 +1,9 @@
 //! TUI 工具执行显示组件
 
+use super::color_theme::ColorTheme;
 use ratatui::{
     layout::Rect,
-    style::{Color, Style},
+    style::Style,
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
@@ -77,6 +78,8 @@ pub struct ToolDisplayComponent {
     verbose: bool,
     /// 最大显示数量
     max_display: usize,
+    /// 颜色主题
+    theme: ColorTheme,
 }
 
 impl ToolDisplayComponent {
@@ -86,7 +89,13 @@ impl ToolDisplayComponent {
             tool_calls: Vec::new(),
             verbose: false,
             max_display: 10,
+            theme: ColorTheme::dark(),
         }
+    }
+
+    /// 设置主题
+    pub fn set_theme(&mut self, theme: ColorTheme) {
+        self.theme = theme;
     }
 
     /// 添加工具调用
@@ -173,7 +182,7 @@ impl ToolDisplayComponent {
                 )
             };
 
-            let paragraph = Paragraph::new(status_line).style(Style::default().fg(Color::Yellow));
+            let paragraph = Paragraph::new(status_line).style(Style::default().fg(self.theme.tool_running));
             f.render_widget(paragraph, area);
             return;
         }
@@ -186,10 +195,10 @@ impl ToolDisplayComponent {
             .take(self.max_display)
             .map(|call| {
                 let (status_icon, status_color) = match &call.status {
-                    ToolStatus::Pending => ("⏳", Color::Gray),
-                    ToolStatus::Running => ("🔄", Color::Yellow),
-                    ToolStatus::Success => ("✅", Color::Green),
-                    ToolStatus::Failed => ("❌", Color::Red),
+                    ToolStatus::Pending => ("⏳", self.theme.tool_pending),
+                    ToolStatus::Running => ("🔄", self.theme.tool_running),
+                    ToolStatus::Success => ("✅", self.theme.tool_success),
+                    ToolStatus::Failed => ("❌", self.theme.tool_failed),
                 };
 
                 let duration_str = call
@@ -200,7 +209,7 @@ impl ToolDisplayComponent {
                 let mut spans = vec![
                     Span::styled(status_icon, Style::default().fg(status_color)),
                     Span::raw(" "),
-                    Span::styled(&call.name, Style::default().fg(Color::Cyan)),
+                    Span::styled(&call.name, Style::default().fg(self.theme.function)),
                 ];
 
                 if self.verbose && !call.arguments.is_empty() {
@@ -212,7 +221,7 @@ impl ToolDisplayComponent {
                     };
                     spans.push(Span::styled(
                         args_preview,
-                        Style::default().fg(Color::DarkGray),
+                        Style::default().fg(self.theme.comment),
                     ));
                 }
 
@@ -220,7 +229,7 @@ impl ToolDisplayComponent {
                     spans.push(Span::raw(" "));
                     spans.push(Span::styled(
                         format!("[{}]", duration_str),
-                        Style::default().fg(Color::Magenta),
+                        Style::default().fg(self.theme.token_count),
                     ));
                 }
 
@@ -231,7 +240,7 @@ impl ToolDisplayComponent {
         let block = Block::default()
             .title(format!(" Tools ({}) ", self.count()))
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::Yellow));
+            .border_style(Style::default().fg(self.theme.border));
 
         let list = List::new(items).block(block);
         f.render_widget(list, area);

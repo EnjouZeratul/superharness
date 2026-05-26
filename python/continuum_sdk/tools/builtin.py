@@ -3,10 +3,13 @@
 Provides Python access to Continuum's built-in tools via Rust binding.
 
 [STABILITY: STABLE] Core tools 稳定可用
-[NOTE] 当 Rust binding 不可用时，自动降级到 placeholder 模式
+[NOTE] 当 Rust binding 不可用时，自动降级到纯 Python 实现
 
 The BuiltinTools class wraps the Rust ToolExecutor for high-performance
 file operations, search, and shell command execution.
+
+When Rust binding is not available, it automatically falls back to pure
+Python implementations from file_ops, search, and bash modules.
 
 Features:
     - File operations: read, write, edit, list directory
@@ -14,6 +17,7 @@ Features:
     - Shell execution: bash commands with timeout support
     - Tool discovery: list available tools and capabilities
     - Category classification: automatic tool categorization
+    - Automatic fallback to pure Python when Rust binding unavailable
 
 Quick Start:
     >>> from continuum_sdk.tools import BuiltinTools
@@ -75,9 +79,16 @@ Tool Categories:
     - MEMORY: session memory operations
     - WORKFLOW: checkpoint operations
 
+Fallback Mode:
+    When Rust binding (sh_python.pyd) is not available, all core tools
+    automatically fall back to pure Python implementations:
+    - file_ops.read_file, file_ops.write_file, file_ops.edit_file
+    - search.grep, search.glob
+    - bash.bash_execute_sync
+
 Requirements:
-    Rust binding (sh_python.pyd) required for real operations.
-    Falls back to placeholder mode without the binding.
+    Rust binding (sh_python.pyd) recommended for best performance.
+    Pure Python fallback available without any native dependencies.
 """
 
 import json
@@ -96,6 +107,11 @@ except ImportError:
     # Define placeholder for type annotation
     class RustToolExecutor:
         pass
+
+# Import Python fallback implementations
+from .file_ops import read_file, write_file, edit_file
+from .search import grep, glob
+from .bash import bash_execute_sync
 
 
 class ToolCategory(Enum):
@@ -206,12 +222,17 @@ class BuiltinTools:
         return ToolCategory.OTHER
 
     def _check_binding(self, name: str) -> None:
-        """Check if Rust binding is available."""
-        if not self._executor:
+        """Check if tool is available (Rust binding or Python fallback)."""
+        if not self._executor and name not in self._fallback_tools:
             raise NotImplementedError(
                 f"Tool '{name}' requires Rust binding. "
                 "Ensure sh_python.pyd is in the package directory."
             )
+
+    @property
+    def _fallback_tools(self) -> set[str]:
+        """Tools available via Python fallback."""
+        return {"read_file", "write_file", "edit_file", "list_directory", "grep", "glob", "bash"}
 
     # ==================== File Operations ====================
 
@@ -228,8 +249,12 @@ class BuiltinTools:
         Returns:
             File contents
         """
-        self._check_binding("read_file")
-        return self._executor.read_file(path, offset, limit)
+        if self._executor:
+            return self._executor.read_file(path, offset, limit)
+
+        # Python fallback
+        result = read_file(path, offset, limit, show_line_numbers=True)
+        return result.content
 
     def write_file(self, path: str, content: str) -> str:
         """Write content to file.
@@ -241,8 +266,12 @@ class BuiltinTools:
         Returns:
             Result message
         """
-        self._check_binding("write_file")
-        return self._executor.write_file(path, content)
+        if self._executor:
+            return self._executor.write_file(path, content)
+
+        # Python fallback
+        result = write_file(path, content)
+        return result.content
 
     def edit_file(self, path: str, old: str, new: str) -> str:
         """Edit file by replacing text.
@@ -255,9 +284,13 @@ class BuiltinTools:
         Returns:
             Result message
         """
-        self._check_binding("edit_file")
-        args = json.dumps({"path": path, "old_string": old, "new_string": new})
-        return self._executor.execute("edit_file", args)
+        if self._executor:
+            args = json.dumps({"path": path, "old_string": old, "new_string": new})
+            return self._executor.execute("edit_file", args)
+
+        # Python fallback
+        result = edit_file(path, old, new)
+        return result.content
 
     def list_directory(self, path: str) -> list[dict[str, Any]]:
         """List directory contents.
@@ -268,12 +301,27 @@ class BuiltinTools:
         Returns:
             List of entries with name, type (file/dir)
         """
-        self._check_binding("list_directory")
-        result = self._executor.execute("list_directory", json.dumps({"path": path}))
-        try:
-            return json.loads(result)
-        except json.JSONDecodeError:
-            return [{"raw": result}]
+        if self._executor:
+            result = self._executor.execute("list_directory", json.dumps({"path": path}))
+            try:
+                return json.loads(result)
+            except json.JSONDecodeError:
+                return [{"raw": result}]
+
+        # Python fallback using pathlib
+        from pathlib import Path
+        dir_path = Path(path).expanduser().resolve()
+        if not dir_path.exists():
+            return [{"error": f"Directory not found: {dir_path}"}]
+
+        entries = []
+        for entry in dir_path.iterdir():
+            entries.append({
+                "name": entry.name,
+                "type": "dir" if entry.is_dir() else "file",
+                "path": str(entry),
+            })
+        return sorted(entries, key=lambda e: (e["type"], e["name"]))
 
     # ==================== Search ====================
 
@@ -290,8 +338,12 @@ class BuiltinTools:
         Returns:
             Search results
         """
-        self._check_binding("grep")
-        return self._executor.grep(pattern, path, glob)
+        if self._executor:
+            return self._executor.grep(pattern, path, glob)
+
+        # Python fallback
+        result = grep(pattern, path, glob)
+        return result.content
 
     def glob(self, pattern: str, path: str | None = None) -> str:
         """Find files matching pattern.
@@ -303,8 +355,13 @@ class BuiltinTools:
         Returns:
             Matching file paths
         """
-        self._check_binding("glob")
-        return self._executor.glob(pattern, path)
+        if self._executor:
+            return self._executor.glob(pattern, path)
+
+        # Python fallback (rename to avoid shadowing)
+        from .search import glob as glob_search
+        result = glob_search(pattern, path)
+        return result.content
 
     # ==================== Shell ====================
 
@@ -324,8 +381,13 @@ class BuiltinTools:
         Returns:
             Command output
         """
-        self._check_binding("bash")
-        return self._executor.bash(command, timeout_ms, working_dir)
+        if self._executor:
+            return self._executor.bash(command, timeout_ms, working_dir)
+
+        # Python fallback
+        timeout_sec = (timeout_ms / 1000) if timeout_ms else 120.0
+        result = bash_execute_sync(command, timeout=timeout_sec, working_dir=working_dir)
+        return result.content
 
     # ==================== Tool Discovery ====================
 
@@ -337,7 +399,7 @@ class BuiltinTools:
         """Check if tool is available."""
         if self._executor:
             return self._executor.is_available(name)
-        return name in self._tools_cache
+        return name in self._fallback_tools
 
     def get_tool_meta(self, name: str) -> ToolMeta | None:
         """Get tool metadata by name.
@@ -360,8 +422,27 @@ class BuiltinTools:
         Returns:
             Tool result
         """
-        self._check_binding(name)
-        return self._executor.execute(name, json.dumps(args))
+        if self._executor:
+            return self._executor.execute(name, json.dumps(args))
+
+        # Python fallback routing
+        if name == "read_file":
+            return self.read_file(args.get("path"), args.get("offset"), args.get("limit"))
+        elif name == "write_file":
+            return self.write_file(args.get("path"), args.get("content"))
+        elif name == "edit_file":
+            return self.edit_file(args.get("path"), args.get("old"), args.get("new"))
+        elif name == "list_directory":
+            result = self.list_directory(args.get("path"))
+            return json.dumps(result)
+        elif name == "grep":
+            return self.grep(args.get("pattern"), args.get("path"), args.get("glob"))
+        elif name == "glob":
+            return self.glob(args.get("pattern"), args.get("path"))
+        elif name == "bash":
+            return self.bash(args.get("command"), args.get("timeout_ms"), args.get("working_dir"))
+        else:
+            raise NotImplementedError(f"Tool '{name}' not available in Python fallback mode")
 
 
 # Module-level singleton for convenience

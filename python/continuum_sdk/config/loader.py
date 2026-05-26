@@ -6,6 +6,7 @@ Configuration loading and management for Continuum SDK with:
 - TOML configuration file support
 - Environment variable expansion (${VAR_NAME})
 - Multi-provider management
+- Security: Whitelist-based environment variable access
 """
 
 import json
@@ -15,6 +16,57 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+# Security: Whitelist of allowed environment variables
+ALLOWED_ENV_VARS = {
+    # Continuum namespace
+    "CONTINUUM_API_KEY",
+    "CONTINUUM_BASE_URL",
+    "CONTINUUM_PROVIDER",
+    "CONTINUUM_MODEL",
+    "CONTINUUM_SMALL_MODEL",
+    "CONTINUUM_DEFAULT_MODEL",
+    "CONTINUUM_LOG_LEVEL",
+    "CONTINUUM_MAX_TOKENS",
+    "CONTINUUM_TIMEOUT",
+    "CONTINUUM_MAX_ITERATIONS",
+    "CONTINUUM_AUDIT_ENABLED",
+    "CONTINUUM_AUDIT_LOG_PATH",
+    "CONTINUUM_AUDIT_RETENTION",
+    # Provider-specific (standard)
+    "ANTHROPIC_API_KEY",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_MODEL",
+    "OPENAI_API_KEY",
+    "OPENAI_BASE_URL",
+    "OPENAI_MODEL",
+    "GOOGLE_API_KEY",
+    "GOOGLE_BASE_URL",
+    "GEMINI_API_KEY",
+    "GEMINI_BASE_URL",
+    # Legacy support (deprecated)
+    "SUPERHARNESS_API_KEY",
+    "SUPERHARNESS_BASE_URL",
+}
+
+
+def _get_env(name: str, default: str | None = None) -> str | None:
+    """
+    Securely get environment variable with whitelist validation.
+
+    Only allows predefined environment variables to prevent
+    environment variable injection attacks.
+    """
+    if name not in ALLOWED_ENV_VARS:
+        # Log warning but don't expose the variable name
+        import warnings
+        warnings.warn(
+            f"Attempted to access non-whitelisted environment variable",
+            UserWarning,
+            stacklevel=3,
+        )
+        return default
+    return os.environ.get(name, default)
 
 # TOML support (Python 3.11+ has built-in, otherwise use tomllib)
 try:
@@ -293,8 +345,8 @@ class Config:
 
         # First pass: get provider to know which fallback to use
         provider = (
-            os.environ.get(f"{cls.ENV_PREFIX}PROVIDER")
-            or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}PROVIDER")
+            _get_env(f"{cls.ENV_PREFIX}PROVIDER")
+            or _get_env(f"{cls.ENV_PREFIX_FALLBACK}PROVIDER")
             or "anthropic"
         )
         config_data["provider"] = provider
@@ -307,22 +359,22 @@ class Config:
             if env_suffix == "API_KEY":
                 # For API_KEY, use provider-specific fallback
                 value = (
-                    os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
-                    or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
-                    or os.environ.get(provider_fallback_key)
+                    _get_env(f"{cls.ENV_PREFIX}{env_suffix}")
+                    or _get_env(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
+                    or _get_env(provider_fallback_key)
                 )
             elif env_suffix == "BASE_URL":
                 # For BASE_URL, check provider-specific var too
                 value = (
-                    os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
-                    or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
-                    or os.environ.get(f"{provider.upper()}_BASE_URL")
+                    _get_env(f"{cls.ENV_PREFIX}{env_suffix}")
+                    or _get_env(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
+                    or _get_env(f"{provider.upper()}_BASE_URL")
                 )
             else:
                 value = (
-                    os.environ.get(f"{cls.ENV_PREFIX}{env_suffix}")
-                    or os.environ.get(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
-                    or os.environ.get(f"ANTHROPIC_{env_suffix}")
+                    _get_env(f"{cls.ENV_PREFIX}{env_suffix}")
+                    or _get_env(f"{cls.ENV_PREFIX_FALLBACK}{env_suffix}")
+                    or _get_env(f"ANTHROPIC_{env_suffix}")
                 )
 
             if value:
@@ -498,7 +550,8 @@ class Config:
 
                 def replacer(match):
                     var_name = match.group(1) or match.group(2)
-                    return os.environ.get(var_name, match.group(0))
+                    # Security: use whitelisted env access
+                    return _get_env(var_name) or match.group(0)
 
                 return pattern.sub(replacer, value)
             elif isinstance(value, dict):

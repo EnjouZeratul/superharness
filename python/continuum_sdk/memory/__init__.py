@@ -8,6 +8,7 @@ Features:
     - Episodic memory (session history)
     - Semantic memory (knowledge base)
     - Automatic tier promotion
+    - Multiple storage backends (memory, file, sqlite)
 
 Tier Levels:
     - Tier 0: Immediate context (last N messages)
@@ -15,24 +16,49 @@ Tier Levels:
     - Tier 2: Long-term (persisted facts)
     - Tier 3: Archive (historical data)
 
+Storage Backends:
+    - MemoryStorage: In-memory storage (default, no persistence)
+    - FileStorage: JSON file-based persistence
+    - SQLiteStorage: SQLite database persistence
+
 Quick Start:
     >>> from continuum_sdk.memory import Memory, MemoryTier
     >>>
-    >>> memory = Memory()
+    >>> # In-memory storage (default)
+    >>> memory = Memory(session_id="session-123")
+    >>>
+    >>> # File-based persistence
+    >>> memory = Memory.create_with_file_storage("session-123")
     >>>
     >>> # Add entry
-    >>> memory.add("User prefers Python", tier=MemoryTier.LONG_TERM)
+    >>> memory.remember("User prefers Python", tier=MemoryTier.LONG_TERM)
     >>>
     >>> # Retrieve relevant context
-    >>> context = memory.get_context("What language?")
-    >>> print(context)  # "User prefers Python"
+    >>> context = memory.recall("Python")
+    >>> print(context[0].content)  # "User prefers Python"
 """
 
-from .layers import Memory, MemoryEntry, MemoryTier, TierProxy
+# 先导入 storage 中的基础类型
+from .storage import (
+    StorageBackend,
+    MemoryStorage,
+    FileStorage,
+    MemoryEntry,
+    MemoryTier,
+)
+
+# 再导入 layers 中的高级 API
+from .layers import Memory, TierProxy, MemoryQuery
 
 __all__ = [
+    # 核心 API
     "Memory",
     "MemoryTier",
     "MemoryEntry",
+    "MemoryQuery",
     "TierProxy",
+    # 存储后端
+    "StorageBackend",
+    "MemoryStorage",
+    "FileStorage",
 ]

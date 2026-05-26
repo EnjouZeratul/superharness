@@ -13,6 +13,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
+use super::color_theme::ColorTheme;
+
 /// 代码查看器组件
 pub struct CodeViewerComponent {
     /// 文件路径
@@ -103,34 +105,34 @@ impl CodeLanguage {
 
 /// 语法高亮器
 pub struct SyntaxHighlighter {
-    /// 关键字颜色
-    keyword_color: Color,
-    /// 字符串颜色
-    string_color: Color,
-    /// 注释颜色
-    comment_color: Color,
-    /// 数字颜色
-    number_color: Color,
-    /// 函数颜色
-    function_color: Color,
-    /// 类型颜色
-    type_color: Color,
+    /// 颜色主题
+    theme: ColorTheme,
 }
 
 impl Default for SyntaxHighlighter {
     fn default() -> Self {
         Self {
-            keyword_color: Color::Magenta,
-            string_color: Color::Green,
-            comment_color: Color::Gray,
-            number_color: Color::Yellow,
-            function_color: Color::Cyan,
-            type_color: Color::Blue,
+            theme: ColorTheme::dark(),
         }
     }
 }
 
 impl SyntaxHighlighter {
+    /// 使用指定主题创建高亮器
+    pub fn with_theme(theme: ColorTheme) -> Self {
+        Self { theme }
+    }
+
+    /// 获取当前主题
+    pub fn theme(&self) -> &ColorTheme {
+        &self.theme
+    }
+
+    /// 设置主题
+    pub fn set_theme(&mut self, theme: ColorTheme) {
+        self.theme = theme;
+    }
+
     /// 高亮一行代码
     pub fn highlight_line(&self, line: &str, language: CodeLanguage) -> Vec<Span<'_>> {
         let mut spans = Vec::new();
@@ -143,7 +145,7 @@ impl SyntaxHighlighter {
                 let comment: String = chars[pos..].iter().collect();
                 spans.push(Span::styled(
                     comment,
-                    Style::default().fg(self.comment_color),
+                    Style::default().fg(self.theme.comment),
                 ));
                 break;
             }
@@ -151,19 +153,31 @@ impl SyntaxHighlighter {
             // 检查字符串
             if let Some(end) = self.find_string_end(&chars, pos, language) {
                 let s: String = chars[pos..=end].iter().collect();
-                spans.push(Span::styled(s, Style::default().fg(self.string_color)));
+                spans.push(Span::styled(s, Style::default().fg(self.theme.string)));
                 pos = end + 1;
                 continue;
             }
 
             // 检查数字
-            if chars[pos].is_ascii_digit() {
-                let mut end = pos;
-                while end < chars.len() && (chars[end].is_ascii_digit() || chars[end] == '.') {
+            if chars[pos].is_ascii_digit()
+                || (chars[pos] == '-' && pos + 1 < chars.len() && chars[pos + 1].is_ascii_digit())
+            {
+                let start = if chars[pos] == '-' { pos + 1 } else { pos };
+                let mut end = start;
+                while end < chars.len()
+                    && (chars[end].is_ascii_digit()
+                        || chars[end] == '.'
+                        || chars[end] == 'x'
+                        || chars[end] == 'b'
+                        || chars[end] == 'o'
+                        || (end > start && chars[end].is_ascii_hexdigit()))
+                {
                     end += 1;
                 }
-                let num: String = chars[pos..end].iter().collect();
-                spans.push(Span::styled(num, Style::default().fg(self.number_color)));
+                // Include negative sign if present
+                let actual_start = if chars[pos] == '-' { pos } else { start };
+                let num: String = chars[actual_start..end].iter().collect();
+                spans.push(Span::styled(num, Style::default().fg(self.theme.number)));
                 pos = end;
                 continue;
             }
@@ -178,18 +192,56 @@ impl SyntaxHighlighter {
 
                 let style = if self.is_keyword(&word, language) {
                     Style::default()
-                        .fg(self.keyword_color)
+                        .fg(self.theme.keyword)
                         .add_modifier(Modifier::BOLD)
                 } else if self.is_type(&word, language) {
-                    Style::default().fg(self.type_color)
+                    Style::default().fg(self.theme.type_name)
+                } else if self.is_builtin(&word, language) {
+                    Style::default().fg(self.theme.function)
                 } else if end < chars.len() && chars[end] == '(' {
-                    Style::default().fg(self.function_color)
-                } else {
+                    Style::default().fg(self.theme.function)
+                } else if SyntaxHighlighter::is_constant(&word) {
                     Style::default()
+                        .fg(self.theme.number)
+                        .add_modifier(Modifier::BOLD)
+                } else {
+                    Style::default().fg(self.theme.variable)
                 };
 
                 spans.push(Span::styled(word, style));
                 pos = end;
+                continue;
+            }
+
+            // 检查操作符
+            if SyntaxHighlighter::is_operator(chars[pos]) {
+                let mut end = pos;
+                while end < chars.len() && SyntaxHighlighter::is_operator(chars[end]) {
+                    end += 1;
+                }
+                let op: String = chars[pos..end].iter().collect();
+                spans.push(Span::styled(op, Style::default().fg(self.theme.operator)));
+                pos = end;
+                continue;
+            }
+
+            // 检查括号
+            if SyntaxHighlighter::is_bracket(chars[pos]) {
+                spans.push(Span::styled(
+                    chars[pos].to_string(),
+                    Style::default().fg(self.theme.bracket),
+                ));
+                pos += 1;
+                continue;
+            }
+
+            // 检查标点
+            if SyntaxHighlighter::is_punctuation(chars[pos]) {
+                spans.push(Span::styled(
+                    chars[pos].to_string(),
+                    Style::default().fg(self.theme.punctuation),
+                ));
+                pos += 1;
                 continue;
             }
 
@@ -199,6 +251,55 @@ impl SyntaxHighlighter {
         }
 
         spans
+    }
+
+    fn is_operator(c: char) -> bool {
+        matches!(
+            c,
+            '+' | '-' | '*' | '/' | '%' | '=' | '<' | '>' | '&' | '|' | '^' | '~' | '!' | '?' | ':'
+        )
+    }
+
+    fn is_bracket(c: char) -> bool {
+        matches!(c, '(' | ')' | '[' | ']' | '{' | '}')
+    }
+
+    fn is_punctuation(c: char) -> bool {
+        matches!(c, ',' | '.' | ';' | '@' | '#' | '$')
+    }
+
+    fn is_constant(word: &str) -> bool {
+        // 全大写或已知常量
+        word.chars().all(|c| c.is_uppercase() || c == '_')
+            || matches!(word, "None" | "null" | "nil" | "undefined" | "NaN" | "Infinity")
+    }
+
+    fn is_builtin(&self, word: &str, language: CodeLanguage) -> bool {
+        let builtins = match language {
+            CodeLanguage::Python => &[
+                "print", "len", "range", "enumerate", "zip", "map", "filter", "sorted", "reversed",
+                "min", "max", "sum", "abs", "round", "int", "float", "str", "bool", "list", "dict",
+                "set", "tuple", "open", "input", "type", "isinstance", "hasattr", "getattr",
+                "setattr", "delattr", "property", "staticmethod", "classmethod", "super",
+                "isinstance", "issubclass", "callable", "iter", "next", "repr", "hash", "id",
+                "dir", "vars", "locals", "globals", "exec", "eval", "compile", "__import__",
+            ] as &[&str],
+            CodeLanguage::Rust => &[
+                "println", "print", "format", "vec", "String", "Box", "Rc", "Arc", "Some", "None",
+                "Ok", "Err", "panic", "assert", "assert_eq", "assert_ne", "debug_assert",
+                "debug_assert_eq", "debug_assert_ne", "todo", "unimplemented", "unreachable",
+                "cfg", "include", "include_str", "concat", "env", "option_env", "panic",
+            ],
+            CodeLanguage::JavaScript | CodeLanguage::TypeScript => &[
+                "console", "log", "alert", "confirm", "prompt", "parseInt", "parseFloat",
+                "Number", "String", "Boolean", "Array", "Object", "Map", "Set", "WeakMap",
+                "WeakSet", "Date", "RegExp", "Error", "TypeError", "ReferenceError", "JSON",
+                "Math", "Promise", "Symbol", "Proxy", "Reflect", "setTimeout", "setInterval",
+                "clearTimeout", "clearInterval", "fetch", "require", "exports", "module",
+            ],
+            _ => &[],
+        };
+        builtins.contains(&word)
     }
 
     fn is_comment_start(&self, chars: &[char], pos: usize, language: CodeLanguage) -> bool {

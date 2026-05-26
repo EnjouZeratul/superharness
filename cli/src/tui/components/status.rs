@@ -1,8 +1,9 @@
 //! TUI 状态栏组件
 
+use super::color_theme::ColorTheme;
 use ratatui::{
     layout::Rect,
-    style::{Color, Style},
+    style::Style,
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
     Frame,
@@ -28,6 +29,8 @@ pub struct StatusComponent {
     agent_state: String,
     /// 是否已连接
     connected: bool,
+    /// 颜色主题
+    theme: ColorTheme,
 }
 
 impl StatusComponent {
@@ -43,7 +46,13 @@ impl StatusComponent {
             model: None,
             agent_state: "Idle".to_string(),
             connected: false,
+            theme: ColorTheme::dark(),
         }
+    }
+
+    /// 设置主题
+    pub fn set_theme(&mut self, theme: ColorTheme) {
+        self.theme = theme;
     }
 
     /// 设置模式
@@ -105,10 +114,10 @@ impl StatusComponent {
     /// 渲染组件
     pub fn render(&self, f: &mut Frame, area: Rect) {
         let mode_color = match self.mode.as_str() {
-            "Normal" => Color::Blue,
-            "Insert" => Color::Green,
-            "Command" => Color::Yellow,
-            _ => Color::Gray,
+            "Normal" => self.theme.border,
+            "Insert" => self.theme.success_message,
+            "Command" => self.theme.warning_message,
+            _ => self.theme.punctuation,
         };
 
         let conn_icon = if self.connected { "🟢" } else { "🔴" };
@@ -127,24 +136,24 @@ impl StatusComponent {
         };
 
         let agent_color = match self.agent_state.as_str() {
-            "Running" => Color::Yellow,
-            "Idle" => Color::Green,
-            "Error" => Color::Red,
-            _ => Color::Gray,
+            "Running" => self.theme.tool_running,
+            "Idle" => self.theme.tool_success,
+            "Error" => self.theme.tool_failed,
+            _ => self.theme.punctuation,
         };
 
         let status_line = Line::from(vec![
             Span::styled(
                 format!(" {} ", self.mode),
-                Style::default().fg(Color::Black).bg(mode_color),
+                Style::default().fg(self.theme.background).bg(mode_color),
             ),
             Span::raw(" "),
             Span::styled(
                 conn_icon.to_string(),
                 Style::default().fg(if self.connected {
-                    Color::Green
+                    self.theme.success_message
                 } else {
-                    Color::Red
+                    self.theme.error_message
                 }),
             ),
             Span::raw(" "),
@@ -157,16 +166,16 @@ impl StatusComponent {
                     "{}{}Msgs: {} | ",
                     provider_info, session_info, self.message_count
                 ),
-                Style::default().fg(Color::White),
+                Style::default().fg(self.theme.foreground),
             ),
             Span::styled(
                 format!("{} ", self.status),
-                Style::default().fg(Color::Cyan),
+                Style::default().fg(self.theme.title),
             ),
             Span::raw(" "),
             Span::styled(
                 "Ctrl+C: Quit | Enter: Send | Esc: Cancel",
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(self.theme.comment),
             ),
         ]);
 

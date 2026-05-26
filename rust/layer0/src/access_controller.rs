@@ -140,6 +140,10 @@ impl AccessController {
         let mut user_roles = self.user_roles.write();
         if let Some(roles) = user_roles.get_mut(user_id) {
             roles.remove(role_name);
+            // 如果角色集合为空，则删除该用户的记录，使其回退到 guest 默认权限
+            if roles.is_empty() {
+                user_roles.remove(user_id);
+            }
         }
     }
 
@@ -196,5 +200,109 @@ mod tests {
         // 未设置角色的用户默认是 guest
         assert!(controller.check("unknown_user", "session", "read"));
         assert!(!controller.check("unknown_user", "session", "write"));
+    }
+
+    #[test]
+    fn test_remove_role() {
+        let controller = AccessController::new();
+
+        controller.add_role("test_user", "admin");
+        assert!(controller.check("test_user", "any", "any"));
+
+        controller.remove_role("test_user", "admin");
+        // 移除后应该回退到 guest 权限
+        assert!(!controller.check("test_user", "any", "any"));
+        assert!(controller.check("test_user", "session", "read"));
+    }
+
+    #[test]
+    fn test_create_custom_role() {
+        let controller = AccessController::new();
+
+        let custom_role = Role {
+            name: "custom".to_string(),
+            permissions: HashSet::from([
+                Permission::new("custom_resource", "read"),
+                Permission::new("custom_resource", "write"),
+            ]),
+        };
+        controller.create_role(custom_role);
+
+        controller.add_role("custom_user", "custom");
+        assert!(controller.check("custom_user", "custom_resource", "read"));
+        assert!(controller.check("custom_user", "custom_resource", "write"));
+        assert!(!controller.check("custom_user", "other_resource", "read"));
+    }
+
+    #[test]
+    fn test_get_permissions() {
+        let controller = AccessController::new();
+
+        controller.add_role("multi_user", "user");
+        controller.add_role("multi_user", "guest");
+
+        let permissions = controller.get_permissions("multi_user");
+        // 应该合并 user 和 guest 的权限
+        assert!(permissions.contains(&Permission::new("session", "read")));
+        assert!(permissions.contains(&Permission::new("session", "write")));
+        assert!(permissions.contains(&Permission::new("tool", "execute")));
+    }
+
+    #[test]
+    fn test_permission_new() {
+        let perm = Permission::new("resource", "action");
+        assert_eq!(perm.resource, "resource");
+        assert_eq!(perm.action, "action");
+    }
+
+    #[test]
+    fn test_multiple_roles_same_user() {
+        let controller = AccessController::new();
+
+        controller.add_role("power_user", "user");
+        controller.add_role("power_user", "admin");
+
+        // 有 admin 权限应该可以访问任何资源
+        assert!(controller.check("power_user", "super_secret", "delete"));
+    }
+
+    #[test]
+    fn test_role_serialization() {
+        let role = Role {
+            name: "test".to_string(),
+            permissions: HashSet::from([Permission::new("r", "a")]),
+        };
+        let json = serde_json::to_string(&role).unwrap();
+        assert!(json.contains("test"));
+    }
+
+    #[test]
+    fn test_permission_hash_equality() {
+        let p1 = Permission::new("resource", "action");
+        let p2 = Permission::new("resource", "action");
+        let set: HashSet<Permission> = HashSet::from([p1, p2]);
+        assert_eq!(set.len(), 1); // 相同权限应该只保留一个
+    }
+
+    #[test]
+    fn test_concurrent_access() {
+        use std::sync::Arc;
+        use std::thread;
+
+        let controller = Arc::new(AccessController::new());
+        controller.add_role("user1", "admin");
+
+        let mut handles = vec![];
+        for i in 0..10 {
+            let c = Arc::clone(&controller);
+            handles.push(thread::spawn(move || {
+                let user = format!("user{}", i);
+                c.check(&user, "session", "read")
+            }));
+        }
+
+        for handle in handles {
+            handle.join().unwrap();
+        }
     }
 }

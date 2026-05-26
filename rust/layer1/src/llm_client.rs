@@ -3,12 +3,17 @@
 //! 统一的 LLM API 客户端，支持多提供商。
 //!
 //! [STABLE] 基础请求功能完整
-//! [EXPERIMENTAL] 流式响应 (send_stream) 尚未实现
+//! [STABLE] 流式响应支持 Anthropic/OpenAI 格式
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use tracing::{info, warn};
+
+use crate::streaming::{MessageStream, StreamProvider, StreamEvent, ContentDelta, CallbackStream, OnChunkCallback};
 
 /// LLM 提供商类型
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,7 +84,7 @@ pub trait LlmClientTrait {
         &self,
         messages: Vec<Message>,
         config: &LlmRequestConfig,
-    ) -> Result<impl futures::Stream<Item = Result<String>>>;
+    ) -> Result<MessageStream>;
 }
 
 /// 消息
@@ -131,12 +136,215 @@ impl LlmClient {
         self.base_url = base_url;
         self
     }
+
+    /// 发送带回调的流式请求
+    pub async fn send_stream_with_callback(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+        on_chunk: OnChunkCallback,
+    ) -> Result<LlmResponse> {
+        let message_stream = self.send_stream(messages, config).await?;
+        let mut callback_stream = CallbackStream::new(message_stream, Some(on_chunk));
+
+        let mut content = String::new();
+        let mut input_tokens = 0u32;
+        let mut output_tokens = 0u32;
+        let mut message_id = String::new();
+        let mut model = config.model.clone();
+
+        while let Some(event) = callback_stream.next_event().await? {
+            match event {
+                StreamEvent::MessageStart { id, model: m } => {
+                    message_id = id;
+                    model = m;
+                }
+                StreamEvent::ContentBlockDelta { delta, .. } => {
+                    if let ContentDelta::Text(t) = delta {
+                        content.push_str(&t);
+                    }
+                }
+                StreamEvent::MessageDelta { usage, .. } => {
+                    input_tokens = usage.input_tokens;
+                    output_tokens = usage.output_tokens;
+                }
+                _ => {}
+            }
+        }
+
+        Ok(LlmResponse {
+            content,
+            usage: TokenUsage {
+                input_tokens,
+                output_tokens,
+            },
+            model,
+            response_id: message_id,
+        })
+    }
+
+    /// 发送可中断的流式请求
+    pub async fn send_stream_abortable(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+        abort_flag: Arc<AtomicBool>,
+    ) -> Result<LlmResponse> {
+        let message_stream = self.send_stream(messages, config).await?;
+        let mut callback_stream = CallbackStream::new(message_stream, None);
+
+        let mut content = String::new();
+        let mut input_tokens = 0u32;
+        let mut output_tokens = 0u32;
+        let mut message_id = String::new();
+        let mut model = config.model.clone();
+
+        while !abort_flag.load(Ordering::Relaxed) {
+            match callback_stream.next_event().await {
+                Ok(Some(event)) => {
+                    match event {
+                        StreamEvent::MessageStart { id, model: m } => {
+                            message_id = id;
+                            model = m;
+                        }
+                        StreamEvent::ContentBlockDelta { delta, .. } => {
+                            if let ContentDelta::Text(t) = delta {
+                                content.push_str(&t);
+                            }
+                        }
+                        StreamEvent::MessageDelta { usage, .. } => {
+                            input_tokens = usage.input_tokens;
+                            output_tokens = usage.output_tokens;
+                        }
+                        StreamEvent::MessageStop => {
+                            break;
+                        }
+                        _ => {}
+                    }
+                }
+                Ok(None) => break,
+                Err(e) => {
+                    if abort_flag.load(Ordering::Relaxed) {
+                        info!("Stream aborted by user");
+                        break;
+                    }
+                    return Err(e);
+                }
+            }
+        }
+
+        if abort_flag.load(Ordering::Relaxed) {
+            info!("Stream was aborted");
+        }
+
+        Ok(LlmResponse {
+            content,
+            usage: TokenUsage {
+                input_tokens,
+                output_tokens,
+            },
+            model,
+            response_id: message_id,
+        })
+    }
+
+    /// 带错误恢复的请求重试
+    pub async fn send_with_retry(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+        max_retries: u32,
+    ) -> Result<LlmResponse> {
+        let mut attempts = 0;
+        let mut last_error: Option<anyhow::Error> = None;
+
+        while attempts < max_retries {
+            attempts += 1;
+
+            match self.send(messages.clone(), config).await {
+                Ok(response) => {
+                    info!("LLM request succeeded after {} attempts", attempts);
+                    return Ok(response);
+                }
+                Err(e) => {
+                    let error_msg = e.to_string();
+
+                    if error_msg.contains("rate limit")
+                        || error_msg.contains("429")
+                        || error_msg.contains("overloaded")
+                        || error_msg.contains("timeout")
+                    {
+                        warn!(
+                            "LLM request failed (attempt {}/{}): {}",
+                            attempts, max_retries, e
+                        );
+                        last_error = Some(e);
+
+                        let delay = std::cmp::min(1000 * 2u64.pow(attempts - 1), 30000);
+                        tokio::time::sleep(tokio::time::Duration::from_millis(delay)).await;
+                    } else {
+                        return Err(e);
+                    }
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or_else(|| anyhow!("Max retries exceeded")))
+    }
+
+    /// 带错误恢复的流式请求重试
+    pub async fn send_stream_with_retry(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+        max_retries: u32,
+    ) -> Result<LlmResponse> {
+        let mut attempts = 0;
+        let mut last_error: Option<anyhow::Error> = None;
+
+        while attempts < max_retries {
+            attempts += 1;
+
+            match self.send_stream_with_callback(
+                messages.clone(),
+                config,
+                Box::new(|_| {}),
+            ).await {
+                Ok(response) => {
+                    info!("Stream request succeeded after {} attempts", attempts);
+                    return Ok(response);
+                }
+                Err(e) => {
+                    let error_msg = e.to_string();
+
+                    if error_msg.contains("rate limit")
+                        || error_msg.contains("429")
+                        || error_msg.contains("overloaded")
+                        || error_msg.contains("timeout")
+                        || error_msg.contains("aborted")
+                    {
+                        warn!(
+                            "Stream request failed (attempt {}/{}): {}",
+                            attempts, max_retries, e
+                        );
+                        last_error = Some(e);
+
+                        let delay = std::cmp::min(1000 * 2u64.pow(attempts - 1), 30000);
+                        tokio::time::sleep(tokio::time::Duration::from_millis(delay)).await;
+                    } else {
+                        return Err(e);
+                    }
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or_else(|| anyhow!("Max retries exceeded")))
+    }
 }
 
 #[async_trait]
 impl LlmClientTrait for LlmClient {
     async fn send(&self, messages: Vec<Message>, config: &LlmRequestConfig) -> Result<LlmResponse> {
-        // 根据提供商构建请求
         match self.provider {
             LlmProvider::Anthropic => self.send_anthropic(messages, config).await,
             LlmProvider::OpenAI => self.send_openai(messages, config).await,
@@ -149,11 +357,23 @@ impl LlmClientTrait for LlmClient {
 
     async fn send_stream(
         &self,
-        _messages: Vec<Message>,
-        _config: &LlmRequestConfig,
-    ) -> Result<impl futures::Stream<Item = Result<String>>> {
-        // [EXPERIMENTAL] 流式响应尚未实现
-        Ok(futures::stream::empty())
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+    ) -> Result<MessageStream> {
+        match self.provider {
+            LlmProvider::Anthropic => {
+                self.stream_anthropic(messages, config).await
+            }
+            LlmProvider::OpenAI => {
+                self.stream_openai(messages, config).await
+            }
+            LlmProvider::Gemini => {
+                self.stream_gemini(messages, config).await
+            }
+            LlmProvider::Custom(_) => {
+                Err(anyhow!("Custom provider does not support streaming"))
+            }
+        }
     }
 }
 
@@ -216,6 +436,55 @@ impl LlmClient {
         })
     }
 
+    async fn stream_anthropic(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+    ) -> Result<MessageStream> {
+        let url = if self.base_url.ends_with("/v1") || self.base_url.ends_with("/v1/") {
+            format!("{}/messages", self.base_url.trim_end_matches('/'))
+        } else {
+            format!("{}/v1/messages", self.base_url.trim_end_matches('/'))
+        };
+
+        let request_body = AnthropicStreamRequest {
+            model: config.model.clone(),
+            max_tokens: config.max_tokens,
+            messages: messages
+                .into_iter()
+                .map(|m| AnthropicMessage {
+                    role: match m.role {
+                        MessageRole::User => "user",
+                        MessageRole::Assistant => "assistant",
+                        MessageRole::System => "system",
+                    },
+                    content: AnthropicContent::Text(m.content),
+                })
+                .collect(),
+            system: config.system_prompt.clone(),
+            temperature: config.temperature,
+            stream: true,
+        };
+
+        let response = self
+            .client
+            .post(&url)
+            .header("x-api-key", &self.api_key)
+            .header("anthropic-version", "2023-06-01")
+            .header("Accept", "text/event-stream")
+            .json(&request_body)
+            .send()
+            .await?;
+
+        let status = response.status();
+        if !status.is_success() {
+            let error_text = response.text().await?;
+            return Err(anyhow!("Anthropic API error {}: {}", status, error_text));
+        }
+
+        Ok(MessageStream::new(response, StreamProvider::Anthropic, config.model.clone()))
+    }
+
     async fn send_openai(
         &self,
         messages: Vec<Message>,
@@ -223,10 +492,8 @@ impl LlmClient {
     ) -> Result<LlmResponse> {
         let url = format!("{}/chat/completions", self.base_url);
 
-        // 构建 OpenAI 格式的消息
         let mut openai_messages: Vec<OpenAiMessage> = Vec::new();
 
-        // 添加系统提示
         if let Some(ref system) = config.system_prompt {
             openai_messages.push(OpenAiMessage {
                 role: "system",
@@ -234,7 +501,6 @@ impl LlmClient {
             });
         }
 
-        // 添加用户/助手消息
         for m in messages {
             openai_messages.push(OpenAiMessage {
                 role: match m.role {
@@ -284,6 +550,57 @@ impl LlmClient {
         })
     }
 
+    async fn stream_openai(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+    ) -> Result<MessageStream> {
+        let url = format!("{}/chat/completions", self.base_url);
+
+        let mut openai_messages: Vec<OpenAiMessage> = Vec::new();
+        if let Some(ref system) = config.system_prompt {
+            openai_messages.push(OpenAiMessage {
+                role: "system",
+                content: system.clone(),
+            });
+        }
+        for m in messages {
+            openai_messages.push(OpenAiMessage {
+                role: match m.role {
+                    MessageRole::User => "user",
+                    MessageRole::Assistant => "assistant",
+                    MessageRole::System => "system",
+                },
+                content: m.content,
+            });
+        }
+
+        let request_body = OpenAiStreamRequest {
+            model: config.model.clone(),
+            messages: openai_messages,
+            max_tokens: Some(config.max_tokens),
+            temperature: Some(config.temperature),
+            stream: true,
+        };
+
+        let response = self
+            .client
+            .post(&url)
+            .header("Authorization", format!("Bearer {}", self.api_key))
+            .header("Accept", "text/event-stream")
+            .json(&request_body)
+            .send()
+            .await?;
+
+        let status = response.status();
+        if !status.is_success() {
+            let error_text = response.text().await?;
+            return Err(anyhow!("OpenAI API error {}: {}", status, error_text));
+        }
+
+        Ok(MessageStream::new(response, StreamProvider::OpenAI, config.model.clone()))
+    }
+
     async fn send_gemini(
         &self,
         messages: Vec<Message>,
@@ -294,19 +611,15 @@ impl LlmClient {
             self.base_url, config.model, self.api_key
         );
 
-        // 构建 Gemini 格式的消息
         let mut contents: Vec<GeminiContent> = Vec::new();
-
-        // 添加系统提示作为单独的请求参数
         let system_instruction = config.system_prompt.clone();
 
-        // 添加用户/助手消息
         for m in messages {
             contents.push(GeminiContent {
                 role: match m.role {
                     MessageRole::User => "user".to_string(),
                     MessageRole::Assistant => "model".to_string(),
-                    MessageRole::System => "user".to_string(), // Gemini 没有 system role，用 user 替代
+                    MessageRole::System => "user".to_string(),
                 },
                 parts: vec![GeminiPart { text: m.content }],
             });
@@ -354,8 +667,59 @@ impl LlmClient {
                     .unwrap_or(0),
             },
             model: config.model.clone(),
-            response_id: "".to_string(), // Gemini 不返回 response ID
+            response_id: "".to_string(),
         })
+    }
+
+    async fn stream_gemini(
+        &self,
+        messages: Vec<Message>,
+        config: &LlmRequestConfig,
+    ) -> Result<MessageStream> {
+        let url = format!(
+            "{}/models/{}:streamGenerateContent?key={}&alt=sse",
+            self.base_url, config.model, self.api_key
+        );
+
+        let mut contents: Vec<GeminiContent> = Vec::new();
+        let system_instruction = config.system_prompt.clone();
+
+        for m in messages {
+            contents.push(GeminiContent {
+                role: match m.role {
+                    MessageRole::User => "user".to_string(),
+                    MessageRole::Assistant => "model".to_string(),
+                    MessageRole::System => "user".to_string(),
+                },
+                parts: vec![GeminiPart { text: m.content }],
+            });
+        }
+
+        let request_body = GeminiRequest {
+            contents,
+            generation_config: Some(GeminiGenerationConfig {
+                max_output_tokens: Some(config.max_tokens),
+                temperature: Some(config.temperature),
+                stop_sequences: if config.stop_sequences.is_empty() {
+                    None
+                } else {
+                    Some(config.stop_sequences.clone())
+                },
+            }),
+            system_instruction: system_instruction.map(|s| GeminiSystemInstruction {
+                parts: vec![GeminiPart { text: s }],
+            }),
+        };
+
+        let response = self.client.post(&url).json(&request_body).send().await?;
+
+        let status = response.status();
+        if !status.is_success() {
+            let error_text = response.text().await?;
+            return Err(anyhow!("Gemini API error {}: {}", status, error_text));
+        }
+
+        Ok(MessageStream::new(response, StreamProvider::Gemini, config.model.clone()))
     }
 }
 
@@ -370,12 +734,21 @@ struct AnthropicRequest {
 }
 
 #[derive(Serialize)]
+struct AnthropicStreamRequest {
+    model: String,
+    max_tokens: u32,
+    messages: Vec<AnthropicMessage>,
+    system: Option<String>,
+    temperature: f32,
+    stream: bool,
+}
+
+#[derive(Serialize)]
 struct AnthropicMessage {
     role: &'static str,
     content: AnthropicContent,
 }
 
-// Anthropic content - 可以是字符串或数组
 #[derive(Serialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
@@ -387,7 +760,7 @@ enum AnthropicContent {
 #[derive(Serialize)]
 struct AnthropicContentBlock {
     #[serde(rename = "type")]
-    content_type: String, // "text"
+    content_type: String,
     text: String,
 }
 
@@ -439,6 +812,17 @@ struct OpenAiRequest {
     temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     stop: Option<Vec<String>>,
+}
+
+#[derive(Serialize)]
+struct OpenAiStreamRequest {
+    model: String,
+    messages: Vec<OpenAiMessage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    max_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    temperature: Option<f32>,
+    stream: bool,
 }
 
 #[derive(Serialize)]

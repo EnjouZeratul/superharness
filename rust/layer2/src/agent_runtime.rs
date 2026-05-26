@@ -1,8 +1,11 @@
 //! # Agent Runtime
 //!
 //! Agent 执行运行时实现。
+//!
+//! 支持真实 LLM API 调用（Anthropic/OpenAI/Gemini）。
 
 use async_trait::async_trait;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tracing::{debug, info, warn};
 
@@ -71,6 +74,23 @@ pub trait AgentRuntimeTrait: Send + Sync {
     /// # Returns
     /// 执行结果，包含最终状态和输出
     async fn run(&self, task: &str, config: AgentConfig) -> Layer2Result<AgentResult>;
+
+    /// 流式启动 Agent 执行
+    async fn run_stream(
+        &self,
+        task: &str,
+        config: AgentConfig,
+        callback: &dyn AgentLoopCallback,
+    ) -> Layer2Result<AgentResult>;
+
+    /// 流式启动 Agent 执行（支持中断）
+    async fn run_stream_abortable(
+        &self,
+        task: &str,
+        config: AgentConfig,
+        callback: &dyn AgentLoopCallback,
+        abort_flag: Arc<AtomicBool>,
+    ) -> Layer2Result<AgentResult>;
 
     /// 启动 Agent 并返回会话 ID（用于流式执行）
     ///
@@ -563,6 +583,412 @@ impl AgentRuntimeTrait for AgentRuntime {
 
             // Check if we should stop
             if !step_result.should_continue {
+                break;
+            }
+        }
+
+        // Collect final results
+        let session = self
+            .session_manager
+            .get(&session_id)
+            .await?
+            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+
+        let tokens_used = session.tokens_total;
+
+        Ok(AgentResult {
+            session_id: session.session_id.clone(),
+            final_state: session.state,
+            messages: session.messages,
+            tool_calls: session.tool_calls_pending,
+            tool_results: session.tool_results_cache,
+            iterations,
+            tokens_used,
+        })
+    }
+
+    /// 流式运行 Agent 执行完整循环，通过回调通知每次迭代。
+    ///
+    /// 与 run() 类似，但在每次迭代前后通过回调通知外部调用者。
+    async fn run_stream(
+        &self,
+        task: &str,
+        config: AgentConfig,
+        callback: &dyn AgentLoopCallback,
+    ) -> Layer2Result<AgentResult> {
+        info!(task = %task, agent_id = %config.agent_id, "Starting agent run_stream");
+
+        // Create session
+        let session_config = SessionConfig::from(&config);
+        let session_id = self.session_manager.create(session_config).await?;
+
+        // Set agent_id on the session
+        let agent_id = config.agent_id.clone();
+        self.session_manager
+            .update(&session_id, |s| {
+                s.agent_id = agent_id;
+            })
+            .await?;
+
+        // Add system prompt if configured
+        if let Some(ref prompt) = config.system_prompt {
+            self.session_manager
+                .add_message(&session_id, Message::system(prompt))
+                .await?;
+        }
+
+        // Add user task message
+        self.session_manager
+            .add_message(&session_id, Message::user(task))
+            .await?;
+
+        // Transition to Running
+        self.session_manager
+            .set_state(&session_id, AgentState::Running)
+            .await?;
+
+        // Execute the loop with callbacks
+        let mut iterations = 0;
+        let max_iterations = config.max_iterations;
+
+        loop {
+            iterations += 1;
+
+            if iterations > max_iterations {
+                warn!(
+                    session_id = %session_id,
+                    max = max_iterations,
+                    "Max iterations reached"
+                );
+                self.session_manager
+                    .set_state(&session_id, AgentState::Error)
+                    .await?;
+                return Err(Layer2Error::MaxIterations(max_iterations).into());
+            }
+
+            // before_iteration callback
+            let should_continue_iter = callback.before_iteration(&session_id, iterations).await?;
+            if !should_continue_iter {
+                info!(session_id = %session_id, "Callback requested stop");
+                break;
+            }
+
+            // Check if session can continue
+            let can_continue: bool = self
+                .session_manager
+                .read(&session_id, |s| s.can_continue())
+                .await?
+                .unwrap_or(false);
+
+            if !can_continue {
+                let current_state: AgentState = self
+                    .session_manager
+                    .read(&session_id, |s| s.state)
+                    .await?
+                    .unwrap_or(AgentState::Stopped);
+
+                if current_state == AgentState::Stopped {
+                    info!(session_id = %session_id, "Agent stopped by user");
+                    break;
+                }
+                break;
+            }
+
+            // Simulate one LLM step
+            let step_result = self
+                .simulate_llm_step(&session_id, task, iterations, max_iterations)
+                .await?;
+
+            // Add the assistant message if any
+            if let Some(msg) = step_result.message.clone() {
+                self.session_manager.add_message(&session_id, msg).await?;
+            }
+
+            // Handle tool calls with callbacks
+            if !step_result.tool_calls.is_empty() {
+                let tool_calls = step_result.tool_calls.clone();
+
+                // before_tool_call callback for each tool
+                for tc in &tool_calls {
+                    let should_execute = callback.before_tool_call(&session_id, tc).await?;
+                    if !should_execute {
+                        info!(tool_call_id = %tc.id, "Callback rejected tool call");
+                        continue;
+                    }
+                }
+
+                // Store pending tool calls
+                self.session_manager
+                    .update(&session_id, |s| {
+                        s.tool_calls_pending = tool_calls;
+                        s.state = AgentState::ToolCalling;
+                    })
+                    .await?;
+
+                // Execute the tools
+                self.execute_pending_tool_calls(&session_id).await?;
+
+                // Get results and call after_tool_call callback
+                let results: Vec<ToolResult> = self
+                    .session_manager
+                    .read(&session_id, |s| s.tool_results_cache.clone())
+                    .await?
+                    .unwrap_or_default();
+
+                // Call after_tool_call for each result
+                for tc in &step_result.tool_calls {
+                    if let Some(result) = results.iter().find(|r| r.tool_call_id == tc.id) {
+                        callback.after_tool_call(&session_id, tc, result).await?;
+                    }
+                }
+
+                // Transition states
+                self.session_manager
+                    .set_state(&session_id, AgentState::WaitingTool)
+                    .await?;
+                self.session_manager
+                    .set_state(&session_id, AgentState::Running)
+                    .await?;
+            } else {
+                self.session_manager
+                    .set_state(&session_id, step_result.state)
+                    .await?;
+            }
+
+            // Create iteration result for callback
+            let iter_result = IterationResult {
+                iteration: iterations,
+                state: self
+                    .session_manager
+                    .read(&session_id, |s| s.state)
+                    .await?
+                    .unwrap_or(AgentState::Running),
+                message: step_result.message,
+                tool_calls: step_result.tool_calls,
+                should_continue: step_result.should_continue,
+            };
+
+            // after_iteration callback
+            callback.after_iteration(&session_id, iterations, &iter_result).await?;
+
+            if !iter_result.should_continue {
+                break;
+            }
+        }
+
+        // Collect final results
+        let session = self
+            .session_manager
+            .get(&session_id)
+            .await?
+            .ok_or_else(|| Layer2Error::SessionNotFound(session_id.clone()))?;
+
+        let tokens_used = session.tokens_total;
+
+        Ok(AgentResult {
+            session_id: session.session_id.clone(),
+            final_state: session.state,
+            messages: session.messages,
+            tool_calls: session.tool_calls_pending,
+            tool_results: session.tool_results_cache,
+            iterations,
+            tokens_used,
+        })
+    }
+
+    /// 流式运行 Agent（支持中断）。
+    ///
+    /// 与 run_stream 类似，但支持通过 abort_flag 中断执行。
+    async fn run_stream_abortable(
+        &self,
+        task: &str,
+        config: AgentConfig,
+        callback: &dyn AgentLoopCallback,
+        abort_flag: Arc<AtomicBool>,
+    ) -> Layer2Result<AgentResult> {
+        info!(task = %task, agent_id = %config.agent_id, "Starting agent run_stream_abortable");
+
+        // Create session
+        let session_config = SessionConfig::from(&config);
+        let session_id = self.session_manager.create(session_config).await?;
+
+        // Set agent_id on the session
+        let agent_id = config.agent_id.clone();
+        self.session_manager
+            .update(&session_id, |s| {
+                s.agent_id = agent_id;
+            })
+            .await?;
+
+        // Add system prompt if configured
+        if let Some(ref prompt) = config.system_prompt {
+            self.session_manager
+                .add_message(&session_id, Message::system(prompt))
+                .await?;
+        }
+
+        // Add user task message
+        self.session_manager
+            .add_message(&session_id, Message::user(task))
+            .await?;
+
+        // Transition to Running
+        self.session_manager
+            .set_state(&session_id, AgentState::Running)
+            .await?;
+
+        // Execute the loop with callbacks and abort check
+        let mut iterations = 0;
+        let max_iterations = config.max_iterations;
+
+        loop {
+            // Check abort flag first
+            if abort_flag.load(Ordering::Relaxed) {
+                info!(session_id = %session_id, "Abort flag set, stopping agent");
+                self.session_manager
+                    .set_state(&session_id, AgentState::Stopped)
+                    .await?;
+                break;
+            }
+
+            iterations += 1;
+
+            if iterations > max_iterations {
+                warn!(
+                    session_id = %session_id,
+                    max = max_iterations,
+                    "Max iterations reached"
+                );
+                self.session_manager
+                    .set_state(&session_id, AgentState::Error)
+                    .await?;
+                return Err(Layer2Error::MaxIterations(max_iterations).into());
+            }
+
+            // before_iteration callback
+            let should_continue_iter = callback.before_iteration(&session_id, iterations).await?;
+            if !should_continue_iter {
+                info!(session_id = %session_id, "Callback requested stop");
+                break;
+            }
+
+            // Check abort flag again after callback
+            if abort_flag.load(Ordering::Relaxed) {
+                info!(session_id = %session_id, "Abort flag set after callback, stopping agent");
+                self.session_manager
+                    .set_state(&session_id, AgentState::Stopped)
+                    .await?;
+                break;
+            }
+
+            // Check if session can continue
+            let can_continue: bool = self
+                .session_manager
+                .read(&session_id, |s| s.can_continue())
+                .await?
+                .unwrap_or(false);
+
+            if !can_continue {
+                let current_state: AgentState = self
+                    .session_manager
+                    .read(&session_id, |s| s.state)
+                    .await?
+                    .unwrap_or(AgentState::Stopped);
+
+                if current_state == AgentState::Stopped {
+                    info!(session_id = %session_id, "Agent stopped by user");
+                    break;
+                }
+                break;
+            }
+
+            // Simulate one LLM step
+            let step_result = self
+                .simulate_llm_step(&session_id, task, iterations, max_iterations)
+                .await?;
+
+            // Add the assistant message if any
+            if let Some(msg) = step_result.message.clone() {
+                self.session_manager.add_message(&session_id, msg).await?;
+            }
+
+            // Handle tool calls with callbacks
+            if !step_result.tool_calls.is_empty() {
+                let tool_calls = step_result.tool_calls.clone();
+
+                // Check abort before tool calls
+                if abort_flag.load(Ordering::Relaxed) {
+                    info!(session_id = %session_id, "Abort flag set before tool calls");
+                    self.session_manager
+                        .set_state(&session_id, AgentState::Stopped)
+                        .await?;
+                    break;
+                }
+
+                // before_tool_call callback for each tool
+                for tc in &tool_calls {
+                    let should_execute = callback.before_tool_call(&session_id, tc).await?;
+                    if !should_execute {
+                        info!(tool_call_id = %tc.id, "Callback rejected tool call");
+                        continue;
+                    }
+                }
+
+                // Store pending tool calls
+                self.session_manager
+                    .update(&session_id, |s| {
+                        s.tool_calls_pending = tool_calls;
+                        s.state = AgentState::ToolCalling;
+                    })
+                    .await?;
+
+                // Execute the tools
+                self.execute_pending_tool_calls(&session_id).await?;
+
+                // Get results and call after_tool_call callback
+                let results: Vec<ToolResult> = self
+                    .session_manager
+                    .read(&session_id, |s| s.tool_results_cache.clone())
+                    .await?
+                    .unwrap_or_default();
+
+                // Call after_tool_call for each result
+                for tc in &step_result.tool_calls {
+                    if let Some(result) = results.iter().find(|r| r.tool_call_id == tc.id) {
+                        callback.after_tool_call(&session_id, tc, result).await?;
+                    }
+                }
+
+                // Transition states
+                self.session_manager
+                    .set_state(&session_id, AgentState::WaitingTool)
+                    .await?;
+                self.session_manager
+                    .set_state(&session_id, AgentState::Running)
+                    .await?;
+            } else {
+                self.session_manager
+                    .set_state(&session_id, step_result.state)
+                    .await?;
+            }
+
+            // Create iteration result for callback
+            let iter_result = IterationResult {
+                iteration: iterations,
+                state: self
+                    .session_manager
+                    .read(&session_id, |s| s.state)
+                    .await?
+                    .unwrap_or(AgentState::Running),
+                message: step_result.message,
+                tool_calls: step_result.tool_calls,
+                should_continue: step_result.should_continue,
+            };
+
+            // after_iteration callback
+            callback.after_iteration(&session_id, iterations, &iter_result).await?;
+
+            if !iter_result.should_continue {
                 break;
             }
         }

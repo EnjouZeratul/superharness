@@ -42,16 +42,40 @@ DANGEROUS_COMMANDS = {
 
 # Blocked commands (never allowed)
 BLOCKED_COMMANDS = {
+    # Privilege escalation
     "sudo",
     "su",
-    "doas",  # Privilege escalation
+    "doas",
+    # Code execution
     "eval",
-    "exec",  # Code execution
+    "exec",
+    # Network backdoors
     "mkfifo",
     "nc",
     "ncat",
-    "telnet",  # Network backdoors
-    "ssh-keygen -p",  # Key manipulation
+    "telnet",
+    "curl",
+    "wget",
+    # Script execution
+    "python",
+    "python3",
+    "perl",
+    "ruby",
+    "node",
+    "php",
+    # Encoding/obfuscation
+    "base64",
+    "openssl",
+    "xxd",
+    # Key manipulation
+    "ssh-keygen -p",
+    # Container escape
+    "docker",
+    "kubectl",
+    # Process manipulation
+    "kill",
+    "pkill",
+    "killall",
 }
 
 

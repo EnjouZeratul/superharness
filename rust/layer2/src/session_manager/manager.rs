@@ -68,8 +68,7 @@ impl SessionManagerTrait for ConcurrentSessionManager {
         let mut sessions = self.sessions.write();
 
         if sessions.len() >= self.max_sessions {
-            return Err(Layer2Error::SessionNotFound(SessionId::new())) // [NOTE] 应改为 MaxSessionsReached 错误
-                .map_err(|_| anyhow::anyhow!("Max sessions limit reached: {}", self.max_sessions));
+            return Err(Layer2Error::MaxSessionsReached(self.max_sessions).into());
         }
 
         let session = Session::new(&config);
@@ -107,7 +106,7 @@ impl SessionManagerTrait for ConcurrentSessionManager {
 
         // 检查限制
         if sessions.len() >= self.max_sessions {
-            return Err(anyhow::anyhow!("Max sessions limit reached"));
+            return Err(Layer2Error::MaxSessionsReached(self.max_sessions).into());
         }
 
         // 创建新会话

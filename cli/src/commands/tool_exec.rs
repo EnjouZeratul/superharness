@@ -2,11 +2,68 @@
 //!
 //! 实现真实的工具执行逻辑。
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use std::fs;
-use std::path::Path;
+use std::path::{Component, Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, Instant};
+
+/// Blocked commands for security
+const BLOCKED_COMMANDS: &[&str] = &[
+    "sudo", "su", "doas",
+    "eval", "exec",
+    "mkfifo", "nc", "ncat", "telnet",
+    "curl", "wget",
+    "python", "python3", "perl", "ruby", "node", "php",
+    "base64", "openssl", "xxd",
+    "ssh-keygen",
+    "docker", "kubectl",
+    "kill", "pkill", "killall",
+];
+
+/// Dangerous commands requiring confirmation
+const DANGEROUS_COMMANDS: &[&str] = &[
+    "rm", "rmdir", "del", "format",
+    "chmod", "chown",
+    "git push", "git reset", "git checkout",
+];
+
+/// Validate path for traversal attacks
+fn validate_path(path: &Path, _base_dir: &Path) -> Result<PathBuf> {
+    // Check for path traversal attempts using ".."
+    for component in path.components() {
+        if let Component::ParentDir = component {
+            bail!("Path traversal not allowed: {}", path.display());
+        }
+    }
+
+    // Allow absolute paths and paths within current directory
+    // The canonicalize will resolve symlinks if needed
+    let canonical = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+
+    Ok(canonical)
+}
+
+/// Validate command for security
+fn validate_command(command: &str) -> Result<()> {
+    let cmd_lower = command.to_lowercase();
+    let cmd_trimmed = cmd_lower.trim();
+
+    for blocked in BLOCKED_COMMANDS {
+        if cmd_trimmed.starts_with(blocked) {
+            bail!("Blocked command: {}", blocked);
+        }
+    }
+
+    for dangerous in DANGEROUS_COMMANDS {
+        if cmd_trimmed.starts_with(dangerous) {
+            // Log warning but allow
+            tracing::warn!("Dangerous command detected: {}", dangerous);
+        }
+    }
+
+    Ok(())
+}
 
 /// Bash 工具执行结果
 #[derive(Debug)]
@@ -25,6 +82,9 @@ pub fn execute_bash(
     timeout_secs: u64,
     _capture_stderr: bool,
 ) -> Result<BashResult> {
+    // Security: validate command first
+    validate_command(command)?;
+
     let start = Instant::now();
 
     let default_dir = std::env::current_dir().unwrap_or_default();
@@ -71,8 +131,13 @@ pub fn execute_read(
     show_line_numbers: bool,
 ) -> Result<String> {
     let path = Path::new(file_path);
+
+    // Security: validate path
+    let base_dir = std::env::current_dir().unwrap_or_default();
+    validate_path(path, &base_dir)?;
+
     if !path.exists() {
-        anyhow::bail!("File not found: {}", file_path);
+        bail!("File not found: {}", file_path);
     }
 
     let content =

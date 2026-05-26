@@ -236,9 +236,14 @@ struct OpenAiEmbeddingUsage {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    // 用于同步环境变量测试的锁
+    static ENV_TEST_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn test_config_from_env_missing_key() {
+        let _lock = ENV_TEST_LOCK.lock().unwrap();
         // 清除环境变量
         std::env::remove_var("OPENAI_API_KEY");
         let result = EmbeddingsConfig::from_env();
@@ -248,31 +253,43 @@ mod tests {
 
     #[test]
     fn test_config_from_env_with_key() {
+        let _lock = ENV_TEST_LOCK.lock().unwrap();
+        // Clear any previously set model env var
+        std::env::remove_var("OPENAI_EMBEDDING_MODEL");
         std::env::set_var("OPENAI_API_KEY", "test_key");
-        let config = EmbeddingsConfig::from_env().unwrap();
+        let result = EmbeddingsConfig::from_env();
+        std::env::remove_var("OPENAI_API_KEY");
+
+        let config = result.expect("Config should be valid with OPENAI_API_KEY set");
         assert_eq!(config.api_key, "test_key");
         assert_eq!(config.model, DEFAULT_EMBEDDING_MODEL);
-        std::env::remove_var("OPENAI_API_KEY");
     }
 
     #[test]
     fn test_config_from_env_custom_model() {
+        let _lock = ENV_TEST_LOCK.lock().unwrap();
         std::env::set_var("OPENAI_API_KEY", "test_key");
         std::env::set_var("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small");
-        let config = EmbeddingsConfig::from_env().unwrap();
-        assert_eq!(config.model, "text-embedding-3-small");
+        let result = EmbeddingsConfig::from_env();
         std::env::remove_var("OPENAI_API_KEY");
         std::env::remove_var("OPENAI_EMBEDDING_MODEL");
+
+        let config = result.expect("Config should be valid with OPENAI_API_KEY set");
+        assert_eq!(config.model, "text-embedding-3-small");
     }
 
     #[test]
     fn test_config_from_env_custom_base_url() {
+        let _lock = ENV_TEST_LOCK.lock().unwrap();
+        std::env::remove_var("OPENAI_EMBEDDING_MODEL");
         std::env::set_var("OPENAI_API_KEY", "test_key");
         std::env::set_var("OPENAI_BASE_URL", "https://custom.api.com/v1");
-        let config = EmbeddingsConfig::from_env().unwrap();
-        assert_eq!(config.base_url, "https://custom.api.com/v1");
+        let result = EmbeddingsConfig::from_env();
         std::env::remove_var("OPENAI_API_KEY");
         std::env::remove_var("OPENAI_BASE_URL");
+
+        let config = result.expect("Config should be valid with OPENAI_API_KEY set");
+        assert_eq!(config.base_url, "https://custom.api.com/v1");
     }
 
     #[test]

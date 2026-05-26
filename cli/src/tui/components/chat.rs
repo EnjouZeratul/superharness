@@ -2,12 +2,14 @@
 
 use ratatui::{
     layout::Rect,
-    style::{Color, Style},
+    style::Style,
     text::{Line, Span, Text},
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
 
+use super::color_theme::ColorTheme;
+use super::markdown_renderer::MarkdownRenderer;
 use crate::tui::app::{Message, Role};
 
 /// 聊天消息组件
@@ -22,18 +24,44 @@ pub struct ChatComponent {
     search_results: Vec<usize>,
     /// 当前搜索结果位置
     current_search_index: usize,
+    /// Markdown 渲染器
+    markdown_renderer: MarkdownRenderer,
+    /// 当前主题
+    theme: ColorTheme,
+    /// 是否启用 Markdown 渲染
+    enable_markdown: bool,
 }
 
 impl ChatComponent {
     /// 创建新的聊天组件
     pub fn new() -> Self {
+        let theme = ColorTheme::dark();
         Self {
             messages: Vec::new(),
             scroll_offset: 0,
             search_term: None,
             search_results: Vec::new(),
             current_search_index: 0,
+            markdown_renderer: MarkdownRenderer::new(theme.clone()),
+            theme,
+            enable_markdown: true,
         }
+    }
+
+    /// 设置主题
+    pub fn set_theme(&mut self, theme: ColorTheme) {
+        self.theme = theme.clone();
+        self.markdown_renderer.set_theme(theme);
+    }
+
+    /// 切换 Markdown 渲染
+    pub fn toggle_markdown(&mut self) {
+        self.enable_markdown = !self.enable_markdown;
+    }
+
+    /// 设置 Markdown 渲染开关
+    pub fn set_markdown_enabled(&mut self, enabled: bool) {
+        self.enable_markdown = enabled;
     }
 
     /// 添加消息
@@ -154,7 +182,7 @@ impl ChatComponent {
     }
 
     /// 渲染组件
-    pub fn render(&self, f: &mut Frame, area: Rect) {
+    pub fn render(&mut self, f: &mut Frame, area: Rect) {
         let title = if let Some(term) = &self.search_term {
             format!(
                 " Chat (search: \"{}\" - {} results) ",
@@ -168,16 +196,16 @@ impl ChatComponent {
         let block = Block::default()
             .title(title)
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::Blue));
+            .border_style(Style::default().fg(self.theme.border));
 
         // 构建消息文本
         let mut lines: Vec<Line> = Vec::new();
 
         for (msg_idx, msg) in self.messages.iter().enumerate() {
-            let (prefix, style) = match msg.role {
-                Role::User => ("You", Style::default().fg(Color::Green)),
-                Role::Assistant => ("Assistant", Style::default().fg(Color::Cyan)),
-                Role::System => ("System", Style::default().fg(Color::Yellow)),
+            let (prefix, role_color) = match msg.role {
+                Role::User => ("You", self.theme.user_message),
+                Role::Assistant => ("Assistant", self.theme.assistant_message),
+                Role::System => ("System", self.theme.system_message),
             };
 
             // 检查是否是当前搜索结果
@@ -189,44 +217,61 @@ impl ChatComponent {
 
             // 添加消息头
             let header_style = if is_current_search {
-                Style::default().fg(Color::Red)
+                Style::default().fg(self.theme.error_message)
             } else {
-                style
+                Style::default()
+                    .fg(role_color)
+                    .add_modifier(ratatui::style::Modifier::BOLD)
             };
             lines.push(Line::from(vec![Span::styled(
                 format!("[{}] ", prefix),
                 header_style,
             )]));
 
-            // 添加消息内容，搜索高亮
-            for line in msg.content.lines() {
-                if let Some(term) = &self.search_term {
-                    // 高亮搜索词
-                    let lower_line = line.to_lowercase();
-                    let lower_term = term.to_lowercase();
-                    if lower_line.contains(&lower_term) {
-                        let mut spans: Vec<Span> = Vec::new();
-                        let mut remaining = line;
-                        while let Some(pos) = remaining.to_lowercase().find(&lower_term) {
-                            if pos > 0 {
-                                spans.push(Span::raw(format!("  {}", &remaining[..pos])));
+            // 添加消息内容
+            if self.enable_markdown && msg.role == Role::Assistant {
+                // 使用 Markdown 渲染助手消息
+                let md_lines = self.markdown_renderer.render(&msg.content);
+                for md_line in md_lines {
+                    lines.push(md_line);
+                }
+            } else {
+                // 普通文本渲染，带搜索高亮
+                for line in msg.content.lines() {
+                    if let Some(term) = &self.search_term {
+                        // 高亮搜索词
+                        let lower_line = line.to_lowercase();
+                        let lower_term = term.to_lowercase();
+                        if lower_line.contains(&lower_term) {
+                            let mut spans: Vec<Span> = Vec::new();
+                            let mut remaining = line;
+                            while let Some(pos) = remaining.to_lowercase().find(&lower_term) {
+                                if pos > 0 {
+                                    spans.push(Span::raw(format!("  {}", &remaining[..pos])));
+                                }
+                                let match_len = term.len();
+                                spans.push(Span::styled(
+                                    &remaining[pos..pos + match_len],
+                                    Style::default().fg(self.theme.highlight),
+                                ));
+                                remaining = &remaining[pos + match_len..];
                             }
-                            let match_len = term.len();
-                            spans.push(Span::styled(
-                                &remaining[pos..pos + match_len],
-                                Style::default().fg(Color::Yellow),
-                            ));
-                            remaining = &remaining[pos + match_len..];
+                            if !remaining.is_empty() {
+                                spans.push(Span::raw(remaining.to_string()));
+                            }
+                            lines.push(Line::from(spans));
+                        } else {
+                            lines.push(Line::from(Span::styled(
+                                format!("  {}", line),
+                                Style::default().fg(self.theme.foreground),
+                            )));
                         }
-                        if !remaining.is_empty() {
-                            spans.push(Span::raw(remaining.to_string()));
-                        }
-                        lines.push(Line::from(spans));
                     } else {
-                        lines.push(Line::from(Span::raw(format!("  {}", line))));
+                        lines.push(Line::from(Span::styled(
+                            format!("  {}", line),
+                            Style::default().fg(self.theme.foreground),
+                        )));
                     }
-                } else {
-                    lines.push(Line::from(Span::raw(format!("  {}", line))));
                 }
             }
 
@@ -445,5 +490,31 @@ mod tests {
         chat.scroll_down(10);
         chat.scroll_to_bottom();
         assert_eq!(chat.scroll_offset, 0);
+    }
+
+    #[test]
+    fn test_set_theme() {
+        let mut chat = ChatComponent::new();
+        chat.set_theme(ColorTheme::light());
+        // Theme should be changed (no direct assertion possible)
+    }
+
+    #[test]
+    fn test_toggle_markdown() {
+        let mut chat = ChatComponent::new();
+        assert!(chat.enable_markdown);
+        chat.toggle_markdown();
+        assert!(!chat.enable_markdown);
+        chat.toggle_markdown();
+        assert!(chat.enable_markdown);
+    }
+
+    #[test]
+    fn test_set_markdown_enabled() {
+        let mut chat = ChatComponent::new();
+        chat.set_markdown_enabled(false);
+        assert!(!chat.enable_markdown);
+        chat.set_markdown_enabled(true);
+        assert!(chat.enable_markdown);
     }
 }

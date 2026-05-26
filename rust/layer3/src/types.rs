@@ -323,6 +323,27 @@ pub enum Layer3Error {
 
     #[error("Lock error: {0}")]
     LockError(String),
+
+    #[error("Vector store error: {0}")]
+    VectorStoreError(String),
+
+    #[error("Vector dimension mismatch: expected {expected}, got {actual}")]
+    VectorDimensionMismatch { expected: usize, actual: usize },
+
+    #[error("Vector not found: {0}")]
+    VectorNotFound(String),
+
+    #[error("Vector operation failed: {operation} - {reason}")]
+    VectorOperationFailed { operation: String, reason: String },
+
+    #[error("Persistence error: {0}")]
+    PersistenceError(String),
+
+    #[error("Invalid vector: {0}")]
+    InvalidVector(String),
+
+    #[error("Index error: {0}")]
+    IndexError(String),
 }
 
 /// Layer 3 Result 类型

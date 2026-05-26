@@ -289,6 +289,12 @@ pub enum Layer2Error {
 
     #[error("Agent error: {0}")]
     AgentError(String),
+
+    #[error("LLM client not configured")]
+    LlmNotConfigured,
+
+    #[error("Max sessions reached: {0}")]
+    MaxSessionsReached(usize),
 }
 
 // 注意：不需要手动实现 From<Layer2Error> for anyhow::Error，

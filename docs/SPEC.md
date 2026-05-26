@@ -1,4 +1,4 @@
-# Egg-Harness 技术规范
+# Continuum 技术规范
 
 > 版本: v1.1
 > 日期: 2026-05-08
@@ -11,7 +11,7 @@
 
 ### 1.1 定位
 
-egg-harness 是一个**轻量级、可扩展、可观测**的 AI Agent Harness 框架，用于构建具有工具调用、上下文管理和工作流编排能力的智能代理。
+Continuum 是一个**轻量级、可扩展、可观测**的 AI Agent Harness 框架，用于构建具有工具调用、上下文管理和工作流编排能力的智能代理。
 
 ### 1.2 设计原则
 
@@ -69,7 +69,7 @@ egg-harness 是一个**轻量级、可扩展、可观测**的 AI Agent Harness �
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        egg-harness                               │
+│                        Continuum                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │  Interface: CLI | Python SDK                                     │
 ├─────────────────────────────────────────────────────────────────┤
@@ -1074,7 +1074,7 @@ import time
 class CheckpointManager:
     """检查点管理"""
     
-    def __init__(self, checkpoint_dir=".egg/checkpoints"):
+    def __init__(self, checkpoint_dir=".continuum/checkpoints"):
         self.checkpoint_dir = checkpoint_dir
         os.makedirs(checkpoint_dir, exist_ok=True)
     
@@ -1305,8 +1305,8 @@ class Config:
         self._config = {}
         if config_file:
             self._load_file(config_file)
-        elif os.path.exists("egg.yaml"):
-            self._load_file("egg.yaml")
+        elif os.path.exists("continuum.yaml"):
+            self._load_file("continuum.yaml")
     
     def _load_file(self, filepath):
         with open(filepath, "r", encoding="utf-8") as f:
@@ -1341,7 +1341,7 @@ class Config:
         return os.environ.get(f"{provider.upper()}_API_KEY")
 ```
 
-配置文件 `egg.yaml`:
+配置文件 `continuum.yaml`:
 
 ```yaml
 model:
@@ -2271,7 +2271,7 @@ class MCPServerConnection:
         await self._send_request("initialize", {
             "protocolVersion": "2024-11-05",
             "capabilities": {},
-            "clientInfo": {"name": "egg-harness", "version": "1.0.0"},
+            "clientInfo": {"name": "continuum", "version": "1.0.0"},
         })
 
     async def stop(self) -> None:
@@ -2574,8 +2574,8 @@ class ContextManager:
 ## 六、项目结构
 
 ```
-egg-harness/
-├── src/egg_harness/
+continuum/
+├── src/continuum/
 │   ├── __init__.py
 │   ├── core/
 │   │   ├── harness.py           # Harness 主类
@@ -2653,7 +2653,7 @@ egg-harness/
 ├── pyproject.toml
 ├── README.md
 ├── EGG.md                       # 项目记忆示例
-└── egg.yaml                     # 默认配置
+└── continuum.yaml                     # 默认配置
 ```
 
 ---
@@ -2705,10 +2705,10 @@ egg-harness/
 ### 8.1 基础用法
 
 ```python
-from egg_harness import Harness
+from continuum import Harness
 
 # 创建 Harness
-harness = Harness(config="egg.yaml")
+harness = Harness(config="continuum.yaml")
 
 # 注册工具
 @harness.tool(description="搜索文件")
@@ -2731,10 +2731,10 @@ print(response)
 ### 8.2 使用记忆系统
 
 ```python
-from egg_harness import Harness, ProjectMemory, AutoMemory
+from continuum import Harness, ProjectMemory, AutoMemory
 
 # 创建 Harness（自动加载 EGG.md）
-harness = Harness(config="egg.yaml", project_root="/path/to/project")
+harness = Harness(config="continuum.yaml", project_root="/path/to/project")
 
 # 项目记忆
 project_memory = ProjectMemory("/path/to/project")
@@ -2758,7 +2758,7 @@ response = await agent.run("帮我重构这个函数")
 ### 8.3 使用钩子系统
 
 ```python
-from egg_harness import Harness, HookSystem, LoggingHook, MetricsHook, PermissionHook
+from continuum import Harness, HookSystem, LoggingHook, MetricsHook, PermissionHook
 
 # 创建钩子系统
 hooks = HookSystem()
@@ -2787,10 +2787,10 @@ response = await agent.run("删除所有测试文件")  # 被 PermissionHook 阻
 ### 8.4 使用自我修正
 
 ```python
-from egg_harness import Harness, SelfCorrectionLoop
+from continuum import Harness, SelfCorrectionLoop
 
 # 创建 Harness
-harness = Harness(config="egg.yaml")
+harness = Harness(config="continuum.yaml")
 
 # 创建 Agent
 agent = harness.create_agent(
@@ -2818,10 +2818,10 @@ print(result)
 ### 8.5 使用流式输出
 
 ```python
-from egg_harness import Harness, StreamingAgentRuntime
+from continuum import Harness, StreamingAgentRuntime
 
 # 创建 Harness
-harness = Harness(config="egg.yaml")
+harness = Harness(config="continuum.yaml")
 
 # 创建 Agent
 base_agent = harness.create_agent(
@@ -2845,7 +2845,7 @@ async for chunk in streaming_agent.run_streaming("写一个 Python 类"):
 ### 8.6 使用 MCP 工具
 
 ```python
-from egg_harness import Harness, MCPClient
+from continuum import Harness, MCPClient
 
 # 创建 MCP 客户端
 mcp = MCPClient()
@@ -2866,7 +2866,7 @@ await mcp.connect(
 )
 
 # 创建带 MCP 工具的 Harness
-harness = Harness(config="egg.yaml", mcp_client=mcp)
+harness = Harness(config="continuum.yaml", mcp_client=mcp)
 
 # Agent 可以调用 MCP 工具
 agent = harness.create_agent(
@@ -2880,7 +2880,7 @@ response = await agent.run("搜索 GitHub 上关于 AI Agent 的代码")
 ### 8.7 工作流用法
 
 ```python
-from egg_harness import StateGraph
+from continuum import StateGraph
 
 # 定义工作流
 workflow = StateGraph()
@@ -2891,7 +2891,7 @@ workflow.add_edge("analyze", "__end__")
 workflow.set_entry_point("search")
 
 # 编译并执行
-app = workflow.compile(checkpoint_dir=".egg/checkpoints")
+app = workflow.compile(checkpoint_dir=".continuum/checkpoints")
 result = await app.invoke({"query": "AI Agent"})
 ```
 
@@ -2919,7 +2919,7 @@ agent_claude = harness.create_agent(
 ### 8.9 完整示例：带所有特性的 Agent
 
 ```python
-from egg_harness import (
+from continuum import (
     Harness,
     ProjectMemory,
     AutoMemory,
@@ -2938,7 +2938,7 @@ await mcp.connect("filesystem", "uvx", ["mcp-server-filesystem", "."])
 
 # 2. 创建 Harness
 harness = Harness(
-    config="egg.yaml",
+    config="continuum.yaml",
     project_root=".",
     mcp_client=mcp,
 )
@@ -2996,8 +2996,8 @@ async for chunk in correction_loop.run_streaming_with_correction(
 
 import pytest
 from unittest.mock import AsyncMock, patch
-from egg_harness.llm.providers.openai import OpenAIProvider
-from egg_harness.llm.messages import Message
+from continuum.llm.providers.openai import OpenAIProvider
+from continuum.llm.messages import Message
 
 @pytest.fixture
 def mock_httpx():
@@ -3022,7 +3022,7 @@ async def test_openai_chat(mock_httpx):
 # tests/unit/test_context_manager.py
 
 async def test_budget_check():
-    from egg_harness.context import ContextManager, TokenBudgetManager
+    from continuum.context import ContextManager, TokenBudgetManager
 
     budget = TokenBudgetManager()
     context = ContextManager(budget_manager=budget)
@@ -3040,7 +3040,7 @@ async def test_budget_check():
 # tests/unit/test_hooks.py
 
 async def test_permission_hook():
-    from egg_harness.hooks import HookSystem, PermissionHook, HookContext, HookType
+    from continuum.hooks import HookSystem, PermissionHook, HookContext, HookType
 
     hooks = HookSystem()
     hooks.register(PermissionHook(blocked_tools=["delete_file"]))
@@ -3064,7 +3064,7 @@ async def test_permission_hook():
 # tests/integration/test_agent_flow.py
 
 async def test_full_agent_loop():
-    from egg_harness import Harness
+    from continuum import Harness
 
     harness = Harness()
 
@@ -3093,7 +3093,7 @@ async def test_full_agent_loop():
 # tests/integration/test_memory_integration.py
 
 async def test_memory_persistence():
-    from egg_harness.memory import ProjectMemory, AutoMemory
+    from continuum.memory import ProjectMemory, AutoMemory
 
     project_memory = ProjectMemory("/tmp/test_project")
 
@@ -3121,9 +3121,9 @@ import os
 
 @pytest.mark.skipif(not os.environ.get("OPENAI_API_KEY"), reason="需要真实 API Key")
 async def test_real_openai_chat():
-    from egg_harness import Harness
+    from continuum import Harness
 
-    harness = Harness(config="egg.yaml")
+    harness = Harness(config="continuum.yaml")
     agent = harness.create_agent(name="test")
 
     response = await agent.run("1+1等于几？只回答数字")
@@ -3131,8 +3131,8 @@ async def test_real_openai_chat():
 
 @pytest.mark.skipif(not os.environ.get("ANTHROPIC_API_KEY"), reason="需要真实 API Key")
 async def test_real_claude_chat():
-    from egg_harness.llm.providers.anthropic import AnthropicProvider
-    from egg_harness.llm.messages import Message
+    from continuum.llm.providers.anthropic import AnthropicProvider
+    from continuum.llm.messages import Message
 
     provider = AnthropicProvider(os.environ["ANTHROPIC_API_KEY"])
     response = await provider.chat(

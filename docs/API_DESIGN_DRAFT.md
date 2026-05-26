@@ -1,9 +1,10 @@
 # Continuum Python SDK API 设计草稿
 
-> 版本: v0.1 Draft
+> 版本: v1.0 (已实现)
 > 作者: Terminal 3
 > 日期: 2026-05-11
-> 状态: 等待 SDK 基础 API
+> 更新日期: 2026-05-26
+> 状态: ✅ SDK 基础 API 已实现 (参见 python/continuum_sdk/)
 
 ---
 

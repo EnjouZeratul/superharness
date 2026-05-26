@@ -1047,43 +1047,43 @@ class TestBuiltinTools:
         assert tools.is_available("read_file") is True
         assert tools.is_available("nonexistent_tool_xyz") is False
 
-    def test_read_file_not_implemented(self):
-        """测试 read_file 尚未实现"""
-        # 强制使用无 Rust binding 模式
+    def test_read_file_fallback(self):
+        """测试 read_file 使用 Python fallback"""
+        # Python fallback 现已实现，验证 fallback 可用
         import continuum_sdk.tools.builtin as builtin_module
 
         original_executor = builtin_module.HAS_RUST_BINDING
         builtin_module.HAS_RUST_BINDING = False
         try:
             tools = BuiltinTools()
-            with pytest.raises(NotImplementedError):
-                tools.read_file("test.txt")
+            # 验证 fallback 工具集包含 read_file
+            assert "read_file" in tools._fallback_tools
         finally:
             builtin_module.HAS_RUST_BINDING = original_executor
 
-    def test_write_file_not_implemented(self):
-        """测试 write_file 尚未实现"""
+    def test_write_file_fallback(self):
+        """测试 write_file 使用 Python fallback"""
         import continuum_sdk.tools.builtin as builtin_module
 
         original = builtin_module.HAS_RUST_BINDING
         builtin_module.HAS_RUST_BINDING = False
         try:
             tools = BuiltinTools()
-            with pytest.raises(NotImplementedError):
-                tools.write_file("test.txt", "content")
+            # 验证 fallback 工具集包含 write_file
+            assert "write_file" in tools._fallback_tools
         finally:
             builtin_module.HAS_RUST_BINDING = original
 
-    def test_bash_not_implemented(self):
-        """测试 bash 尚未实现"""
+    def test_bash_fallback(self):
+        """测试 bash 使用 Python fallback"""
         import continuum_sdk.tools.builtin as builtin_module
 
         original = builtin_module.HAS_RUST_BINDING
         builtin_module.HAS_RUST_BINDING = False
         try:
             tools = BuiltinTools()
-            with pytest.raises(NotImplementedError):
-                tools.bash("echo hello")
+            # 验证 fallback 工具集包含 bash
+            assert "bash" in tools._fallback_tools
         finally:
             builtin_module.HAS_RUST_BINDING = original
 
@@ -1093,6 +1093,155 @@ class TestBuiltinTools:
         # 使用一个不匹配任何模式的工具名
         category = tools._guess_category("unknown_xyz_tool")
         assert category == ToolCategory.OTHER
+
+    def test_guess_category_code_analysis(self):
+        """测试 CODE_ANALYSIS 分类"""
+        tools = BuiltinTools()
+        assert tools._guess_category("definition") == ToolCategory.CODE_ANALYSIS
+        assert tools._guess_category("reference") == ToolCategory.CODE_ANALYSIS
+        assert tools._guess_category("hover") == ToolCategory.CODE_ANALYSIS
+        assert tools._guess_category("symbol") == ToolCategory.CODE_ANALYSIS
+
+    def test_guess_category_memory(self):
+        """测试 MEMORY 分类"""
+        tools = BuiltinTools()
+        assert tools._guess_category("memory") == ToolCategory.MEMORY
+        assert tools._guess_category("session_memory") == ToolCategory.MEMORY
+
+    def test_guess_category_workflow(self):
+        """测试 WORKFLOW 分类"""
+        tools = BuiltinTools()
+        assert tools._guess_category("checkpoint") == ToolCategory.WORKFLOW
+        assert tools._guess_category("save_checkpoint") == ToolCategory.WORKFLOW
+
+    def test_execute_file_ops(self):
+        """测试 execute 方法调用文件操作"""
+        import tempfile
+        import os
+        tools = BuiltinTools()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # 测试 write_file via execute
+            filepath = os.path.join(tmpdir, "test_execute.txt")
+            result = tools.execute("write_file", {"path": filepath, "content": "test content"})
+            assert "Success" in result or "wrote" in result.lower()
+
+            # 测试 read_file via execute
+            result = tools.execute("read_file", {"path": filepath})
+            assert "test content" in result
+
+            # 测试 list_directory via execute
+            result = tools.execute("list_directory", {"path": tmpdir})
+            assert "test_execute.txt" in result
+
+    def test_execute_search_ops(self):
+        """测试 execute 方法调用搜索操作"""
+        import tempfile
+        import os
+        tools = BuiltinTools()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, "search_test.py")
+            with open(filepath, "w") as f:
+                f.write("def test_func():\n    pass\n")
+
+            # 测试 grep via execute
+            result = tools.execute("grep", {"pattern": "def", "path": tmpdir})
+            assert "test_func" in result
+
+            # 测试 glob via execute
+            result = tools.execute("glob", {"pattern": "*.py", "path": tmpdir})
+            assert "search_test.py" in result
+
+    def test_execute_edit_file(self):
+        """测试 execute 方法调用 edit_file"""
+        import tempfile
+        import os
+        tools = BuiltinTools()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, "edit_test.txt")
+            tools.write_file(filepath, "Hello World")
+
+            # edit_file 使用 old_string/new_string 参数名
+            result = tools.execute("edit_file", {
+                "path": filepath,
+                "old_string": "World",
+                "new_string": "Python"
+            })
+            assert "Replace" in result or "occurrence" in result.lower() or "Python" in result or result != ""
+
+            # 验证修改成功
+            content = tools.read_file(filepath)
+            assert "Python" in content
+
+    def test_execute_bash(self):
+        """测试 execute 方法调用 bash"""
+        tools = BuiltinTools()
+        result = tools.execute("bash", {"command": "echo hello"})
+        assert "hello" in result.lower()
+
+    def test_execute_unknown_tool_raises_error(self):
+        """测试 execute 调用未知工具抛出错误"""
+        tools = BuiltinTools()
+        # Rust binding 返回 RuntimeError，Python fallback 返回 NotImplementedError
+        with pytest.raises((NotImplementedError, RuntimeError)):
+            tools.execute("unknown_tool_xyz", {})
+
+    def test_check_binding_without_executor(self):
+        """测试无 executor 时的 binding 检查"""
+        import continuum_sdk.tools.builtin as builtin_module
+
+        original = builtin_module.HAS_RUST_BINDING
+        builtin_module.HAS_RUST_BINDING = False
+        try:
+            tools = BuiltinTools()
+            # fallback 工具不应抛出错误
+            tools._check_binding("read_file")
+
+            # 非 fallback 工具应抛出错误
+            with pytest.raises(NotImplementedError):
+                tools._check_binding("unknown_tool")
+        finally:
+            builtin_module.HAS_RUST_BINDING = original
+
+    def test_list_directory_nonexistent(self):
+        """测试 list_directory 目录不存在"""
+        tools = BuiltinTools()
+        # Rust binding 会抛出 RuntimeError，Python fallback 返回错误列表
+        try:
+            result = tools.list_directory("/nonexistent/path/xyz")
+            # Python fallback 路径
+            assert isinstance(result, list)
+            assert len(result) >= 1
+            assert "error" in result[0] or "Error" in result[0] or len(result) == 0
+        except RuntimeError:
+            # Rust binding 路径 - 路径不存在会抛出错误
+            pass  # 预期行为
+
+    def test_list_directory_with_files(self):
+        """测试 list_directory 包含文件和目录"""
+        import tempfile
+        import os
+        tools = BuiltinTools()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # 创建文件和子目录
+            filepath = os.path.join(tmpdir, "file.txt")
+            subdir = os.path.join(tmpdir, "subdir")
+            os.makedirs(subdir)
+            with open(filepath, "w") as f:
+                f.write("content")
+
+            result = tools.list_directory(tmpdir)
+            assert isinstance(result, list)
+            assert len(result) >= 1
+
+            # Rust binding 返回 [{'raw': 'file.txt [file]\nsubdir [dir]'}] 格式
+            # Python fallback 返回 [{'name': 'file.txt', ...}, ...] 格式
+            result_str = str(result)
+            assert "file.txt" in result_str
+            assert "subdir" in result_str
 
 
 if __name__ == "__main__":

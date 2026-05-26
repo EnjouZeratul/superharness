@@ -469,4 +469,244 @@ mod tests {
 
         assert_eq!(limiter.active_keys(), 3);
     }
+
+    // ========== 边界条件测试 ==========
+
+    #[test]
+    fn test_zero_rate_limit() {
+        // 零速率限制 - requests_per_minute/hour 为 0 会阻止所有请求
+        // 我们测试 requests_per_second=0 但其他值足够大的情况
+        let config = RateLimitConfig {
+            requests_per_second: 0,
+            requests_per_minute: 100,
+            requests_per_hour: 1000,
+            burst_size: 2,
+        };
+        let limiter = RateLimiter::with_config(config);
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            // burst_size 为 2，前两次请求应该成功（token bucket 初始有 burst_size 个 token）
+            let first = limiter.check("key").await.unwrap();
+            assert!(first, "First request with burst_size=2 should succeed");
+
+            let second = limiter.check("key").await.unwrap();
+            assert!(second, "Second request with burst_size=2 should succeed");
+
+            // 第三次请求应该失败（没有 refill，因为 requests_per_second=0）
+            let third = limiter.check("key").await.unwrap();
+            assert!(!third, "Third request should be rate limited (no refill)");
+        });
+    }
+
+    #[test]
+    fn test_very_small_burst_size() {
+        let config = RateLimitConfig {
+            requests_per_second: 1,
+            requests_per_minute: 100,
+            requests_per_hour: 1000,
+            burst_size: 1,
+        };
+        let limiter = RateLimiter::with_config(config);
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            assert!(limiter.check("key").await.unwrap());
+            assert!(!limiter.check("key").await.unwrap());
+        });
+    }
+
+    #[test]
+    fn test_large_burst_size() {
+        let config = RateLimitConfig {
+            requests_per_second: 1000,
+            requests_per_minute: 100000,
+            requests_per_hour: 1000000,
+            burst_size: 1000,
+        };
+        let limiter = RateLimiter::with_config(config);
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let mut success_count = 0;
+            for _ in 0..500 {
+                if limiter.check("key").await.unwrap() {
+                    success_count += 1;
+                }
+            }
+            assert!(success_count >= 400, "Should allow most requests with large burst");
+        });
+    }
+
+    #[test]
+    fn test_empty_key() {
+        let limiter = RateLimiter::new();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            // 空键应该被正常处理
+            assert!(limiter.check("").await.unwrap());
+        });
+    }
+
+    #[test]
+    fn test_special_characters_in_key() {
+        let limiter = RateLimiter::new();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            // 特殊字符键
+            let special_keys = vec!["key:with:colons", "key-with-dashes", "key_with_underscores", "key.with.dots", "key/with/slashes"];
+            for key in special_keys {
+                assert!(limiter.check(key).await.unwrap(), "Key '{}' should work", key);
+            }
+        });
+    }
+
+    #[test]
+    fn test_unicode_key() {
+        let limiter = RateLimiter::new();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            // Unicode 键
+            assert!(limiter.check("用户_123").await.unwrap());
+            assert!(limiter.check("🔑_key").await.unwrap());
+        });
+    }
+
+    #[test]
+    fn test_very_long_key() {
+        let limiter = RateLimiter::new();
+        let long_key = "a".repeat(10000);
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            assert!(limiter.check(&long_key).await.unwrap());
+        });
+    }
+
+    #[test]
+    fn test_reset_nonexistent_key() {
+        let limiter = RateLimiter::new();
+
+        // 重置不存在的键不应该 panic
+        limiter.reset("nonexistent_key");
+        assert_eq!(limiter.active_keys(), 0);
+    }
+
+    #[test]
+    fn test_status_nonexistent_key() {
+        let limiter = RateLimiter::new();
+        let config = RateLimitConfig::default();
+
+        let status = limiter.get_status("nonexistent");
+        // 对于不存在的键，应该返回配置的最大值
+        assert_eq!(status.tokens_remaining, config.burst_size);
+        assert_eq!(status.minute_remaining, config.requests_per_minute);
+        assert_eq!(status.hour_remaining, config.requests_per_hour);
+    }
+
+    #[tokio::test]
+    async fn test_rapid_requests() {
+        let config = RateLimitConfig {
+            requests_per_second: 10,
+            requests_per_minute: 100,
+            requests_per_hour: 1000,
+            burst_size: 5,
+        };
+        let limiter = RateLimiter::with_config(config);
+
+        // 快速连续请求
+        let mut success_count = 0;
+        for _ in 0..20 {
+            if limiter.check("rapid").await.unwrap() {
+                success_count += 1;
+            }
+        }
+
+        // 应该受到 burst_size 限制
+        assert!(success_count <= 7, "Expected ~5 successful requests, got {}", success_count);
+    }
+
+    #[test]
+    fn test_cleanup_with_negative_duration() {
+        let limiter = RateLimiter::new();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            limiter.check("key").await.unwrap();
+        });
+
+        // 使用非常大的 duration（相当于负数时间）
+        // 这不应该 panic
+        limiter.cleanup_expired(Duration::from_secs(u64::MAX));
+
+        // 键应该仍然存在
+        assert!(limiter.active_keys() >= 1);
+    }
+
+    #[tokio::test]
+    async fn test_status_accuracy() {
+        let config = RateLimitConfig {
+            requests_per_second: 10,
+            requests_per_minute: 100,
+            requests_per_hour: 1000,
+            burst_size: 10,
+        };
+        let limiter = RateLimiter::with_config(config);
+
+        // 消耗 3 个 token
+        for _ in 0..3 {
+            limiter.check("status_test").await.unwrap();
+        }
+
+        let status = limiter.get_status("status_test");
+        // tokens_remaining 应该少于初始值
+        assert!(status.tokens_remaining < 10);
+        // 但不能是负数
+        assert!(status.tokens_remaining > 0);
+    }
+
+    #[test]
+    fn test_config_default_values() {
+        let config = RateLimitConfig::default();
+        assert_eq!(config.requests_per_second, 10);
+        assert_eq!(config.requests_per_minute, 100);
+        assert_eq!(config.requests_per_hour, 1000);
+        assert_eq!(config.burst_size, 20);
+    }
+
+    #[test]
+    fn test_config_serialization() {
+        let config = RateLimitConfig::default();
+        let json = serde_json::to_string(&config).unwrap();
+        let parsed: RateLimitConfig = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed.requests_per_second, config.requests_per_second);
+    }
+
+    #[tokio::test]
+    async fn test_token_refill_boundary() {
+        let config = RateLimitConfig {
+            requests_per_second: 100, // 100 tokens/sec
+            requests_per_minute: 10000,
+            requests_per_hour: 100000,
+            burst_size: 10,
+        };
+        let limiter = RateLimiter::with_config(config);
+
+        // 消耗所有 tokens
+        for _ in 0..10 {
+            limiter.check("refill_boundary").await.unwrap();
+        }
+
+        // 应该被限制
+        assert!(!limiter.check("refill_boundary").await.unwrap());
+
+        // 等待 10ms，应该补充约 1 个 token
+        tokio::time::sleep(tokio::time::Duration::from_millis(15)).await;
+
+        // 现在应该有至少一个 token
+        assert!(limiter.check("refill_boundary").await.unwrap());
+    }
 }

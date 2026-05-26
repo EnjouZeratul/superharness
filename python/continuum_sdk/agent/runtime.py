@@ -34,10 +34,11 @@ Session Management:
     >>> result2 = agent.execute("What did we discuss?")  # Has context
 
 Custom Tools:
+    >>> import ast
     >>> agent.register_tool(
     ...     name="calculate",
-    ...     handler=lambda x: eval(x),
-    ...     description="Evaluate math expression",
+    ...     handler=lambda x: ast.literal_eval(x),
+    ...     description="Evaluate math expression (safe)",
     ...     parameters={"type": "object", "properties": {"expr": {"type": "string"}}}
     ... )
     >>> result = agent.run("Calculate 2 + 2")

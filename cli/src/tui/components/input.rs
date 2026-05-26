@@ -1,8 +1,9 @@
 //! TUI 输入组件
 
+use super::color_theme::ColorTheme;
 use ratatui::{
     layout::Rect,
-    style::{Color, Style},
+    style::Style,
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
     Frame,
@@ -33,6 +34,8 @@ pub struct InputComponent {
     scroll_offset: u16,
     /// 最大输入长度
     max_length: usize,
+    /// 颜色主题
+    theme: ColorTheme,
 }
 
 impl InputComponent {
@@ -49,7 +52,13 @@ impl InputComponent {
             multiline_mode: false,
             scroll_offset: 0,
             max_length: 10000,
+            theme: ColorTheme::dark(),
         }
+    }
+
+    /// 设置主题
+    pub fn set_theme(&mut self, theme: ColorTheme) {
+        self.theme = theme;
     }
 
     /// 添加字符
@@ -425,9 +434,9 @@ impl InputComponent {
     /// 渲染组件
     pub fn render(&self, f: &mut Frame, area: Rect) {
         let border_color = if self.is_focused {
-            Color::Green
+            self.theme.success_message
         } else {
-            Color::Gray
+            self.theme.punctuation
         };
 
         // 构建标题（包含统计信息）
@@ -452,7 +461,7 @@ impl InputComponent {
         let display_lines: Vec<Line> = if self.input.is_empty() {
             vec![Line::from(Span::styled(
                 &self.placeholder,
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(self.theme.comment),
             ))]
         } else {
             // 多行显示

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Primary gradient: Deep blue to cyan -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <!-- Accent gradient: Cyan to teal -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d9ff"/>
+      <stop offset="100%" style="stop-color:#00ff88"/>
+    </linearGradient>
+    <!-- Glow effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#primaryGrad)" stroke="url(#accentGrad)" stroke-width="2"/>
+
+  <!-- Continuum symbol: Infinite loop representing continuous agent execution -->
+  <!-- The "C" shape - left arc -->
+  <path d="M 65 70
+           Q 40 100, 65 130
+           Q 90 160, 115 130"
+        fill="none"
+        stroke="url(#accentGrad)"
+        stroke-width="12"
+        stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- The "C" shape - right arc (mirrored) -->
+  <path d="M 135 70
+           Q 160 100, 135 130
+           Q 110 160, 85 130"
+        fill="none"
+        stroke="url(#accentGrad)"
+        stroke-width="12"
+        stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- Center connection point - represents the core engine -->
+  <circle cx="100" cy="100" r="15" fill="url(#accentGrad)" filter="url(#glow)"/>
+  <circle cx="100" cy="100" r="8" fill="#1a1a2e"/>
+
+  <!-- Layer indicators - six dots representing the six-layer architecture -->
+  <circle cx="100" cy="50" r="4" fill="#00d9ff" opacity="0.9"/>
+  <circle cx="140" cy="75" r="4" fill="#00c4ff" opacity="0.8"/>
+  <circle cx="150" cy="120" r="4" fill="#00a8ff" opacity="0.7"/>
+  <circle cx="100" cy="150" r="4" fill="#00ff88" opacity="0.9"/>
+  <circle cx="60" cy="120" r="4" fill="#00ffaa" opacity="0.8"/>
+  <circle cx="50" cy="75" r="4" fill="#00ffcc" opacity="0.7"/>
+
+  <!-- Subtle circuit lines connecting layers -->
+  <path d="M 100 50 Q 120 60, 140 75" fill="none" stroke="#00d9ff" stroke-width="1" opacity="0.4"/>
+  <path d="M 140 75 Q 150 95, 150 120" fill="none" stroke="#00c4ff" stroke-width="1" opacity="0.3"/>
+  <path d="M 150 120 Q 130 145, 100 150" fill="none" stroke="#00ff88" stroke-width="1" opacity="0.4"/>
+  <path d="M 100 150 Q 70 145, 60 120" fill="none" stroke="#00ffaa" stroke-width="1" opacity="0.3"/>
+  <path d="M 60 120 Q 50 95, 50 75" fill="none" stroke="#00ffcc" stroke-width="1" opacity="0.3"/>
+  <path d="M 50 75 Q 70 60, 100 50" fill="none" stroke="#00d9ff" stroke-width="1" opacity="0.4"/>
+</svg>
