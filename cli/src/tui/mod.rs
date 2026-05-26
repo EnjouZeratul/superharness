@@ -10,6 +10,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
+use sh_core::layer1::ConfigManager;
 use std::io;
 use std::sync::Arc;
 use std::time::Duration;
@@ -19,6 +20,7 @@ pub mod app;
 pub mod components;
 mod event;
 pub mod first_run;
+pub mod session_persistence;
 pub mod slash_commands;
 pub mod tutorial;
 pub mod ui;
@@ -283,12 +285,14 @@ fn run_app(
                         components::ConfirmAction::Confirmed => {
                             // 执行确认的命令
                             if let Some(cmd) = confirmation.get_pending_command() {
-                                let result = execute_slash_command(
+                                let result = execute_slash_command_with_agent(
                                     cmd.clone(),
                                     chat,
                                     status,
                                     app,
                                     permissions,
+                                    agent.clone(),
+                                    &rt,
                                 );
                                 handle_command_result(result, chat, status, app);
                             }
@@ -360,6 +364,8 @@ fn run_app(
                     command_parser,
                     confirmation,
                     permissions,
+                    Some(agent.clone()),
+                    &rt,
                 ) {
                     Ok(action) => {
                         match action {
@@ -424,11 +430,51 @@ fn run_app(
                                 status.set_message_count(0);
                             }
                             KeyAction::SaveSession => {
-                                // 添加提示消息
-                                chat.add_message(app::Message {
-                                    role: app::Role::System,
-                                    content: "Session saved (placeholder)".to_string(),
-                                });
+                                // 使用 SessionManager 保存会话
+                                let session_manager = session_persistence::SessionManager::new()
+                                    .unwrap_or_default();
+                                let session_id = match app.session_id() {
+                                    Some(id) => id.to_string(),
+                                    None => {
+                                        let id = uuid::Uuid::new_v4().to_string();
+                                        app.set_session_id(id.clone());
+                                        id
+                                    }
+                                };
+
+                                // 从 chat 组件收集消息
+                                let messages: Vec<(String, String)> = chat.get_messages()
+                                    .iter()
+                                    .map(|m| {
+                                        let role = match m.role {
+                                            app::Role::User => "user",
+                                            app::Role::Assistant => "assistant",
+                                            app::Role::System => "system",
+                                        };
+                                        (role.to_string(), m.content.clone())
+                                    })
+                                    .collect();
+
+                                let save_result = session_manager.save_session(
+                                    &session_id,
+                                    &messages,
+                                    None,
+                                );
+
+                                match save_result {
+                                    Ok(path) => {
+                                        chat.add_message(app::Message {
+                                            role: app::Role::System,
+                                            content: format!("Session saved to: {}", path.display()),
+                                        });
+                                    }
+                                    Err(e) => {
+                                        chat.add_message(app::Message {
+                                            role: app::Role::System,
+                                            content: format!("Failed to save session: {}", e),
+                                        });
+                                    }
+                                }
                                 status.set_message_count(chat.message_count());
                             }
                             KeyAction::NewSession => {
@@ -463,7 +509,7 @@ fn run_app(
                                 status.set_message_count(chat.message_count());
                             }
                             KeyAction::SlashCommand(cmd) => {
-                                let result = execute_slash_command(cmd, chat, status, app, permissions);
+                                let result = execute_slash_command_with_agent(cmd, chat, status, app, permissions, agent.clone(), &rt);
                                 handle_command_result(result, chat, status, app);
                             }
                             KeyAction::None => {}
@@ -506,13 +552,30 @@ enum KeyAction {
     ShowHelp,
 }
 
+/// 执行 Slash 命令（带 Agent 访问）
+#[allow(clippy::too_many_arguments)]
+fn execute_slash_command_with_agent(
+    cmd: ParsedCommand,
+    chat: &mut ChatComponent,
+    status: &mut StatusComponent,
+    app: &mut App,
+    permissions: &mut PermissionManager,
+    agent: Arc<RwLock<AgentClient>>,
+    rt: &tokio::runtime::Runtime,
+) -> CommandResult {
+    execute_slash_command(cmd, chat, status, app, permissions, Some(agent), rt)
+}
+
 /// 执行 Slash 命令
+#[allow(clippy::too_many_arguments)]
 fn execute_slash_command(
     cmd: ParsedCommand,
     chat: &mut ChatComponent,
     status: &mut StatusComponent,
     app: &mut App,
     _permissions: &mut PermissionManager,
+    agent: Option<Arc<RwLock<AgentClient>>>,
+    rt: &tokio::runtime::Runtime,
 ) -> CommandResult {
     
 
@@ -550,69 +613,433 @@ fn execute_slash_command(
             CommandResult::Exit
         }
         "tokens" => {
+            let token_info = if let Some(agent_ref) = &agent {
+                rt.block_on(async {
+                    let agent_guard = agent_ref.read().await;
+                    let usage = agent_guard.get_token_usage().await;
+                    usage.format_report()
+                })
+            } else {
+                "Token statistics unavailable (agent not initialized)".to_string()
+            };
             chat.add_message(app::Message {
                 role: app::Role::System,
-                content: "Token usage statistics (placeholder)".to_string(),
+                content: token_info,
             });
             status.set_message_count(chat.message_count());
             CommandResult::Success("Tokens info".to_string())
         }
         "debug" => {
+            // 切换调试模式
+            let new_state = app.toggle_debug_mode();
+            let state_str = if new_state { "enabled" } else { "disabled" };
+
+            // 更新状态栏
+            status.set_debug_mode(new_state);
+
+            // 根据调试模式设置日志级别
+            if new_state {
+                tracing::debug!("Debug mode enabled in TUI");
+            }
+
             chat.add_message(app::Message {
                 role: app::Role::System,
-                content: "Debug mode toggled (placeholder)".to_string(),
+                content: format!(
+                    "Debug mode {}.\n\nWhen enabled:\n  - Detailed logs shown in console\n  - Verbose error messages\n  - Internal state visible\n\nCurrent log level: {}",
+                    state_str,
+                    if new_state { "DEBUG" } else { "INFO" }
+                ),
             });
             status.set_message_count(chat.message_count());
-            CommandResult::Success("Debug toggled".to_string())
+            CommandResult::Success(format!("Debug mode {}", state_str))
         }
         "config" => {
-            let config_info = if let Some(key) = cmd.args.get("key") {
-                format!("Config {}: (placeholder)", key)
+            let config_path = ConfigManager::default_config_path();
+            let mut config = ConfigManager::new();
+
+            if config_path.exists() {
+                if let Err(e) = config.load_from_file_sync(&config_path) {
+                    chat.add_message(app::Message {
+                        role: app::Role::System,
+                        content: format!("Failed to load config: {}", e),
+                    });
+                    status.set_message_count(chat.message_count());
+                    return CommandResult::Error(format!("Config load error: {}", e));
+                }
+            }
+
+            config.resolve_env_refs();
+
+            let key_opt = cmd.args.get("key").cloned();
+            let value_opt = cmd.args.get("value").cloned();
+
+            if let Some(key) = key_opt {
+                if let Some(value) = value_opt {
+                    // 设置配置项
+                    if key.starts_with("settings.") {
+                        let parts: Vec<&str> = key.split('.').collect();
+                        if parts.len() >= 2 {
+                            let field = parts[1];
+                            let result: Result<String, anyhow::Error> = match field {
+                                "session_auto_save" => value.parse::<bool>()
+                                    .map(|v| { config.settings.session_auto_save = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "session_max_history" => value.parse::<usize>()
+                                    .map(|v| { config.settings.session_max_history = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "checkpoint_enabled" => value.parse::<bool>()
+                                    .map(|v| { config.settings.checkpoint_enabled = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "checkpoint_interval" => value.parse::<u32>()
+                                    .map(|v| { config.settings.checkpoint_interval_sec = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "audit_enabled" => value.parse::<bool>()
+                                    .map(|v| { config.settings.audit_enabled = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "mcp_enabled" => value.parse::<bool>()
+                                    .map(|v| { config.settings.mcp_enabled = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                _ => Err(anyhow::anyhow!("Unknown setting: {}", field)),
+                            };
+
+                            match result {
+                                Ok(display_value) => {
+                                    if let Err(e) = config.save_sync(&config_path) {
+                                        chat.add_message(app::Message {
+                                            role: app::Role::System,
+                                            content: format!("Failed to save config: {}", e),
+                                        });
+                                    } else {
+                                        chat.add_message(app::Message {
+                                            role: app::Role::System,
+                                            content: format!("Set {} = {}", key, display_value),
+                                        });
+                                    }
+                                }
+                                Err(e) => {
+                                    chat.add_message(app::Message {
+                                        role: app::Role::System,
+                                        content: format!("Invalid value: {}", e),
+                                    });
+                                }
+                            }
+                        }
+                    } else if key.starts_with("provider.") {
+                        let parts: Vec<&str> = key.split('.').collect();
+                        if parts.len() >= 3 {
+                            let provider_name = parts[1];
+                            let field = parts[2];
+                            let provider = config.providers.entry(provider_name.to_string()).or_default();
+                            let result: Result<String, anyhow::Error> = match field {
+                                "base_url" => { provider.base_url = value.clone(); Ok(value) },
+                                "model" => { provider.model = value.clone(); Ok(value) },
+                                "max_tokens" => value.parse::<u32>()
+                                    .map(|v| { provider.default_max_tokens = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "temperature" => value.parse::<f32>()
+                                    .map(|v| { provider.default_temperature = v; v.to_string() })
+                                    .map_err(|e| anyhow::anyhow!("{}", e)),
+                                "api_key" => { provider.api_key = value.clone(); Ok("(set)".to_string()) },
+                                _ => Err(anyhow::anyhow!("Unknown field: {}", field)),
+                            };
+
+                            match result {
+                                Ok(display_value) => {
+                                    if let Err(e) = config.save_sync(&config_path) {
+                                        chat.add_message(app::Message {
+                                            role: app::Role::System,
+                                            content: format!("Failed to save config: {}", e),
+                                        });
+                                    } else {
+                                        chat.add_message(app::Message {
+                                            role: app::Role::System,
+                                            content: format!("Set {} = {}", key, display_value),
+                                        });
+                                    }
+                                }
+                                Err(e) => {
+                                    chat.add_message(app::Message {
+                                        role: app::Role::System,
+                                        content: format!("Invalid value: {}", e),
+                                    });
+                                }
+                            }
+                        }
+                    } else {
+                        config.set(key.clone(), value.clone());
+                        if let Err(e) = config.save_sync(&config_path) {
+                            chat.add_message(app::Message {
+                                role: app::Role::System,
+                                content: format!("Failed to save config: {}", e),
+                            });
+                        } else {
+                            chat.add_message(app::Message {
+                                role: app::Role::System,
+                                content: format!("Set {} = {}", key, value),
+                            });
+                        }
+                    }
+                } else {
+                    // 显示特定配置项
+                    let display = if key.starts_with("provider.") {
+                        let parts: Vec<&str> = key.split('.').collect();
+                        if parts.len() >= 2 {
+                            let provider_name = parts[1];
+                            if let Some(provider) = config.providers.get(provider_name) {
+                                if parts.len() == 2 {
+                                    format!("Provider '{}':\n  base_url: {}\n  model: {}\n  max_tokens: {}\n  temperature: {}",
+                                        provider_name, provider.base_url, provider.model,
+                                        provider.default_max_tokens, provider.default_temperature)
+                                } else if parts.len() >= 3 {
+                                    let field = parts[2];
+                                    match field {
+                                        "api_key" => "api_key: (set)".to_string(),
+                                        "base_url" => format!("base_url: {}", provider.base_url),
+                                        "model" => format!("model: {}", provider.model),
+                                        "max_tokens" => format!("max_tokens: {}", provider.default_max_tokens),
+                                        "temperature" => format!("temperature: {}", provider.default_temperature),
+                                        _ => format!("Unknown field: {}", field),
+                                    }
+                                } else {
+                                    format!("Provider '{}' not found", provider_name)
+                                }
+                            } else {
+                                format!("Provider '{}' not found", provider_name)
+                            }
+                        } else {
+                            format!("Invalid key: {}", key)
+                        }
+                    } else if key.starts_with("settings.") {
+                        let parts: Vec<&str> = key.split('.').collect();
+                        if parts.len() >= 2 {
+                            let field = parts[1];
+                            match field {
+                                "session_auto_save" => format!("session_auto_save: {}", config.settings.session_auto_save),
+                                "session_max_history" => format!("session_max_history: {}", config.settings.session_max_history),
+                                "checkpoint_enabled" => format!("checkpoint_enabled: {}", config.settings.checkpoint_enabled),
+                                "checkpoint_interval" => format!("checkpoint_interval: {}s", config.settings.checkpoint_interval_sec),
+                                "audit_enabled" => format!("audit_enabled: {}", config.settings.audit_enabled),
+                                "mcp_enabled" => format!("mcp_enabled: {}", config.settings.mcp_enabled),
+                                _ => format!("Unknown setting: {}", field),
+                            }
+                        } else {
+                            format!("Invalid key: {}", key)
+                        }
+                    } else {
+                        match config.get(&key) {
+                            Some(v) => format!("{}: {}", key, v),
+                            None => format!("Key '{}' not found", key),
+                        }
+                    };
+                    chat.add_message(app::Message {
+                        role: app::Role::System,
+                        content: display,
+                    });
+                }
             } else {
-                "Current config: (placeholder)".to_string()
-            };
-            chat.add_message(app::Message {
-                role: app::Role::System,
-                content: config_info,
-            });
+                // 显示所有配置
+                let mut content = format!("Active provider: {}\n\n", config.active_provider);
+                content.push_str("Providers:\n");
+                for (name, provider) in &config.providers {
+                    let marker = if name == &config.active_provider { " (active)" } else { "" };
+                    content.push_str(&format!("  [{}]{}\n", name, marker));
+                    content.push_str(&format!("    base_url: {}\n", provider.base_url));
+                    content.push_str(&format!("    model: {}\n", provider.model));
+                    content.push_str(&format!("    max_tokens: {}\n", provider.default_max_tokens));
+                    content.push_str(&format!("    temperature: {}\n", provider.default_temperature));
+                }
+                content.push_str("\nSettings:\n");
+                content.push_str(&format!("  session_auto_save: {}\n", config.settings.session_auto_save));
+                content.push_str(&format!("  session_max_history: {}\n", config.settings.session_max_history));
+                content.push_str(&format!("  checkpoint_enabled: {}\n", config.settings.checkpoint_enabled));
+                content.push_str(&format!("  checkpoint_interval: {}s\n", config.settings.checkpoint_interval_sec));
+                content.push_str(&format!("  audit_enabled: {}\n", config.settings.audit_enabled));
+                content.push_str(&format!("  mcp_enabled: {}\n", config.settings.mcp_enabled));
+
+                if !config.extra.is_empty() {
+                    content.push_str("\nExtra config:\n");
+                    for (k, v) in &config.extra {
+                        content.push_str(&format!("  {}: {}\n", k, v));
+                    }
+                }
+
+                chat.add_message(app::Message {
+                    role: app::Role::System,
+                    content,
+                });
+            }
             status.set_message_count(chat.message_count());
-            CommandResult::Success("Config shown".to_string())
+            CommandResult::Success("Config displayed".to_string())
         }
         "model" => {
-            if let Some(model_name) = cmd.args.get("name") {
-                chat.add_message(app::Message {
-                    role: app::Role::System,
-                    content: format!("Model switched to: {} (placeholder)", model_name),
-                });
+            if let Some(agent_ref) = &agent {
+                if let Some(model_name) = cmd.args.get("name") {
+                    // 切换模型
+                    let switch_result = rt.block_on(async {
+                        let agent_guard = agent_ref.read().await;
+                        agent_guard.set_model(model_name).await
+                    });
+
+                    match switch_result {
+                        Ok(()) => {
+                            // 更新状态栏显示
+                            status.set_model(Some(model_name.clone()));
+                            chat.add_message(app::Message {
+                                role: app::Role::System,
+                                content: format!("Model switched to: {}", model_name),
+                            });
+                        }
+                        Err(e) => {
+                            chat.add_message(app::Message {
+                                role: app::Role::System,
+                                content: format!("Failed to switch model: {}", e),
+                            });
+                        }
+                    }
+                } else {
+                    // 显示当前模型和可用模型列表
+                    let current_model = rt.block_on(async {
+                        let agent_guard = agent_ref.read().await;
+                        agent_guard.current_model().await
+                    });
+
+                    let available_models = rt.block_on(async {
+                        let agent_guard = agent_ref.read().await;
+                        agent_guard.list_available_models().await
+                    });
+
+                    let content = if let Some(model) = current_model {
+                        let models_list = available_models.join(", ");
+                        format!("Current model: {}\nAvailable models: {}", model, models_list)
+                    } else {
+                        "Agent not initialized. Please configure first.".to_string()
+                    };
+
+                    chat.add_message(app::Message {
+                        role: app::Role::System,
+                        content,
+                    });
+                }
             } else {
                 chat.add_message(app::Message {
                     role: app::Role::System,
-                    content: "Current model: (placeholder)".to_string(),
+                    content: "Agent not available".to_string(),
                 });
             }
             status.set_message_count(chat.message_count());
             CommandResult::Success("Model info".to_string())
         }
         "provider" => {
-            if let Some(provider_name) = cmd.args.get("name") {
-                chat.add_message(app::Message {
-                    role: app::Role::System,
-                    content: format!("Provider switched to: {} (placeholder)", provider_name),
-                });
+            if let Some(agent_ref) = &agent {
+                if let Some(provider_name) = cmd.args.get("name") {
+                    // 切换提供商
+                    let switch_result = rt.block_on(async {
+                        let agent_guard = agent_ref.read().await;
+                        agent_guard.set_provider(provider_name).await
+                    });
+
+                    match switch_result {
+                        Ok(()) => {
+                            // 更新状态栏显示
+                            status.set_provider(Some(provider_name.clone()));
+                            // 更新模型显示（切换提供商后模型可能变化）
+                            let current_model = rt.block_on(async {
+                                let agent_guard = agent_ref.read().await;
+                                agent_guard.current_model().await
+                            });
+                            status.set_model(current_model);
+                            chat.add_message(app::Message {
+                                role: app::Role::System,
+                                content: format!("Provider switched to: {}", provider_name),
+                            });
+                        }
+                        Err(e) => {
+                            chat.add_message(app::Message {
+                                role: app::Role::System,
+                                content: format!("Failed to switch provider: {}", e),
+                            });
+                        }
+                    }
+                } else {
+                    // 显示当前提供商和已配置的提供商列表
+                    let current_provider = rt.block_on(async {
+                        let agent_guard = agent_ref.read().await;
+                        agent_guard.current_provider_name().await
+                    });
+
+                    let providers = rt.block_on(async {
+                        let agent_guard = agent_ref.read().await;
+                        agent_guard.list_providers().await
+                    });
+
+                    let providers_list = providers.join(", ");
+                    chat.add_message(app::Message {
+                        role: app::Role::System,
+                        content: format!("Current provider: {}\nConfigured providers: {}", current_provider, providers_list),
+                    });
+                }
             } else {
                 chat.add_message(app::Message {
                     role: app::Role::System,
-                    content: "Current provider: (placeholder)".to_string(),
+                    content: "Agent not available".to_string(),
                 });
             }
             status.set_message_count(chat.message_count());
             CommandResult::Success("Provider info".to_string())
         }
         "tools" => {
-            chat.add_message(app::Message {
-                role: app::Role::System,
-                content: "Available tools: (placeholder - use 'continuum tools' command)".to_string(),
-            });
+            if let Some(agent_ref) = &agent {
+                // 获取工具列表（同步方法）
+                let tools = rt.block_on(async {
+                    let agent_guard = agent_ref.read().await;
+                    agent_guard.list_tools()
+                });
+
+                if tools.is_empty() {
+                    chat.add_message(app::Message {
+                        role: app::Role::System,
+                        content: "No tools available.".to_string(),
+                    });
+                } else {
+                    // 按类别分组
+                    let mut categories: std::collections::HashMap<String, Vec<_>> =
+                        std::collections::HashMap::new();
+
+                    for (name, desc, category) in tools {
+                        categories
+                            .entry(category)
+                            .or_default()
+                            .push((name, desc));
+                    }
+
+                    let mut content = String::from("Available tools:\n");
+
+                    // 按类别输出
+                    let mut sorted_categories: Vec<_> = categories.keys().collect();
+                    sorted_categories.sort();
+
+                    for category in sorted_categories {
+                        content.push_str(&format!("\n[{}]\n", category));
+                        if let Some(tools_in_cat) = categories.get(category) {
+                            for (name, desc) in tools_in_cat {
+                                content.push_str(&format!("  {} - {}\n", name, desc));
+                            }
+                        }
+                    }
+
+                    content.push_str(&format!("\nTotal: {} tools", categories.values().map(|v| v.len()).sum::<usize>()));
+
+                    chat.add_message(app::Message {
+                        role: app::Role::System,
+                        content,
+                    });
+                }
+            } else {
+                chat.add_message(app::Message {
+                    role: app::Role::System,
+                    content: "Agent not available".to_string(),
+                });
+            }
             status.set_message_count(chat.message_count());
             CommandResult::Success("Tools listed".to_string())
         }
@@ -698,6 +1125,8 @@ fn handle_key_event(
     command_parser: &CommandParser,
     confirmation: &mut ConfirmationDialog,
     permissions: &mut PermissionManager,
+    agent: Option<Arc<RwLock<AgentClient>>>,
+    rt: &tokio::runtime::Runtime,
 ) -> Result<KeyAction> {
     match (key.modifiers, key.code) {
         // Ctrl+C: 退出
@@ -816,7 +1245,7 @@ fn handle_key_event(
                 }
 
                 // 执行命令
-                let result = execute_slash_command(parsed, chat, status, app, permissions);
+                let result = execute_slash_command(parsed, chat, status, app, permissions, agent, rt);
                 handle_command_result(result, chat, status, app);
                 Ok(KeyAction::None)
             } else {

@@ -68,6 +68,49 @@ impl std::fmt::Display for AgentError {
 
 impl std::error::Error for AgentError {}
 
+/// Token 使用统计
+#[derive(Debug, Clone, Default)]
+pub struct TokenUsage {
+    /// 输入 token 数
+    pub input_tokens: u64,
+    /// 输出 token 数
+    pub output_tokens: u64,
+    /// 总 token 数
+    pub total_tokens: u64,
+}
+
+impl TokenUsage {
+    /// 创建新的 token 使用统计
+    pub fn new(input: u64, output: u64) -> Self {
+        Self {
+            input_tokens: input,
+            output_tokens: output,
+            total_tokens: input + output,
+        }
+    }
+
+    /// 累加使用量
+    pub fn add(&mut self, input: u64, output: u64) {
+        self.input_tokens += input;
+        self.output_tokens += output;
+        self.total_tokens += input + output;
+    }
+
+    /// 格式化为显示字符串
+    pub fn format_report(&self) -> String {
+        format!(
+            "Token Usage Statistics\n\
+            ======================\n\
+            Input Tokens:  {:>10}\n\
+            Output Tokens: {:>10}\n\
+            Total Tokens:  {:>10}\n",
+            self.input_tokens,
+            self.output_tokens,
+            self.total_tokens
+        )
+    }
+}
+
 /// Agent 客户端
 ///
 /// 提供真实的 LLM Agent 功能，连接真实的 API。
@@ -82,6 +125,8 @@ pub struct AgentClient {
     message_history: Arc<RwLock<Vec<ChatMessage>>>,
     /// 当前提供商名称
     current_provider: Arc<RwLock<String>>,
+    /// Token 使用统计
+    token_usage: Arc<RwLock<TokenUsage>>,
 }
 
 impl AgentClient {
@@ -93,6 +138,7 @@ impl AgentClient {
             state: Arc::new(RwLock::new(AgentState::Idle)),
             message_history: Arc::new(RwLock::new(Vec::new())),
             current_provider: Arc::new(RwLock::new(String::new())),
+            token_usage: Arc::new(RwLock::new(TokenUsage::default())),
         }
     }
 
@@ -242,6 +288,15 @@ impl AgentClient {
                     *state = AgentState::Idle;
                 }
 
+                // 更新 token 使用统计
+                {
+                    let mut usage = self.token_usage.write().await;
+                    usage.add(
+                        response.usage.input_tokens as u64,
+                        response.usage.output_tokens as u64,
+                    );
+                }
+
                 tracing::debug!(
                     "Agent response: {} tokens used",
                     response.usage.input_tokens + response.usage.output_tokens
@@ -305,6 +360,162 @@ impl AgentClient {
     /// 检查是否已初始化
     pub async fn is_initialized(&self) -> bool {
         self.llm_client.read().await.is_some()
+    }
+
+    /// 切换模型
+    ///
+    /// 更新当前提供商的模型配置
+    pub async fn set_model(&self, model_name: &str) -> Result<(), AgentError> {
+        let provider_name = self.current_provider.read().await.clone();
+
+        // 更新配置中的模型
+        {
+            let mut config = self.config.write().await;
+            if let Some(provider_config) = config.providers.get_mut(&provider_name) {
+                provider_config.model = model_name.to_string();
+                tracing::info!("Model switched to: {} for provider: {}", model_name, provider_name);
+            } else {
+                return Err(AgentError::ConfigError(format!(
+                    "Provider '{}' not found in configuration",
+                    provider_name
+                )));
+            }
+        }
+
+        Ok(())
+    }
+
+    /// 获取当前模型名称
+    pub async fn current_model(&self) -> Option<String> {
+        let config = self.config.read().await;
+        let provider_name = self.current_provider.read().await.clone();
+
+        config
+            .providers
+            .get(&provider_name)
+            .map(|p| p.model.clone())
+    }
+
+    /// 获取 token 使用统计
+    pub async fn get_token_usage(&self) -> TokenUsage {
+        self.token_usage.read().await.clone()
+    }
+
+    /// 重置 token 使用统计
+    pub async fn reset_token_usage(&self) {
+        let mut usage = self.token_usage.write().await;
+        *usage = TokenUsage::default();
+    }
+
+    /// 列出可用模型
+    pub async fn list_available_models(&self) -> Vec<String> {
+        let provider_name = self.current_provider.read().await.clone();
+
+        // 根据提供商返回可用模型列表
+        match provider_name.as_str() {
+            "anthropic" => vec![
+                "claude-opus-4-7".to_string(),
+                "claude-sonnet-4-6".to_string(),
+                "claude-sonnet-4-5-20250514".to_string(),
+                "claude-haiku-4-5-20251001".to_string(),
+                "claude-3-5-sonnet-20241022".to_string(),
+                "claude-3-5-haiku-20241022".to_string(),
+            ],
+            "openai" => vec![
+                "gpt-4o".to_string(),
+                "gpt-4o-mini".to_string(),
+                "gpt-4-turbo".to_string(),
+                "gpt-3.5-turbo".to_string(),
+            ],
+            "gemini" => vec![
+                "gemini-1.5-pro".to_string(),
+                "gemini-1.5-flash".to_string(),
+            ],
+            _ => vec![],
+        }
+    }
+
+    /// 切换提供商
+    ///
+    /// 切换到指定的提供商，需要提供商已配置
+    pub async fn set_provider(&self, provider_name: &str) -> Result<(), AgentError> {
+        // 检查提供商是否存在
+        {
+            let config = self.config.read().await;
+            if !config.providers.contains_key(provider_name) {
+                return Err(AgentError::ConfigError(format!(
+                    "Provider '{}' not found. Use 'continuum config add-provider {}' first.",
+                    provider_name, provider_name
+                )));
+            }
+        }
+
+        // 更新当前提供商
+        {
+            let mut p = self.current_provider.write().await;
+            *p = provider_name.to_string();
+        }
+
+        // 更新配置的 active_provider
+        {
+            let mut config = self.config.write().await;
+            config.active_provider = provider_name.to_string();
+        }
+
+        // 重新创建 LLM 客户端
+        {
+            let config = self.config.read().await;
+            let provider_config = config.providers.get(provider_name).cloned();
+
+            if let Some(pc) = provider_config {
+                if pc.api_key.is_empty() {
+                    return Err(AgentError::ConfigError(format!(
+                        "API key not set for provider '{}'. Use 'continuum config set provider.{}.api_key YOUR_KEY'",
+                        provider_name, provider_name
+                    )));
+                }
+
+                let llm_provider = Self::map_provider(provider_name, &pc.base_url);
+                let llm_client = LlmClient::new(llm_provider, pc.api_key.clone());
+
+                let mut client = self.llm_client.write().await;
+                *client = Some(llm_client);
+
+                tracing::info!("Provider switched to: {}", provider_name);
+            }
+        }
+
+        Ok(())
+    }
+
+    /// 获取当前提供商名称
+    pub async fn current_provider_name(&self) -> String {
+        self.current_provider.read().await.clone()
+    }
+
+    /// 列出所有已配置的提供商
+    pub async fn list_providers(&self) -> Vec<String> {
+        let config = self.config.read().await;
+        config.providers.keys().cloned().collect()
+    }
+
+    /// 列出可用工具
+    ///
+    /// 返回所有内置工具的名称和描述
+    pub fn list_tools(&self) -> Vec<(String, String, String)> {
+        use sh_layer4::sh_layer3::tool_executor::DefaultToolExecutor;
+        use sh_layer4::sh_layer3::ToolExecutor;
+
+        let executor = DefaultToolExecutor::new();
+        let tools = executor.list_tools();
+
+        tools
+            .iter()
+            .map(|meta| {
+                let category = format!("{:?}", meta.category).to_lowercase();
+                (meta.name.clone(), meta.description.clone(), category)
+            })
+            .collect()
     }
 
     /// 发送消息并流式获取响应
@@ -575,5 +786,50 @@ mod tests {
         client.clear_history().await;
         let history = client.message_history().await;
         assert!(history.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_list_available_models_anthropic() {
+        let client = AgentClient::new();
+        // 设置提供商为 anthropic
+        {
+            let mut provider = client.current_provider.write().await;
+            *provider = "anthropic".to_string();
+        }
+        let models = client.list_available_models().await;
+        assert!(!models.is_empty());
+        assert!(models.contains(&"claude-sonnet-4-6".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_list_available_models_openai() {
+        let client = AgentClient::new();
+        // 设置提供商为 openai
+        {
+            let mut provider = client.current_provider.write().await;
+            *provider = "openai".to_string();
+        }
+        let models = client.list_available_models().await;
+        assert!(!models.is_empty());
+        assert!(models.contains(&"gpt-4o".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_list_available_models_unknown() {
+        let client = AgentClient::new();
+        // 设置提供商为未知
+        {
+            let mut provider = client.current_provider.write().await;
+            *provider = "unknown".to_string();
+        }
+        let models = client.list_available_models().await;
+        assert!(models.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_current_model_none_when_not_initialized() {
+        let client = AgentClient::new();
+        let model = client.current_model().await;
+        assert!(model.is_none());
     }
 }

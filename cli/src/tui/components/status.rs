@@ -29,6 +29,8 @@ pub struct StatusComponent {
     agent_state: String,
     /// 是否已连接
     connected: bool,
+    /// 调试模式
+    debug_mode: bool,
     /// 颜色主题
     theme: ColorTheme,
 }
@@ -46,6 +48,7 @@ impl StatusComponent {
             model: None,
             agent_state: "Idle".to_string(),
             connected: false,
+            debug_mode: false,
             theme: ColorTheme::dark(),
         }
     }
@@ -111,6 +114,16 @@ impl StatusComponent {
         self.agent_state = state.to_string();
     }
 
+    /// 设置调试模式
+    pub fn set_debug_mode(&mut self, enabled: bool) {
+        self.debug_mode = enabled;
+    }
+
+    /// 是否处于调试模式
+    pub fn is_debug_mode(&self) -> bool {
+        self.debug_mode
+    }
+
     /// 渲染组件
     pub fn render(&self, f: &mut Frame, area: Rect) {
         let mode_color = match self.mode.as_str() {
@@ -142,12 +155,27 @@ impl StatusComponent {
             _ => self.theme.punctuation,
         };
 
-        let status_line = Line::from(vec![
+        // Debug mode indicator
+        let debug_indicator = if self.debug_mode {
+            vec![
+                Span::styled(
+                    " [DEBUG] ",
+                    Style::default().fg(self.theme.background).bg(self.theme.warning_message),
+                ),
+            ]
+        } else {
+            vec![]
+        };
+
+        let mut spans = vec![
             Span::styled(
                 format!(" {} ", self.mode),
                 Style::default().fg(self.theme.background).bg(mode_color),
             ),
             Span::raw(" "),
+        ];
+        spans.extend(debug_indicator);
+        spans.extend(vec![
             Span::styled(
                 conn_icon.to_string(),
                 Style::default().fg(if self.connected {
@@ -178,6 +206,8 @@ impl StatusComponent {
                 Style::default().fg(self.theme.comment),
             ),
         ]);
+
+        let status_line = Line::from(spans);
 
         let paragraph = Paragraph::new(status_line).block(Block::default().borders(Borders::NONE));
 
@@ -314,5 +344,15 @@ mod tests {
     fn test_default() {
         let status = StatusComponent::default();
         assert_eq!(status.mode(), "Normal");
+    }
+
+    #[test]
+    fn test_set_debug_mode() {
+        let mut status = StatusComponent::new();
+        assert!(!status.is_debug_mode());
+        status.set_debug_mode(true);
+        assert!(status.is_debug_mode());
+        status.set_debug_mode(false);
+        assert!(!status.is_debug_mode());
     }
 }

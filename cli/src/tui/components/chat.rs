@@ -301,6 +301,11 @@ impl ChatComponent {
         self.messages.len()
     }
 
+    /// 获取消息列表
+    pub fn get_messages(&self) -> &[Message] {
+        &self.messages
+    }
+
     /// 追加内容到最后一条消息
     pub fn append_to_last_message(&mut self, content: &str) {
         if let Some(last) = self.messages.last_mut() {

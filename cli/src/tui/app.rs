@@ -14,6 +14,8 @@ pub struct App {
     pub session_id: Option<String>,
     /// 创建时间
     pub created_at: Instant,
+    /// 调试模式
+    pub debug_mode: bool,
 }
 
 /// 消息
@@ -39,12 +41,18 @@ impl App {
             messages: Vec::new(),
             session_id: None,
             created_at: Instant::now(),
+            debug_mode: false,
         }
     }
 
     /// 设置会话 ID
     pub fn set_session_id(&mut self, session_id: String) {
         self.session_id = Some(session_id);
+    }
+
+    /// 获取会话 ID
+    pub fn session_id(&self) -> Option<&str> {
+        self.session_id.as_deref()
     }
 
     /// 添加消息
@@ -60,6 +68,17 @@ impl App {
     /// 清空消息
     pub fn clear_messages(&mut self) {
         self.messages.clear();
+    }
+
+    /// 切换调试模式
+    pub fn toggle_debug_mode(&mut self) -> bool {
+        self.debug_mode = !self.debug_mode;
+        self.debug_mode
+    }
+
+    /// 设置调试模式
+    pub fn set_debug_mode(&mut self, enabled: bool) {
+        self.debug_mode = enabled;
     }
 }
 
@@ -107,5 +126,31 @@ mod tests {
         });
         app.clear_messages();
         assert!(app.messages.is_empty());
+    }
+
+    #[test]
+    fn test_debug_mode_initial_state() {
+        let app = App::new();
+        assert!(!app.debug_mode);
+    }
+
+    #[test]
+    fn test_toggle_debug_mode() {
+        let mut app = App::new();
+        let new_state = app.toggle_debug_mode();
+        assert!(new_state);
+        assert!(app.debug_mode);
+        let new_state = app.toggle_debug_mode();
+        assert!(!new_state);
+        assert!(!app.debug_mode);
+    }
+
+    #[test]
+    fn test_set_debug_mode() {
+        let mut app = App::new();
+        app.set_debug_mode(true);
+        assert!(app.debug_mode);
+        app.set_debug_mode(false);
+        assert!(!app.debug_mode);
     }
 }

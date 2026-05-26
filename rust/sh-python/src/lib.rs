@@ -1,8 +1,27 @@
 //! # Continuum Python Bindings
 //!
 //! Python bindings for Continuum.
+//!
+//! ## Performance Optimizations
+//! - Global tokio runtime (lazy initialization via OnceLock)
+//! - GIL release with `allow_threads` for blocking operations
 
 use pyo3::prelude::*;
+use std::sync::OnceLock;
+use tokio::runtime::Runtime;
+
+/// Global tokio runtime for async operations
+static RUNTIME: OnceLock<Runtime> = OnceLock::new();
+
+/// Get or create the global tokio runtime
+fn runtime() -> &'static Runtime {
+    RUNTIME.get_or_init(|| {
+        tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .expect("Failed to create tokio runtime")
+    })
+}
 
 /// Python 模块定义
 #[pymodule]
